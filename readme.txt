@@ -3,8 +3,8 @@ Contributors: powerblogservice, diywebmastery
 Donate link: http://www.diywebmastery.com/donate/
 Tags: genesis, signature 
 Requires at least: 3.0
-Tested up to: 3.5.2
-Stable tag: 1.0
+Tested up to: 3.6
+Stable tag: 1.01
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -39,12 +39,13 @@ A toolbox of useful customisation functions for Genesis Child Themes.
 
 == Changelog ==
 
+= 1.01 = Fix so it runs on PHP 5.2
 = 1.0 = Original Version
 
 == Upgrade Notice ==
 
-= 1.0 = 
-* Mandatory - Original Version
+= 1.01 = 
+* Mandatory - Remove dependency on PHP 5.3 or later
 
 == Links ==
 
