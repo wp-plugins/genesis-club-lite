@@ -4,7 +4,7 @@ Donate link: http://www.diywebmastery.com/donate/
 Tags: genesis, signature 
 Requires at least: 3.0
 Tested up to: 3.6.1
-Stable tag: 1.1
+Stable tag: 1.1.1
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -44,6 +44,7 @@ FAQ Accordion, User Signatures, Responsive Menus, Responsive Logos, Label overri
 
 == Changelog ==
 
+= 1.1.1 = Set Hamburger menu default setting as disabled exiting sites are unaffected 
 = 1.1 = Added FAQ Accordion, hamburger responsive menu icon and Facebook LikeBox Widget
 = 1.01 = Fix so it runs on PHP 5.2
 = 1.0 = Original Version
@@ -51,7 +52,7 @@ FAQ Accordion, User Signatures, Responsive Menus, Responsive Logos, Label overri
 == Upgrade Notice ==
 
 
-= 1.01 = 
+= 1.1.1 = 
 * Optional = Added FAQ Accordion, hamburger responsive menu icon and Facebook LikeBox Widget
 
 == Links ==

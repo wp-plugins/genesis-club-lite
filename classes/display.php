@@ -22,8 +22,8 @@ class GenesisClubDisplay {
 		'before_entry_content' => false,
 		'after_entry_content' => false,
 		'facebook_likebox_bgcolor' => '',
-		'responsive_menu_threshold' => 768,
-		'responsive_menu_icon_color' => '#333'						
+		'responsive_menu_threshold' => '',
+		'responsive_menu_icon_color' => ''						
 	);
 	
 	static function init() {
@@ -275,7 +275,7 @@ CSS;
     static function print_responsive_menu_scripts () {
 		$minimum_device_width = GenesisClubOptions::get_option('responsive_menu_threshold');
 		$responsive_menu_icon_color = GenesisClubOptions::get_option('responsive_menu_icon_color');
-		$dynamic_color = empty($responsive_menu_icon_color) ? 0 : 1;
+		$dynamic_color = empty($responsive_menu_icon_color) ? 1 : 0;
 		print <<< SCRIPT
 <script type="text/javascript">
 //<![CDATA[
