@@ -5,23 +5,21 @@ class GenesisClubProfileAdmin {
     const DOMAIN = 'GenesisClub'; //text domain for translation
 	const SLUG = 'user';
 
-    private static $initialized = false;
     private static $parenthook;
     private static $slug;
     private static $screen_id;
 	
 	public static function init() {		
-	    if (self::$initialized) return true;
-		self::$initialized = true;
-		self::$parenthook = GENESIS_CLUB_PLUGIN_NAME;
-	    self::$slug = self::$parenthook . '-' . self::SLUG;
-	    self::$screen_id = self::$parenthook.'_page_' . self::$slug;
-		add_filter('screen_layout_columns', array(self::CLASSNAME, 'screen_layout_columns'), 10, 2);
-		add_action('admin_menu',array(self::CLASSNAME, 'admin_menu'));
-		add_action('load-profile.php', array(self::CLASSNAME, 'load_profile'));	
-		add_action('load-user-edit.php', array(self::CLASSNAME, 'load_profile'));	
-		add_action('personal_options_update', array(self::CLASSNAME, 'save_profile'));		
-		add_action('edit_user_profile_update', array(self::CLASSNAME, 'save_user'));
+		if ( ! GenesisClubOptions::get_option('profile_disabled')) {
+			self::$parenthook = GENESIS_CLUB_PLUGIN_NAME;
+		    self::$slug = self::$parenthook . '-' . self::SLUG;
+		    self::$screen_id = self::$parenthook.'_page_' . self::$slug;
+			add_action('load-profile.php', array(self::CLASSNAME, 'load_profile'));	
+			add_action('load-user-edit.php', array(self::CLASSNAME, 'load_profile'));	
+			add_action('personal_options_update', array(self::CLASSNAME, 'save_profile'));		
+			add_action('edit_user_profile_update', array(self::CLASSNAME, 'save_user'));
+			add_action('admin_menu',array(self::CLASSNAME, 'admin_menu'));
+		}
 	}
 
     private static function get_parenthook(){
@@ -42,15 +40,6 @@ class GenesisClubProfileAdmin {
 		else
 			return $show_screen;
 	}	
-	
-	public static function screen_layout_columns($columns, $screen) {
-		if (!defined( 'WP_NETWORK_ADMIN' ) && !defined( 'WP_USER_ADMIN' )) {
-			if ($screen == self::get_screen_id()) {
-				$columns[self::get_screen_id()] = 2;
-			}
-		}
-		return $columns;
-	}
 
 	static function admin_menu() {
 		add_submenu_page(self::get_parenthook(), __('Profile'), __('Profile'), 'manage_options', 

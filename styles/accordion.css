@@ -1,0 +1,29 @@
+
+h3.accordion-header {
+outline: none;
+}
+
+h2.accordion-header, h2.accordion-header a {
+font-size: 18px;
+margin-bottom: 10px;
+border: 0;
+outline: none;
+}
+
+h2.accordion-header a { text-decoration: underline; }
+
+.accordion-content {
+margin: 10px 0 20px 0;
+padding: 10px;
+}
+
+.accordion-border {
+color: #404040;
+background-color: whitesmoke;
+margin: 10px 0 20px 0;
+padding: 10px;
+border: 1px solid silver;
+border-radius: 2px;
+-moz-border-radius: 2px;
+-webkit-border-radius: 2px;
+}
