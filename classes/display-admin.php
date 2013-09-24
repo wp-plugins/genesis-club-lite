@@ -5,7 +5,6 @@ class GenesisClubDisplayAdmin {
     const DOMAIN = 'GenesisClub'; //text domain for translation
 	const SLUG = 'display';
 
-    private static $initialized = false;
     private static $parenthook;
     private static $slug;
     private static $screen_id;
@@ -18,21 +17,21 @@ class GenesisClubDisplayAdmin {
 		'read_more_text' => array('heading' => 'Read More', 'tip' => 'Enter the text that appears at the end of an excerpt. This will replace "[...]".'),
 		'breadcrumb_prefix' => array('heading' => 'Breadcrumb Prefix', 'tip' => 'Enter the text that prefixes the breadcrumb. This will replace "You are here:".'),
 		'breadcrumb_archive' => array('heading' => 'Breadcrumb Archives', 'tip' => 'Enter the text that appears at the start of the archive breadcrumb. This will replace "Archives for".'),
+		'before_archive' => array('heading' => 'Before Archive', 'tip' => 'Click to add a widget area before the archive. This can be used to add a slider at the top of an archive page.'),
+		'after_archive' => array('heading' => 'After Archive', 'tip' => 'Click to add a widget area after the archive loop. This can be used to add a call to action or maybe an ad.'),
 		'before_entry_content' => array('heading' => 'Before Entry Content', 'tip' => 'Click to add add a widget area immediately before the content. This is typically used to add social media icons for sharing the content.'),
 		'after_entry_content' => array('heading' => 'After Entry Content', 'tip' => 'Click to add add a widget area immediately after the content. If your child theme already has this area then there is no need to create another one. This area is typically used to add social media icons for sharing the content.'),
-		'facebook_likebox_bgcolor' => array('heading' => 'LikeBox Background Color', 'tip' => 'Enter the 6 character color code preceded by a hash(#) that will be used as the background color of the Facebook LikeBox. The Facebook Likebox widget only gives you light and dark options; this allows you to choose a background color that better suits your WordPress theme')
+		'facebook_likebox_bgcolor' => array('heading' => 'LikeBox Background Color', 'tip' => 'Enter the 6 character color code preceded by a hash(#) that will be used as the background color of the Facebook LikeBox. The Facebook Likebox widget only gives you light and dark options; this allows you to choose a background color that better suits your WordPress theme'),
+		'responsive_menu_threshold' => array('heading' => 'Device Threshold', 'tip' => 'Enter the size in pixels at which the full menu is collapsed into the "hamburger" icon or leave blank to disable this feature.'),
+		'responsive_menu_icon_color' => array('heading' => 'Hamburger Icon Color', 'tip' => 'Color of the menu icon (e.g #808080), or leave blank if you want the icon to adopt the same color as the links in the menu.')
 		);
 	
 	public static function init() {
-	    if (self::$initialized) return true;
-		self::$initialized = true;
 	    self::$keys = array_keys(self::$tips);
 		self::$parenthook = GENESIS_CLUB_PLUGIN_NAME;
 	    self::$slug = self::$parenthook . '-' . self::SLUG;
 	    self::$screen_id = self::$parenthook.'_page_' . self::$slug;
-		add_filter('screen_layout_columns', array(self::CLASSNAME, 'screen_layout_columns'), 10, 2);
 		add_action('admin_menu',array(self::CLASSNAME, 'admin_menu'));
-		self::$tooltips = new DIYTooltip(self::$tips);
 	}
 	
     private static function get_parenthook(){
@@ -61,15 +60,6 @@ class GenesisClubDisplayAdmin {
 		else
 			return $show_screen;
 	}	
-	
-	public static function screen_layout_columns($columns, $screen) {
-		if (!defined( 'WP_NETWORK_ADMIN' ) && !defined( 'WP_USER_ADMIN' )) {
-			if ($screen == self::get_screen_id()) {
-				$columns[self::get_screen_id()] = 2;
-			}
-		}
-		return $columns;
-	}
 
 	public static function admin_menu() {
 		add_submenu_page(self::get_parenthook(), __('Display'), __('Display'), 'manage_options', 
@@ -86,13 +76,15 @@ class GenesisClubDisplayAdmin {
 		add_meta_box(self::CODE.'-labelling', __('Labels',self::DOMAIN), array(self::CLASSNAME, 'labelling_panel'), self::get_screen_id(), 'normal', 'core', $callback_params);
 		add_meta_box(self::CODE.'-extras', __('Extra Widgets',self::DOMAIN), array(self::CLASSNAME, 'extras_panel'), self::get_screen_id(), 'normal', 'core', $callback_params);
 		add_meta_box(self::CODE.'-facebook', __('Facebook',self::DOMAIN), array(self::CLASSNAME, 'facebook_panel'), self::get_screen_id(), 'normal', 'core', $callback_params);
+		add_meta_box(self::CODE.'-menu', __('Responsive Menu',self::DOMAIN), array(self::CLASSNAME, 'responsive_menu_panel'), self::get_screen_id(), 'normal', 'core', $callback_params);
 		add_action ('admin_enqueue_scripts',array(self::CLASSNAME, 'enqueue_styles'));
 		add_action ('admin_enqueue_scripts',array(self::CLASSNAME, 'enqueue_scripts'));
+		self::$tooltips = new DIYTooltip(self::$tips);
 	}
 	
 	public static function enqueue_styles() {
 		wp_enqueue_style(self::CODE.'-admin', plugins_url('styles/admin.css',dirname(__FILE__)), array(),GENESIS_CLUB_VERSION);
-		wp_enqueue_style(self::CODE.'-tootip', plugins_url('styles/tooltip.css',dirname(__FILE__)), array(),GENESIS_CLUB_VERSION);
+		wp_enqueue_style(self::CODE.'-tooltip', plugins_url('styles/tooltip.css',dirname(__FILE__)), array(),GENESIS_CLUB_VERSION);
 	}
 
 	public static function enqueue_scripts() {
@@ -172,13 +164,19 @@ FACEBOOK_PANEL;
 	
 	public static function extras_panel($post,$metabox){	
 		$options = $metabox['args']['options'];	 	
-		$tip1 = self::$tooltips->tip('before_entry_content');		
-		$tip2 = self::$tooltips->tip('after_entry_content');	
+		$tip1 = self::$tooltips->tip('before_archive');		
+		$tip2 = self::$tooltips->tip('after_archive');
+		$tip3 = self::$tooltips->tip('before_entry_content');		
+		$tip4 = self::$tooltips->tip('after_entry_content');	
+		$before_archive = $options['before_archive'] ? 'checked="checked"' : '';	
+		$after_archive = $options['after_archive'] ? 'checked="checked"' : '';	
 		$before_entry_content = $options['before_entry_content'] ? 'checked="checked"' : '';	
 		$after_entry_content = $options['after_entry_content'] ? 'checked="checked"' : '';	
 		print <<< EXTRAS_PANEL
-<label>{$tip1}</label><input type="checkbox" name="before_entry_content" {$before_entry_content} value="1" /><br/>
-<label>{$tip2}</label><input type="checkbox" name="after_entry_content" {$after_entry_content} value="1" /><br/>
+<label>{$tip1}</label><input type="checkbox" name="before_archive" {$before_archive} value="1" /><br/>
+<label>{$tip2}</label><input type="checkbox" name="after_archive" {$after_archive} value="1" /><br/>
+<label>{$tip3}</label><input type="checkbox" name="before_entry_content" {$before_entry_content} value="1" /><br/>
+<label>{$tip4}</label><input type="checkbox" name="after_entry_content" {$after_entry_content} value="1" /><br/>
 EXTRAS_PANEL;
 	}	
 
@@ -194,6 +192,16 @@ EXTRAS_PANEL;
 <label>{$tip3}</label><input type="text" name="breadcrumb_prefix" size="40" value="{$options['breadcrumb_prefix']}" /><br/>
 <label>{$tip4}</label><input type="text" name="breadcrumb_archive" size="40" value="{$options['breadcrumb_archive']}" /><br/>
 LABELLING_PANEL;
+	}	
+
+	public static function responsive_menu_panel($post,$metabox){	
+		$options = $metabox['args']['options'];	 	
+		$tip1 = self::$tooltips->tip('responsive_menu_threshold');		
+		$tip2 = self::$tooltips->tip('responsive_menu_icon_color');
+		print <<< RESPONSIVE_PANEL
+<label>{$tip1}</label><input type="text" name="responsive_menu_threshold" size="4" value="{$options['responsive_menu_threshold']}" /> px<br/>
+<label>{$tip2}</label><input type="text" name="responsive_menu_icon_color" size="7" value="{$options['responsive_menu_icon_color']}" /><br/>
+RESPONSIVE_PANEL;
 	}	
 
 	public static function settings_panel() {

@@ -6,21 +6,19 @@ class GenesisClubPostAdmin {
 	const SLUG = 'page-control';
     const FIELDNAME = 'not_on_404';
 
-    private static $initialized = false;
     private static $parenthook;
     private static $slug;
     private static $screen_id;
 
 	static function init() {		
-	    if (self::$initialized) return true;
-		self::$initialized = true;
-		self::$parenthook = GENESIS_CLUB_PLUGIN_NAME;
-	    self::$slug = self::$parenthook . '-' . self::SLUG;
-	    self::$screen_id = self::$parenthook.'_page_' . self::$slug;
-		add_filter('screen_layout_columns', array(self::CLASSNAME, 'screen_layout_columns'), 10, 2);
-		add_action('admin_menu',array(self::CLASSNAME, 'admin_menu'));
-		add_action('do_meta_boxes', array( self::CLASSNAME, 'do_meta_boxes'), 30, 2 );
-		add_action('save_post', array( self::CLASSNAME, 'save_postmeta'));
+		if ( ! GenesisClubOptions::get_option('page_control_disabled')) {
+			self::$parenthook = GENESIS_CLUB_PLUGIN_NAME;
+		    self::$slug = self::$parenthook . '-' . self::SLUG;
+		    self::$screen_id = self::$parenthook.'_page_' . self::$slug;
+			add_action('do_meta_boxes', array( self::CLASSNAME, 'do_meta_boxes'), 30, 2 );
+			add_action('save_post', array( self::CLASSNAME, 'save_postmeta'));
+			add_action('admin_menu',array(self::CLASSNAME, 'admin_menu'));
+		}
 	}
 
     private static function get_parenthook(){
@@ -41,15 +39,6 @@ class GenesisClubPostAdmin {
 		else
 			return $show_screen;
 	}	
-	
-	public static function screen_layout_columns($columns, $screen) {
-		if (!defined( 'WP_NETWORK_ADMIN' ) && !defined( 'WP_USER_ADMIN' )) {
-			if ($screen == self::get_screen_id()) {
-				$columns[self::get_screen_id()] = 2;
-			}
-		}
-		return $columns;
-	}
 
 	static function admin_menu() {
 		add_submenu_page(self::get_parenthook(), __('Page Control'), __('Page Control'), 'manage_options', 

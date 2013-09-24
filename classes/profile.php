@@ -8,7 +8,9 @@ class GenesisClubProfile {
     const SHOW_SIGNATURE_METAKEY = '_genesis_show_signature'; 
 
 	static function init() {
-		if (!is_admin())  add_action('wp',array(self::CLASSNAME,'prepare'));
+		if ( ! GenesisClubOptions::get_option('profile_disabled')) {
+			if (!is_admin())  add_action('wp',array(self::CLASSNAME,'prepare'));
+		}
 	}	
 
 	static function prepare() {
