@@ -23,7 +23,9 @@ class GenesisClubDisplayAdmin {
 		'after_entry_content' => array('heading' => 'After Entry Content', 'tip' => 'Click to add add a widget area immediately after the content. If your child theme already has this area then there is no need to create another one. This area is typically used to add social media icons for sharing the content.'),
 		'facebook_likebox_bgcolor' => array('heading' => 'LikeBox Background Color', 'tip' => 'Enter the 6 character color code preceded by a hash(#) that will be used as the background color of the Facebook LikeBox. The Facebook Likebox widget only gives you light and dark options; this allows you to choose a background color that better suits your WordPress theme'),
 		'responsive_menu_threshold' => array('heading' => 'Device Threshold', 'tip' => 'Enter the size in pixels at which the full menu is collapsed into the "hamburger" icon or leave blank to disable this feature.'),
-		'responsive_menu_icon_color' => array('heading' => 'Hamburger Icon Color', 'tip' => 'Color of the menu icon (e.g #808080), or leave blank if you want the icon to adopt the same color as the links in the menu.')
+		'responsive_menu_icon_color' => array('heading' => 'Hamburger Icon Color', 'tip' => 'Color of the menu icon (e.g #808080), or leave blank if you want the icon to adopt the same color as the links in the menu.'),
+		'postinfo_shortcodes' => array('heading' => 'Post Info Short Codes', 'tip' => 'Content of the byline that is placed typically below or above the post title. Leave blank to use the child theme defaults or enter here to override. <br/>For example: <br/><code>[post_date format=\'M j, Y\'] by [post_author_posts_link] [post_comments] [post_edit]</code>'),
+		'postmeta_shortcodes' => array('heading' => 'Post Meta Short Codes', 'tip' => 'Content of the line that is placed typically after the post content. <br/> Leave blank to use the child theme defaults or enter here to override. <br/> For example: <br/><code>[post_categories before=\'More Articles About \'] [post_tags]</code>')
 		);
 	
 	public static function init() {
@@ -72,11 +74,12 @@ class GenesisClubDisplayAdmin {
 		$options = GenesisClubOptions::get_options();
 		$callback_params = array ('options' => $options, 'message' => $message);
 		add_meta_box(self::CODE.'-intro', __('Intro',self::DOMAIN), array(self::CLASSNAME, 'intro_panel'), self::get_screen_id(), 'normal', 'core', $callback_params);
-		add_meta_box(self::CODE.'-title', __('Logo',self::DOMAIN), array(self::CLASSNAME, 'logo_panel'), self::get_screen_id(), 'normal', 'core', $callback_params);
+		add_meta_box(self::CODE.'-title', __('Responsive Logo',self::DOMAIN), array(self::CLASSNAME, 'logo_panel'), self::get_screen_id(), 'normal', 'core', $callback_params);
+		add_meta_box(self::CODE.'-menu', __('Responsive Menu',self::DOMAIN), array(self::CLASSNAME, 'responsive_menu_panel'), self::get_screen_id(), 'normal', 'core', $callback_params);
 		add_meta_box(self::CODE.'-labelling', __('Labels',self::DOMAIN), array(self::CLASSNAME, 'labelling_panel'), self::get_screen_id(), 'normal', 'core', $callback_params);
+		add_meta_box(self::CODE.'-meta', __('Post Info and Post Meta',self::DOMAIN), array(self::CLASSNAME, 'meta_panel'), self::get_screen_id(), 'normal', 'core', $callback_params);
 		add_meta_box(self::CODE.'-extras', __('Extra Widgets',self::DOMAIN), array(self::CLASSNAME, 'extras_panel'), self::get_screen_id(), 'normal', 'core', $callback_params);
 		add_meta_box(self::CODE.'-facebook', __('Facebook',self::DOMAIN), array(self::CLASSNAME, 'facebook_panel'), self::get_screen_id(), 'normal', 'core', $callback_params);
-		add_meta_box(self::CODE.'-menu', __('Responsive Menu',self::DOMAIN), array(self::CLASSNAME, 'responsive_menu_panel'), self::get_screen_id(), 'normal', 'core', $callback_params);
 		add_action ('admin_enqueue_scripts',array(self::CLASSNAME, 'enqueue_styles'));
 		add_action ('admin_enqueue_scripts',array(self::CLASSNAME, 'enqueue_scripts'));
 		self::$tooltips = new DIYTooltip(self::$tips);
@@ -179,6 +182,16 @@ FACEBOOK_PANEL;
 <label>{$tip4}</label><input type="checkbox" name="after_entry_content" {$after_entry_content} value="1" /><br/>
 EXTRAS_PANEL;
 	}	
+
+	public static function meta_panel($post,$metabox){	
+		$options = $metabox['args']['options'];	 	
+		$tip1 = self::$tooltips->tip('postinfo_shortcodes');		
+		$tip2 = self::$tooltips->tip('postmeta_shortcodes');		
+		print <<< LABELLING_PANEL
+<label>{$tip1}</label><input type="text" name="postinfo_shortcodes" size="60" value="{$options['postinfo_shortcodes']}" /><br/>
+<label>{$tip2}</label><input type="text" name="postmeta_shortcodes" size="60" value="{$options['postmeta_shortcodes']}" /><br/>
+LABELLING_PANEL;
+	}
 
 	public static function labelling_panel($post,$metabox){	
 		$options = $metabox['args']['options'];	 	
