@@ -3,8 +3,8 @@ Contributors: powerblogservice, diywebmastery
 Donate link: http://www.diywebmastery.com/donate/
 Tags: genesis, signature 
 Requires at least: 3.0
-Tested up to: 3.6.1
-Stable tag: 1.1.1
+Tested up to: 3.7
+Stable tag: 1.2
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -20,6 +20,7 @@ FAQ Accordion, User Signatures, Responsive Menus, Responsive Logos, Label overri
 * Add a responsive hamburger menu icon to your navigation bars
 * Add the accordion feature to your FAQ page or FAQ category
 * Facebox LikeBox widget
+* Post Image Gallery sidebar widget with optional lightbox
 * Enables Simple Social Icons plugin to have multiple widgets on the same page with different sizes
 * Exclude selected pages from the Genesis 404 page, which is a sitemap of all pages on the site - typically you will want to exclude landing pages, "thank you" pages and any download pages.
 * Compatible with both Genesis 1.9.x and Genesis 2.x with HTML5 support
@@ -34,8 +35,9 @@ FAQ Accordion, User Signatures, Responsive Menus, Responsive Logos, Label overri
 
 * How do I replace a text only title with a logo? - see http://www.diywebmastery.com/3173/add-a-mobile-responsive-clickable-logo-to-your-site
 * How do I add an author signature at the foot of a post? - see http://www.diywebmastery.com/3098/how-to-add-an-author-signature-at-the-foot-of-a-post/
-* How do I add the accordion to my FAQ page = see http://www.diywebmastery.com/3180/how-to-make-an-accordion-faq
-* How do I add the accordion to my FAQ Category archive = see http://www.diywebmastery.com/3189/how-to-make-an-accordion-from-your-faq-category
+* How do I add the accordion to my FAQ page - see http://www.diywebmastery.com/3180/how-to-make-an-accordion-faq
+* How do I add the accordion to my FAQ Category archive - see http://www.diywebmastery.com/3189/how-to-make-an-accordion-from-your-faq-category
+* How do I display a post image gallery in the sidebar with a lightbox - see http://www.diywebmastery.com/3910/post-image-gallery-widget-lightbox
 
 == Screenshots ==
 1. Display settings 
@@ -44,16 +46,16 @@ FAQ Accordion, User Signatures, Responsive Menus, Responsive Logos, Label overri
 
 == Changelog ==
 
-= 1.1.1 = Set Hamburger menu default setting as disabled exiting sites are unaffected 
+= 1.2 = Added gallery widget, configuration options for postinfo and postmeta, and fixed NextGen conflict
+= 1.1.1 = Set Hamburger menu default setting as disabled so existing sites are unaffected 
 = 1.1 = Added FAQ Accordion, hamburger responsive menu icon and Facebook LikeBox Widget
 = 1.01 = Fix so it runs on PHP 5.2
 = 1.0 = Original Version
 
 == Upgrade Notice ==
 
-
-= 1.1.1 = 
-* Optional = Added FAQ Accordion, hamburger responsive menu icon and Facebook LikeBox Widget
+= 1.2 = 
+* Optional = Added Gallery widget, post info/meta shortcakes and fixed NextGen conflict
 
 == Links ==
 

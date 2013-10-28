@@ -23,7 +23,9 @@ class GenesisClubDisplay {
 		'after_entry_content' => false,
 		'facebook_likebox_bgcolor' => '',
 		'responsive_menu_threshold' => '',
-		'responsive_menu_icon_color' => ''						
+		'responsive_menu_icon_color' => '',
+		'postinfo_shortcodes' => '',
+		'postmeta_shortcodes' => ''	
 	);
 	
 	static function init() {
@@ -99,6 +101,13 @@ class GenesisClubDisplay {
 				if (GenesisClubOptions::get_option('after_archive'))  
 					add_action('genesis_after_loop', 
 						array(self::CLASSNAME, 'show_after_archive_sidebar'));
+			}
+
+		 	if (is_singular() || is_home() || is_archive()) { 
+		 		if ($postinfo = GenesisClubOptions::get_option('postinfo_shortcodes')) 
+					add_filter ('genesis_post_info', array(self::CLASSNAME,'filter_postinfo'));  				
+		 		if ($postmeta = GenesisClubOptions::get_option('postmeta_shortcodes')) 
+					add_filter ('genesis_post_meta', array(self::CLASSNAME,'filter_postmeta')); 
 			}
 
 			if (is_404()) {
@@ -203,6 +212,14 @@ class GenesisClubDisplay {
      });
 </script>
 SETBGCOLOR;
+ 	}
+ 	
+ 	static function filter_postinfo($content) {
+ 		return str_replace('[]','',GenesisClubOptions::get_option('postinfo_shortcodes'));
+ 	}
+
+ 	static function filter_postmeta($content) {
+		 return str_replace('[]','',GenesisClubOptions::get_option('postmeta_shortcodes'));
  	}
 
 	static function filter_breadcrumb_args( $args ) {
