@@ -1,58 +1,48 @@
 <?php
-class GenesisClubProfileAdmin {
-    const CLASSNAME = 'GenesisClubProfileAdmin'; //this class
+class Genesis_Club_Signature_Admin {
     const CODE = 'genesis-club'; //prefix ID of CSS elements
-    const DOMAIN = 'GenesisClub'; //text domain for translation
 	const SLUG = 'user';
+    const TOGGLE_SIGNATURE = 'genesis_club_toggle_signature';
 
-    private static $parenthook;
+    private static $parenthook = GENESIS_CLUB_PLUGIN_NAME;
     private static $slug;
     private static $screen_id;
 	
 	public static function init() {		
-		if ( ! GenesisClubOptions::get_option('profile_disabled')) {
-			self::$parenthook = GENESIS_CLUB_PLUGIN_NAME;
-		    self::$slug = self::$parenthook . '-' . self::SLUG;
-		    self::$screen_id = self::$parenthook.'_page_' . self::$slug;
-			add_action('load-profile.php', array(self::CLASSNAME, 'load_profile'));	
-			add_action('load-user-edit.php', array(self::CLASSNAME, 'load_profile'));	
-			add_action('personal_options_update', array(self::CLASSNAME, 'save_profile'));		
-			add_action('edit_user_profile_update', array(self::CLASSNAME, 'save_user'));
-			add_action('admin_menu',array(self::CLASSNAME, 'admin_menu'));
-		}
-	}
-
-    private static function get_parenthook(){
-		return self::$parenthook;
+		self::$slug = self::$parenthook . '-' . self::SLUG;
+		add_action('load-profile.php', array(__CLASS__, 'load_profile'));	
+		add_action('load-user-edit.php', array(__CLASS__, 'load_profile'));	
+		add_action('personal_options_update', array(__CLASS__, 'save_profile'));		
+		add_action('edit_user_profile_update', array(__CLASS__, 'save_user'));
+		add_action('genesis_club_hiding_settings_show', array(__CLASS__, 'page_visibility_show'), 20, 1);
+		add_action('genesis_club_hiding_settings_save', array(__CLASS__, 'page_visibility_save'), 20, 1);
+		add_action('admin_menu',array(__CLASS__, 'admin_menu'));
 	}
 
     public static function get_slug(){
 		return self::$slug;
 	}
 		
+    private static function get_parenthook(){
+		return self::$parenthook;
+	}
+
     private static function get_screen_id(){
 		return self::$screen_id;
 	}
 	
-	public static function enable_screen($show_screen,$screen) {
-		if ($screen->id == self::get_screen_id())
-			return true;
-		else
-			return $show_screen;
-	}	
-
 	static function admin_menu() {
-		add_submenu_page(self::get_parenthook(), __('Profile'), __('Profile'), 'manage_options', 
-			self::get_slug(), array(self::CLASSNAME,'settings_panel'));
- 		add_action('load-'.self::get_screen_id(), array(self::CLASSNAME, 'load_page')); 		
+		self::$screen_id = add_submenu_page(self::get_parenthook(), __('Genesis Club Signatures'), __('Signatures'), 'manage_options', 
+			self::get_slug(), array(__CLASS__,'settings_panel'));
+ 		add_action('load-'.self::get_screen_id(), array(__CLASS__, 'load_page')); 		
 	}
 	
 	public static function load_page() {
- 		add_action ('admin_enqueue_scripts',array(self::CLASSNAME, 'enqueue_styles'));		
+ 		add_action ('admin_enqueue_scripts',array(__CLASS__, 'enqueue_styles'));		
 	}
 
 	public static function enqueue_styles() {
-		wp_enqueue_style(self::CODE.'-admin', plugins_url('styles/admin.css',dirname(__FILE__)), array(),GENESIS_CLUB_VERSION);
+		wp_enqueue_style('genesis-club-admin');
  	}	
  	
 	static function get_user() {
@@ -66,11 +56,11 @@ class GenesisClubProfileAdmin {
 	}
 
 	static function load_profile() {
-		add_action('user_edit_form_tag', array(self::CLASSNAME,'add_form_type'));
+		add_action('user_edit_form_tag', array(__CLASS__,'add_form_type'));
 		
 		$profile = self::get_user();
 		if (!self::is_profile() || current_user_can('manage_options')) {
-			add_action(self::is_profile() ? 'show_user_profile' :'edit_user_profile', array(self::CLASSNAME,'show_authors_panel'),12,2);
+			add_action(self::is_profile() ? 'show_user_profile' :'edit_user_profile', array(__CLASS__,'show_authors_panel'),12,2);
 			$current_screen = get_current_screen();
 			if (method_exists($current_screen,'add_help_tab')) 
     		   $current_screen->add_help_tab( array(
@@ -100,24 +90,39 @@ class GenesisClubProfileAdmin {
 	}
 
 	static function save($user_id) {
-		$key1 = GenesisClubProfile::SIGNATURE_URL_KEY;
-		$old_val = get_user_option($key1, $user_id);		
-		$new_val = $old_val;
+		$key1 = Genesis_Club_Signature::SIGNATURE_URL_KEY;
   		foreach ($_FILES as $gcsig) {
       		$file = wp_handle_upload($gcsig, array( 'test_form' => false ));
-      		if (isset($file['url'])) $new_val = $file['url'];
+       		if (isset($file['url'])) $_POST[$key1] = $file['url'];
       	}
+		$old_val = get_user_option($key1, $user_id);		
+		$new_val = $_POST[$key1];
 		if ($old_val != $new_val) update_usermeta( $user_id, $key1, $new_val);		
 		
-		$key2 = GenesisClubProfile::SIGNATURE_ON_POSTS_KEY;
+		$key2 = Genesis_Club_Signature::SIGNATURE_ON_POSTS_KEY;
 		$old_val =  get_user_option($key2, $user_id);		
 		$new_val = array_key_exists($key2,$_POST) ? $_POST[$key2] : '';
 		if ($old_val != $new_val) update_usermeta( $user_id, $key2, $new_val );			
 	}	
 
+	static function page_visibility_save($post_id) {
+		$post_type = get_post_type( $post_id);
+		$post_author = get_post_field( 'post_author', $post_id);	
+		$key = self::TOGGLE_SIGNATURE;
+		$meta_key = Genesis_Club_Signature::get_toggle_meta_key($post_type, $post_author);	
+		update_post_meta( $post_id, $meta_key, array_key_exists($key, $_POST) ? $_POST[$key] : false);
+	}
+
+	static function page_visibility_show($post) {
+		$meta_key = Genesis_Club_Signature::get_toggle_meta_key($post->post_type, $post->post_author);
+		echo Genesis_Club_Options::form_field(self::TOGGLE_SIGNATURE, self::TOGGLE_SIGNATURE, 
+			__(strpos($meta_key, 'hide') !== FALSE ? 'Do not show the author signature on this page' : 'Show the author signature on this page'), 
+			get_post_meta($post->ID, $meta_key, true),  'checkbox', array(), array(), 'br') ;
+    }
+
 	static function show_authors_panel($user) {
-		$key1 = GenesisClubProfile::SIGNATURE_URL_KEY;
-		$key2 = GenesisClubProfile::SIGNATURE_ON_POSTS_KEY;			
+		$key1 = Genesis_Club_Signature::SIGNATURE_URL_KEY;
+		$key2 = Genesis_Club_Signature::SIGNATURE_ON_POSTS_KEY;			
 		$sig_url = get_user_option($key1, $user->ID);
 		$show_sig = get_user_option($key2, $user->ID)   ? 'checked="checked"' : '';
 		$sig_img = empty($sig_url) ? '' : sprintf('<img alt="Author Signature" src="%1$s" />',$sig_url);		
@@ -126,8 +131,10 @@ class GenesisClubProfileAdmin {
 <table class="form-table">
 <tr>
 	<th><label for="gcsig">Author Signature</label></th>
-	<td>{$sig_img}<br/><input id="gcsig" name="gcsig" type="file" size="80" accept="image/*" value="{$sig_url}" /><br/>
-	<span class="description">Upload an image file of your signature with approximate dimensions of say, 400px by 200px.</span></td>
+	<td>{$sig_img}<br/>
+	<input type="text" id="{$key1}" name="{$key1}" size="80" value="{$sig_url}" /><br/>
+	<input id="gcsig" name="gcsig" type="file" size="80" accept="image/*" value="{$sig_url}" /><br/>
+	<span class="description">Enter the signature URL or upload a new image file of your signature with approximate dimensions of say, 400px by 200px.</span></td>
 </tr>
 <tr>
 	<th><label for="{$key2}">Show Signature On Posts</label></th>
@@ -142,14 +149,14 @@ SIGNATURE_PANEL;
 	static function settings_panel() {
  		$this_url = $_SERVER['REQUEST_URI'];
 		$url = admin_url('profile.php#genesis-club-signature');
-		$title = sprintf('<h2>%1$s</h2>', __('User Profile', self::DOMAIN));		
-		$screenshot = plugins_url('images/profile-admin.jpg',dirname(__FILE__));
-		$usersig = GenesisClubProfile::get_author_signature(get_current_user_id());
-		$sig = !empty($usersig) ? sprintf('<p><img src="%1$s" alt="Author Signature"/></p>',$usersig) : 
-			plugins_url('images/sample-signature.png',dirname(__FILE__));		
+		$title = sprintf('<h2 class="title">%1$s</h2>', __('User Profile', GENESIS_CLUB_DOMAIN));		
+		$screenshot = plugins_url('images/signature-settings.jpg',dirname(__FILE__));
+		$usersig = Genesis_Club_Signature::get_author_signature(get_current_user_id());
+		$sig =  sprintf('<p><img src="%1$s" alt="Author Signature"/></p>', 
+			!empty($usersig) ? $usersig :  plugins_url('images/signature-example.png',dirname(__FILE__)));		
 ?>
 <div class="wrap">
-<?php screen_icon(); echo $title; ?>
+<?php echo $title; ?>
 <div id="poststuff" class="metabox-holder"><div id="post-body"><div id="post-body-content">
 <p class="notice">There are no settings on this page.</p>
 <p class="notice">However, a link is provided to where you need to go to add a signature, 
@@ -168,7 +175,7 @@ a stylized one at <a href="http://www.mylivesignature.com/">My Live Signature</a
 <?php echo $sig;?>
 <form id="misc_options" method="post" action="<?php echo $this_url; ?>">
 <p>
-<?php wp_nonce_field(self::CLASSNAME); ?>
+<?php wp_nonce_field(__CLASS__); ?>
 <?php wp_nonce_field('closedpostboxes', 'closedpostboxesnonce', false ); ?>
 <?php wp_nonce_field('meta-box-order', 'meta-box-order-nonce', false ); ?> 
 </p>
@@ -177,4 +184,3 @@ a stylized one at <a href="http://www.mylivesignature.com/">My Live Signature</a
 <?php
 	}
 }
-?>
