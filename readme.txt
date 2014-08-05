@@ -4,7 +4,7 @@ Donate link: http://www.diywebmastery.com/donate/
 Tags: genesis, signature 
 Requires at least: 3.0
 Tested up to: 3.9.1
-Stable tag: 1.3
+Stable tag: 1.3.1
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -56,6 +56,9 @@ FEATURES:
 
 == Changelog ==
 
+= 1.3.1 = 
+* Add exclusion clause to accordion to avoid collision with JetPack social sharing headings
+* Prevent activation of Genesis Club Pro when Genesis Club Lite is activated
 = 1.3 = 
 * Added a mobile responsive top bar for your marketing messages
 * Enhanced mobile responsive hamburger menus can slide into view on the left and right as well as below
@@ -73,7 +76,7 @@ FEATURES:
 
 == Upgrade Notice ==
 
-= 1.3 = Optional - Added a mobile responsive top bar, enhanced mobile responsive hamburger menu, simple-social-icons shortcode, and now using Dashicons font for plugin icon, mobile responsive hamburger menu and tooltips
+= 1.3.1 = Optional - Add exclusion clause to accordion to avoid collision with JetPack social sharing heading
 
 == Links ==
 

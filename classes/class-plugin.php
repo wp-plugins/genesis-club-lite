@@ -52,7 +52,7 @@ if (!class_exists('Genesis_Club_Plugin')) {
 	}
 
 	public static function is_genesis_present() {
-		return basename( TEMPLATEPATH ) == 'genesis' ; //is genesis the current parent theme
+		return substr(basename( TEMPLATEPATH ), 0,7) == 'genesis' ; //is genesis the current parent theme
 	}
 
 	public static function is_genesis_loaded() {
@@ -82,17 +82,29 @@ if (!class_exists('Genesis_Club_Plugin')) {
 		}
 	}
 
+	private static function check_multiple_versions() {
+		if (is_plugin_active('genesis-club-pro/main.php') 
+		&& is_plugin_active('genesis-club-lite/main.php')) {
+			self::deactivate('genesis-club-pro/main.php'); 
+			self::deactivate('genesis-club-lite/main.php'); 
+       		 wp_die(  __( sprintf('You cannot run both Genesis Club Lite and Genesis Club Pro at the same time.<br/><strong>Both have been deactivated</strong>.<br/>Now go to the WordPress <a href="%1$s" style="text-decoration:underline"><em>Plugins page</em></a> and activate the one you want to use.',
+        		 get_admin_url(null, 'plugins.php?s=genesis%20club')), GENESIS_CLUB_PLUGIN_NAME ));			 
+		}
+	}
+
 	public static function activate() { //called on plugin activation
     	if ( self::is_genesis_present() ) {
     		self::set_activation_key(__CLASS__);
 		} else {
         	self::deactivate();
-       		 wp_die(  __( sprintf('Sorry, you cannot use %1$s unless you are using a child theme based on the StudioPress Genesis theme framework. The %1$s plugin has been deactivated. Go to the WordPress <a href="%2$s">Plugins page</a>.',
+       		 wp_die(  __( sprintf('Sorry, you cannot use %1$s unless you are using a child theme based on the StudioPress Genesis theme framework. The %1$s plugin has been deactivated. Go to the WordPress <a href="%2$s"><em>Plugins page</em></a>.',
         		GENESIS_CLUB_FRIENDLY_NAME, get_admin_url(null, 'plugins.php')), GENESIS_CLUB_PLUGIN_NAME ));
    		} 
 	}
 	
 	public static function upgrade() { //apply any upgrades
+		self::check_multiple_versions();	
+
 		$modules = array_keys(self::$modules);
 		foreach ($modules as $module) 
 			if (self::is_module_enabled($module))
@@ -101,8 +113,9 @@ if (!class_exists('Genesis_Club_Plugin')) {
 		self::unset_activation_key(__CLASS__);
 	}	
 
-	private static function deactivate() {
-		if (is_plugin_active(self::$path)) deactivate_plugins( self::$path); 
+	private static function deactivate($path ='') {
+		if (empty($path)) $path = self::$path;
+		if (is_plugin_active($path)) deactivate_plugins( $path );
 	}
 
 	private static function init_module($module, $admin=false) {
@@ -141,7 +154,7 @@ if (!class_exists('Genesis_Club_Plugin')) {
 		&& ($class = self::$modules[$module]['class'])
 		&&  is_callable(array($class, 'activate'))) {
 			call_user_func(array($class, 'activate'));
-    		self::set_activation_key();
+    		self::set_activation_key($class);
 		}
 	}
 
