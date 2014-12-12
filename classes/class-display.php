@@ -1,19 +1,32 @@
 <?php
 class Genesis_Club_Display {
+	const BEFORE_CONTENT_SIDEBAR_ID = 'genesis-before-content-sidebar-wrap';
 	const BEFORE_ARCHIVE_SIDEBAR_ID = 'genesis-before-archive';
+	const BEFORE_ENTRY_SIDEBAR_ID = 'genesis-before-entry';
+	const BEFORE_ENTRY_CONTENT_SIDEBAR_ID = 'genesis-before-entry-content';
+	const AFTER_ENTRY_CONTENT_SIDEBAR_ID = 'genesis-after-entry-content';
+	const AFTER_ENTRY_SIDEBAR_ID = 'genesis-after-entry';
 	const AFTER_ARCHIVE_SIDEBAR_ID = 'genesis-after-archive';
-	const BEFORE_ENTRY_SIDEBAR_ID = 'genesis-before-entry-content';
-	const AFTER_ENTRY_SIDEBAR_ID = 'genesis-after-entry-content';
+	const AFTER_CONTENT_SIDEBAR_ID = 'genesis-after-content-sidebar-wrap';
+
     const PAGE_HIDER_METAKEY = '_genesis_page_not_on_404';
     const HIDE_TITLE_METAKEY = '_genesis_club_hide_title';
-	const BGCOLOR_KEY = 'facebook_likebox_bgcolor';
+    const HIDE_AFTER_CONTENT_METAKEY = '_genesis_club_hide_after_content';
+    const HIDE_AFTER_ENTRY_METAKEY = '_genesis_club_hide_after_entry';
+    const HIDE_AFTER_ENTRY_CONTENT_METAKEY = '_genesis_club_hide_after_entry_content';
+    const HIDE_BEFORE_CONTENT_METAKEY = '_genesis_club_hide_before_content';
+    const HIDE_BEFORE_ENTRY_METAKEY = '_genesis_club_hide_before_entry';
+    const HIDE_BEFORE_ENTRY_CONTENT_METAKEY = '_genesis_club_hide_before_entry_content';
+    const BGCOLOR_KEY = 'facebook_likebox_bgcolor';
 	const BORDER_KEY = 'facebook_likebox_border';
 	
 	protected static $defaults  = array(
 		'remove_blog_title' => false,
 		'logo' => '',
+		'logo_alt' => 'Logo',
 		'read_more_text' => '',
 		'comment_invitation' => '',
+		'comment_notes_hide' => 0,
 		'breadcrumb_prefix' => 'You are here: ',
 		'breadcrumb_archive' => 'Archives for ',
 		'postinfo_shortcodes' => '',
@@ -24,9 +37,19 @@ class Genesis_Club_Display {
 		'after_archive' => false,
 		'before_entry_content' => false,
 		'after_entry_content' => false,
+		'before_entry' => false,
+		'after_entry' => false,
+		'before_content' => false,
+		'after_content' => false,
 		'facebook_app_id' => '',
-		'facebook_likebox_bgcolor' => ''
+		'facebook_likebox_bgcolor' => '',
+		'alt_404_page' => 0,
+		'css_hacks' => false,
 	);
+	
+	protected static $is_html5 = false;
+	protected static $is_landing = false;
+	protected static $post_id = false;
 	
 	public static function init() {
 		Genesis_Club_Options::init(array('display' => self::$defaults));		
@@ -35,16 +58,45 @@ class Genesis_Club_Display {
 		if (!is_admin()) {
 			add_action('parse_query', array(__CLASS__,'parse_query'));
 			add_action('wp', array(__CLASS__,'prepare'));
-			add_action('wp_enqueue_scripts', array(__CLASS__,'enqueue_styles'));
 		}
 	}	
 
     public static function register_sidebars() {
+    	if (self::get_option('before_content'))
+			genesis_register_sidebar( array(
+				'id' => self::BEFORE_CONTENT_SIDEBAR_ID,
+				'name'	=> __( 'Before Content After Header', GENESIS_CLUB_DOMAIN ),
+				'description' => __( 'Full width area below the header and above the content and any primary and secondary sidebars.', GENESIS_CLUB_DOMAIN)
+			) );
     	if (self::get_option('before_archive'))
 			genesis_register_sidebar( array(
 				'id' => self::BEFORE_ARCHIVE_SIDEBAR_ID,
 				'name'	=> __( 'Before Archive', GENESIS_CLUB_DOMAIN ),
 				'description' => __( 'Area at the top of the archive for adding an introductory slider', GENESIS_CLUB_DOMAIN)
+			) );
+    	if (self::get_option('before_entry'))
+			genesis_register_sidebar( array(
+				'id' => self::BEFORE_ENTRY_SIDEBAR_ID,
+				'name'	=> __( 'Before Entry', GENESIS_CLUB_DOMAIN ),
+				'description' => __( 'Area before the entry for adding calls to action or ads', GENESIS_CLUB_DOMAIN)
+			) );
+    	if (self::get_option('before_entry_content'))
+			genesis_register_sidebar( array(
+				'id' => self::BEFORE_ENTRY_CONTENT_SIDEBAR_ID,
+				'name'	=> __( 'Before Entry Content', GENESIS_CLUB_DOMAIN ),
+				'description' => __( 'Area before the post content for things like adding social media icons for likes and shares', GENESIS_CLUB_DOMAIN)
+			) );
+    	if (self::get_option('after_entry_content'))
+			genesis_register_sidebar( array(
+				'id' => self::AFTER_ENTRY_CONTENT_SIDEBAR_ID,
+				'name'	=> __( 'After Entry Content', GENESIS_CLUB_DOMAIN ),
+				'description' => __( 'Area after the post content for adding things like social media icons for likes and shares', GENESIS_CLUB_DOMAIN),	
+			) );
+    	if (self::get_option('after_entry'))
+			genesis_register_sidebar( array(
+				'id' => self::AFTER_ENTRY_SIDEBAR_ID,
+				'name'	=> __( 'After Entry', GENESIS_CLUB_DOMAIN ),
+				'description' => __( 'Area after the entry for adding calls to action or ads', GENESIS_CLUB_DOMAIN),	
 			) );
     	if (self::get_option('after_archive'))
 			genesis_register_sidebar( array(
@@ -52,18 +104,13 @@ class Genesis_Club_Display {
 				'name'	=> __( 'After Archive', GENESIS_CLUB_DOMAIN ),
 				'description' => __( 'Area at the end of the archive for adding things like call to actions or ads', GENESIS_CLUB_DOMAIN),	
 			) );
-    	if (self::get_option('before_entry_content'))
+    	if (self::get_option('after_content'))
 			genesis_register_sidebar( array(
-				'id' => self::BEFORE_ENTRY_SIDEBAR_ID,
-				'name'	=> __( 'Before Entry Content', GENESIS_CLUB_DOMAIN ),
-				'description' => __( 'Area before the entry content for things like adding social media icons for likes and shares', GENESIS_CLUB_DOMAIN)
+				'id' => self::AFTER_CONTENT_SIDEBAR_ID,
+				'name'	=> __( 'After Content Before Footer', GENESIS_CLUB_DOMAIN ),
+				'description' => __( 'Full width area just above the footer and below the content and any primary and secondary sidebars.', GENESIS_CLUB_DOMAIN)
 			) );
-    	if (self::get_option('after_entry_content'))
-			genesis_register_sidebar( array(
-				'id' => self::AFTER_ENTRY_SIDEBAR_ID,
-				'name'	=> __( 'After Entry Content', GENESIS_CLUB_DOMAIN ),
-				'description' => __( 'Area below the entry content for adding things like social media icons for likes and shares', GENESIS_CLUB_DOMAIN),	
-			) );
+
     }
 
 	public static function register_widgets() {
@@ -73,10 +120,12 @@ class Genesis_Club_Display {
 
 	public static function enqueue_styles() {
 		wp_enqueue_style('dashicons');
+		if (self::get_option('css_hacks')) 
+			wp_enqueue_style('genesis-club-display', plugins_url('styles/display.css', dirname(__FILE__)), 
+				array(), GENESIS_CLUB_VERSION);
  	}
 
 	public static function parse_query() {
-
 			if (is_404()) {
 				add_filter('wp_list_pages_excludes', array(__CLASS__,'excluded_pages'));	
 				add_filter('getarchives_where', array(__CLASS__,'excluded_posts'),10,2);	
@@ -84,13 +133,13 @@ class Genesis_Club_Display {
 
 			if (is_search()) {
 				add_filter( 'posts_where' , array(__CLASS__,'excluded_posts'),10,2 );
-			}
-												
+			}								
 	}
 
 	public static function prepare() {
-		$post_id = Genesis_Club_Options::get_post_id(); //get post/page id
-		$is_landing = Genesis_Club_Options::is_landing_page();
+		self::$is_html5 = Genesis_Club_Utils::is_html5();
+		self::$post_id = Genesis_Club_Utils::get_post_id(); //get post/page id
+		self::$is_landing = Genesis_Club_Utils::is_landing_page();
 
 		if (self::get_option('remove_blog_title')) {
 			remove_all_actions('genesis_site_description');
@@ -107,8 +156,13 @@ class Genesis_Club_Display {
 		}
 
 	 	if (self::get_option('comment_invitation')) {
-	 		add_filter(Genesis_Club_Options::is_html5()  ? 'comment_form_defaults' :'genesis_comment_form_args', 
-	 			array(__CLASS__,'comment_form_args') );	
+	 		add_filter(self::$is_html5 ? 'comment_form_defaults' :'genesis_comment_form_args', 
+	 			array(__CLASS__,'comment_form_args'), 20 );	
+		}
+
+	 	if (self::get_option('comment_notes_hide')) {
+	 		add_filter(self::$is_html5 ? 'comment_form_defaults' :'genesis_comment_form_args', 
+	 			array(__CLASS__,'comment_notes_hide'), 20 );	
 		}
 			
 		if (is_archive() || is_singular()) {
@@ -118,15 +172,29 @@ class Genesis_Club_Display {
 	 	if (self::get_option(self::BGCOLOR_KEY) || self::get_option(self::BORDER_KEY))  {
 			add_action ('wp_print_footer_scripts', array(__CLASS__, 'change_likebox_bgcolor' ),100 );  				
 		}
-			
-		if (is_single()) { //insert widgets before and after entry content on posts
-			if (self::get_option('before_entry_content'))  
-				add_action( Genesis_Club_Options::is_html5() ? 'genesis_before_entry_content' :'genesis_after_post_title', 
-					array(__CLASS__, 'show_before_entry_sidebar')); 
-			if (self::get_option('after_entry_content'))  
-				add_action( Genesis_Club_Options::is_html5() ? 'genesis_after_entry_content' :'genesis_after_post_content', 
-					array(__CLASS__, 'show_after_entry_sidebar'));
+
+		if (is_singular()) {  //remove title
+			if (get_post_meta(self::$post_id, self::HIDE_TITLE_METAKEY, true))
+				add_filter('genesis_post_title_text', '__return_empty_string', 100);
 		}
+
+		if (self::should_show_sidebar('before_content'))  
+			add_action( 'genesis_before_content_sidebar_wrap', array(__CLASS__, 'show_before_content_sidebar')); 
+
+		if (self::should_show_sidebar('after_content'))  
+			add_action( 'genesis_after_content_sidebar_wrap', array(__CLASS__, 'show_after_content_sidebar')); 
+								
+		if (self::should_show_sidebar('before_entry'))  
+			add_action( self::$is_html5 ? 'genesis_before_entry' :'genesis_before_post', array(__CLASS__, 'show_before_entry_sidebar')); 
+
+		if (self::should_show_sidebar('after_entry'))  
+			add_action( self::$is_html5 ? 'genesis_after_entry' :'genesis_after_post',  array(__CLASS__, 'show_after_entry_sidebar'));
+
+		if (self::should_show_sidebar('before_entry_content'))  
+			add_action( self::$is_html5 ? 'genesis_before_entry_content' :'genesis_after_post_title',  array(__CLASS__, 'show_before_entry_content_sidebar')); 
+
+		if (self::should_show_sidebar('after_entry_content'))  
+			add_action( self::$is_html5 ? 'genesis_after_entry_content' :'genesis_after_post_content', array(__CLASS__, 'show_after_entry_content_sidebar'));
 			
 		if (is_archive()) { //insert widgets before and after entry archives 
 			add_filter ('genesis_term_intro_text_output','do_shortcode',11); //convert shortcode in toppers
@@ -138,7 +206,7 @@ class Genesis_Club_Display {
 					array(__CLASS__, 'show_after_archive_sidebar'));
 
 		 	if (self::get_option('no_archive_postmeta')) { //remove postinfo and postmeta on archives
-		 		if (Genesis_Club_Options::is_html5()) {
+		 		if (self::$is_html5) {
 					remove_action( 'genesis_entry_header', 'genesis_post_info', 12 ); 
 					remove_action( 'genesis_entry_footer', 'genesis_post_meta' );
 				} else {
@@ -147,21 +215,16 @@ class Genesis_Club_Display {
 				}
 			}
 		}
-
-		if (is_singular()) {  //remove title
-			if (get_post_meta($post_id, Genesis_Club_Display::HIDE_TITLE_METAKEY, true))
-				add_filter('genesis_post_title_text', '__return_empty_string', 100);
-		}
 		
 		if (is_singular()) {  //remove or replace post info 
 		 	if (is_page() && self::get_option('no_page_postmeta')) { //remove postinfo on pages
-		 		if (Genesis_Club_Options::is_html5()) 
+		 		if (self::$is_html5) 
 					remove_action( 'genesis_entry_header', 'genesis_post_info', 12 ); 
 				else  
 					remove_action( 'genesis_before_post_content', 'genesis_post_info' );		 			
 			}
-			elseif ( ! $is_landing && ($postinfo = self::get_option('postinfo_shortcodes'))) { //replace shortcodes
-		 		if (Genesis_Club_Options::is_html5()) {
+			elseif ( ! self::$is_landing && ($postinfo = self::get_option('postinfo_shortcodes'))) { //replace shortcodes
+		 		if (self::$is_html5) {
 					remove_action( 'genesis_entry_header', 'genesis_post_info', 12 );
 					add_action ('genesis_entry_header', array(__CLASS__,'post_info'),12); 
 				} else { 
@@ -169,11 +232,11 @@ class Genesis_Club_Display {
 					add_action( 'genesis_before_post_content', array(__CLASS__,'post_info') );	
 				}
 	 		}
-	 	}
+		}
 		 	
 		if (is_single()) {  
 		 	if ($postmeta = self::get_option('postmeta_shortcodes')) { //replace postmeta on posts 
-				$hook = Genesis_Club_Options::is_html5() ?  'genesis_entry_footer' : 'genesis_after_post_content';
+				$hook = self::$is_html5 ?  'genesis_entry_footer' : 'genesis_after_post_content';
 				remove_action( $hook, 'genesis_post_meta');
 				add_action ($hook, array(__CLASS__,'post_meta')); 
 			}
@@ -184,9 +247,15 @@ class Genesis_Club_Display {
 			add_action( 'genesis_before', array(__CLASS__,'add_fb_root') );			
 		}
 		
-		if ( $is_landing)  {//disable breadcrumbs on landing pages
-			add_filter('genesis_pre_get_option_breadcrumb_page', '__return_false');	
+		if ( self::$is_landing )  {//disable breadcrumbs on landing pages
+			add_filter('genesis_pre_get_option_breadcrumb_page', '__return_false');
 		}
+
+		if (self::get_option('alt_404_page')) {
+			add_filter('template_redirect', array(__CLASS__,'maybe_redirect_404'),20);
+		}
+
+		add_action('wp_enqueue_scripts', array(__CLASS__,'enqueue_styles'));
 	}
 
 	public static function get_defaults() {
@@ -201,8 +270,8 @@ class Genesis_Club_Display {
         	return false;
     }
 
-	public static function get_options() {
-    	return Genesis_Club_Options::get_option('display');
+	public static function get_options($cache=true) {
+    	return Genesis_Club_Options::get_option('display', $cache);
     }
 	
 	public static function save_options($options) {
@@ -210,12 +279,22 @@ class Genesis_Club_Display {
 	}
 
 	public static function blog_title_notext($title, $inside, $wrap) {
-		$logo = ($logo = self::get_option('logo'))  ? sprintf('<img src="%1$s" alt="Logo"/>',$logo) : '';
-		$inside = sprintf( '<a href="%1$s" title="%2$s" style="text-indent:0;background:none">%3$s</a>', 
-				trailingslashit( home_url() ), esc_attr( get_bloginfo('name')), $logo ) ;
+        $logo_alt = self::get_option('logo_alt');
+        $alt = empty( $logo_alt) ? '' :  sprintf(' alt="%1$s"', $logo_alt);
+		$logo = ($logo = self::get_option('logo')) ?
+			(filter_var($logo, FILTER_VALIDATE_URL) ? sprintf('<img src="%1$s" %2$s/>', $logo, $alt) : $logo) : '';
+
+		if ($logo)
+			if (strpos($logo, '[') === FALSE) /* Logo image URL gets wrapped as a clickable link */
+				$inside = sprintf( '<a href="%1$s" title="%2$s" style="text-indent:0;background:none">%3$s</a>',
+					trailingslashit( home_url() ), esc_attr( get_bloginfo('name')), $logo ) ;
+			else  
+				$inside = do_shortcode($logo); /* alternatively specify a slider shortcode for a dynamic logo */
+		else
+			$inside = '';
 		$xtml = sprintf( '<div id="title">%1$s</div>', $inside);
 		$html5 = sprintf( '<div class="site-title">%1$s</div>', $inside);
-		return Genesis_Club_Options::is_genesis2() ?
+		return Genesis_Club_Utils::is_genesis2() ?
 			genesis_markup( array(
 				'html5'   => $html5,
 				'xhtml'   => $xtml,
@@ -224,14 +303,28 @@ class Genesis_Club_Display {
 			genesis_markup($html5, $xtml, false ) ;
 	}  
 	public static function strip_rel_author ($content, $args) { return str_replace(' rel="author"','',$content); }
-	public static function show_before_entry_sidebar() { self::show_sidebar(self::BEFORE_ENTRY_SIDEBAR_ID); }
-	public static function show_after_entry_sidebar() { self::show_sidebar(self::AFTER_ENTRY_SIDEBAR_ID); }
+	public static function show_before_content_sidebar() { self::show_sidebar(self::BEFORE_CONTENT_SIDEBAR_ID); }
 	public static function show_before_archive_sidebar() { self::show_sidebar(self::BEFORE_ARCHIVE_SIDEBAR_ID); }
+	public static function show_before_entry_sidebar() { self::show_sidebar(self::BEFORE_ENTRY_SIDEBAR_ID); }
+	public static function show_before_entry_content_sidebar() { self::show_sidebar(self::BEFORE_ENTRY_CONTENT_SIDEBAR_ID); }
+	public static function show_after_entry_content_sidebar() { self::show_sidebar(self::AFTER_ENTRY_CONTENT_SIDEBAR_ID); }
+	public static function show_after_entry_sidebar() { self::show_sidebar(self::AFTER_ENTRY_SIDEBAR_ID); }
 	public static function show_after_archive_sidebar() { self::show_sidebar(self::AFTER_ARCHIVE_SIDEBAR_ID); }
+	public static function show_after_content_sidebar() { self::show_sidebar(self::AFTER_CONTENT_SIDEBAR_ID); }
+	
+	private static function should_show_sidebar($sidebar) {
+		if (is_singular() && (! self::$is_landing) && self::get_option($sidebar)) 
+  			if (is_singular('post'))	
+			     return ! get_post_meta(get_queried_object_id(), '_genesis_club_hide_'.$sidebar, true);
+			else
+			    return get_post_meta(get_queried_object_id(),'_genesis_club_show_'.$sidebar, true);
+		else
+			return false;
+	}
 
 	private static function show_sidebar($sidebar) {
 		if ( is_active_sidebar( $sidebar) ) {
-			$tag = Genesis_Club_Options::is_html5() ? 'aside' : 'div';
+			$tag = self::$is_html5 ? 'aside' : 'div';
 			printf ('<%1$s class="widget-area custom-post-sidebar %2$s">',$tag,$sidebar);
 			dynamic_sidebar( $sidebar );
 			printf ('</%1$s>',$tag);
@@ -272,6 +365,13 @@ class Genesis_Club_Display {
 		$args['title_reply'] = self::get_option('comment_invitation');
 		return $args;
 	}	
+	
+	public static function comment_notes_hide($args) {
+		$hide = self::get_option('comment_notes_hide');
+		if (($hide == 'before') || ($hide == 'both')) $args['comment_notes_before'] = '';
+		if (($hide == 'after') || ($hide == 'both')) $args['comment_notes_after'] = '';
+		return $args;
+	}
 
 	public static function change_likebox_bgcolor(){
 		$bgcolor = self::get_option('facebook_likebox_bgcolor');
@@ -335,5 +435,18 @@ LIKEBOXBGCOLOR;
 </script>
 SCRIPT;
 	}
-		
+
+	public static function maybe_redirect_404() {
+		if (is_404()
+		&& ! is_robots() 
+		&& ! is_feed() 
+		&& ! is_trackback() 
+		&& ( $page_id = self::get_option('alt_404_page'))
+		&& ( $page_id != get_query_var( 'page')) 
+		&& ( get_post_status($page_id ) == 'publish'))  {
+			wp_redirect	(get_permalink($page_id));
+			exit;
+		}
+	}
+
 }

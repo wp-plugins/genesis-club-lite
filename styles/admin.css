@@ -1,19 +1,3 @@
-#poststuff { margin-right: 20px; }
-#poststuff input[type="radio"] { margin-right: 3px; }
-#poststuff img { max-width : 100%; }
-#poststuff input[type=checkbox] { margin-left: 2px; } 
-#poststuff input.error, #poststuff select.error { border: 1px solid red; background-color : #FEE; } 
-#poststuff div#message { margin-left: 10px; display: inline; padding: 10px; }
-#poststuff div#message div.updated { margin-left: 30px; padding: 8px; display: inline; }
-#poststuff .warning { color: red; font-weight: bold; } 
-p.notice { font-size: 1.6em; font-weight: bold; }
-p.important { font-size: 1.2em; color: red; }
+p.bigger { font-size: larger; font-weight: bold; }
 img.dashed-border { padding: 10px; border: 1px dashed silver; max-width: 100%; } 
-h2.title:before {
-    content: '\f116';
-    font: normal 29px/1 'dashicons';
-    display: inline-block;
-    margin-right: 0.3em;
-    vertical-align: middle;
-    -webkit-font-smoothing: antialiased;
-}
+h2.title i { padding-right: 0.5em; font-size: 1.25em; }

@@ -3,8 +3,8 @@ Contributors: powerblogservice
 Donate link: http://www.diywebmastery.com/donate/
 Tags: genesis, signature 
 Requires at least: 3.0
-Tested up to: 3.9.1
-Stable tag: 1.3.1
+Tested up to: 4.0.1
+Stable tag: 1.4
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -30,6 +30,9 @@ FEATURES:
 * Change "read more..." label 
 * Change breadcrumb labels such as "Archives for"
 * Change commentary label "Leave A Reply" in HTML5 sites and "Speak Your Mind" in XHTML sites 
+* Remove comment form notices
+* Use alternative 404 page
+* Add clarify class
 * Add a Facebook LikeBox widget which you you can customize to match your theme colours
 * Post Image Gallery sidebar widget with optional lightbox for showing random selection of photos where you have many photos attached to a post. 
 * Enables Simple Social Icons plugin to have multiple widgets on the same page with different sizes
@@ -56,10 +59,22 @@ FEATURES:
 
 == Changelog ==
 
+= 1.4 = 
+* Embed Google Calendars where users can choose their own timezone to view your meetings and webinars
+* Enhanced Top Bar can now stuck to any fixed element in the header
+* More widgets areas for placing your offers or ads
+* Alternative 404 page
+* hide comment notes
+* clearfix class for clearing float
+* fix CSS bug in extension to Simple Social Icons
+
 = 1.3.1 = 
+
 * Add exclusion clause to accordion to avoid collision with JetPack social sharing headings
 * Prevent activation of Genesis Club Pro when Genesis Club Lite is activated
+
 = 1.3 = 
+
 * Added a mobile responsive top bar for your marketing messages
 * Enhanced mobile responsive hamburger menus can slide into view on the left and right as well as below
 * Added Genesis Club Hiding panel for hiding pages from site search, and hiding titles, author signatures and the top bar on individual posts or pages
@@ -68,7 +83,9 @@ FEATURES:
 * Using Dashicons font for plugin icon, mobile responsive hamburger menu and tooltips
 * Integrated WordPress colorpicker to make choosing colors easier
 * New dashboard so you can load only the modules you need
+
 = 1.2 = Added gallery widget, configuration options for postinfo and postmeta, and fixed NextGen conflict
+
 = 1.1.1 = Set Hamburger menu default setting as disabled so existing sites are unaffected 
 = 1.1 = Added FAQ Accordion, hamburger responsive menu icon and Facebook LikeBox Widget
 = 1.01 = Fix so it runs on PHP 5.2
@@ -76,7 +93,7 @@ FEATURES:
 
 == Upgrade Notice ==
 
-= 1.3.1 = Optional - Add exclusion clause to accordion to avoid collision with JetPack social sharing heading
+= 1.4 = Optional - Google Calendar integration, enhanced Top Bar, Alternative 404 page, hide comment notes and clearfix CSS
 
 == Links ==
 

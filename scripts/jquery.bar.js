@@ -10,9 +10,9 @@
 			background : 'orange',
 			font_color : '#000',
 			position : 'top',
-			opener : false,
-			shadow : false,
 			bounce : false,
+			shadow : false,
+			opener : false,
 			show_timeout : 2000,
 			hide_timeout : 5000,
 			timer : 0	
@@ -28,6 +28,7 @@
 				settings.timer = setTimeout($.proxy(function() { $(this).bar('add');}, $(this)), settings.show_timeout);
 		});
     },
+    
     add : function( ) { 
 			var data = $(this).data('bar');
 			var o = data.settings;
@@ -73,9 +74,9 @@
 				_wrap_container.append(_open); 
 			}
 			if (o.position=='bottom')	
-				_wrap_container.appendTo(jQuery('body'));
+				$(this).append(_wrap_container);
 			else
-				_wrap_container.prependTo(jQuery('body'));
+				$(this).prepend(_wrap_container);
 			if (!o.opener) $(this).bar('show');
      },
     
@@ -85,6 +86,7 @@
 		if($('#jbar-container').length){
 			if (o.opener) $('#jbar-container .open').hide();			
 			$('#jbar-container .jbar').show();
+			$(this).addClass('has-jbar');
 			$('#jbar-container').hide().css({ top: 0, height: 'auto' })
 			if (o.bounce) 
 				$('#jbar-container').fadeIn('fast').effect("bounce", { times:3 }, 300);
@@ -100,6 +102,7 @@
 		if($('#jbar-container').length){
 			$('#jbar-container').css({ height: 0 });
 			$('#jbar-container .jbar').hide();
+			$(this).removeClass('has-jbar');
 			if (o.opener) 
 				$('#jbar-container .open').show();
 			else
