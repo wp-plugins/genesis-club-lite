@@ -9,7 +9,10 @@ class Genesis_Club_Accordion {
 
 	public static function init() {
 		Genesis_Club_Options::init(self::$defaults);
-		if (!is_admin())  add_action('wp',array(__CLASS__,'prepare'));
+		if (!is_admin())  {
+			add_action('pre_get_posts', array(__CLASS__,'maybe_filter_archive'), 1 );
+			add_action('wp',array(__CLASS__,'prepare'));
+		}
 	}	
 
 	public static function prepare() {
@@ -25,8 +28,16 @@ class Genesis_Club_Accordion {
 		|| (array_key_exists('container_class',$accordion) && !empty($accordion['container_class'])) ));
 	}
 
+	private static function get_accordions() {
+ 		return Genesis_Club_Options::get_option('accordions');
+	}
+	
+	private static function save_accordions($accordions) {
+ 		return Genesis_Club_Options::save_options(array('accordions' => $accordions));
+	}
+
 	public static function save_accordion($type, $id, $new_accordion) {
- 		$accordions = Genesis_Club_Options::get_option('accordions');
+ 		$accordions = self::get_accordions();
 		if (self::empty_accordion($new_accordion)) {
 			if (is_array($accordions)
 			&& array_key_exists($type,$accordions) 
@@ -35,11 +46,11 @@ class Genesis_Club_Accordion {
 		} else {
 				$accordions[$type][$id] = $new_accordion ;
 		}
-		return Genesis_Club_Options::save_options( array('accordions' => $accordions));
+		return self::save_accordions($accordions);
 	}
 
  	public static function get_accordion($type, $id, $accordions = false ) {
-		if (!$accordions) $accordions = Genesis_Club_Options::get_option('accordions');
+		if (!$accordions) $accordions = self::get_accordions();
 		if (is_array($accordions)
 		&& array_key_exists($type, $accordions)
 		&& array_key_exists($id, $accordions[$type]))
@@ -49,7 +60,7 @@ class Genesis_Club_Accordion {
  	}
 
  	private static function maybe_add_accordion() {
-			if (($accordions = Genesis_Club_Options::get_option('accordions'))
+			if (($accordions = self::get_accordions())
 			&& ($id = get_queried_object_id()) 
 		    && ((is_singular() && ($accordion = self::get_accordion('posts', $id, $accordions)))	
 			 || (is_archive() && ($accordion = self::get_accordion('terms', $id, $accordions))))
@@ -68,7 +79,7 @@ class Genesis_Club_Accordion {
 			if (is_archive()) {
 				add_filter('genesis_pre_get_option_content_archive', array(__CLASS__,'full_not_excerpt'));
 				add_filter('genesis_pre_get_option_content_archive_limit', array(__CLASS__,'no_content_limit'));
-				if (Genesis_Club_Options::is_html5())
+				if (Genesis_Club_Utils::is_html5())
 					remove_action( 'genesis_entry_content', 'genesis_do_post_image', 8 );
 				else
 					remove_action( 'genesis_post_content', 'genesis_do_post_image' );				
@@ -84,17 +95,18 @@ class Genesis_Club_Accordion {
     }
 
 	public static function init_accordion() {
+		$is_html5 = Genesis_Club_Utils::is_html5();
 		if (is_admin()) 
 			self::$accordion['header'] = 'h3';
 		else
-			if (Genesis_Club_Options::is_html5())
+			if ($is_html5)
 				self::$accordion['header'] = is_archive() ? 'article header' : '.entry-content h3';
 			else
-				self::$accordion['header'] = is_archive() ?  '.post > h2, .post .wrap > h2' : 'h3';
+				self::$accordion['header'] = is_archive() ?  '.post > h2, .post .wrap > h2' : '.post h3';
 		unset(self::$accordion['enabled']);
 		foreach (self::$accordion as $key => $val) if (empty($val)) unset(self::$accordion[$key]);
-		$params = Genesis_Club_Options::json_encode(self::$accordion);	
-		$container = is_admin() ? '#wpcontent .accordion' : ( Genesis_Club_Options::is_html5() ? 'main.content' : '#content');
+		$params = Genesis_Club_Utils::json_encode(self::$accordion);	
+		$container = is_admin() ? '#wpcontent .accordion' : ( $is_html5 ? 'main.content' : '#content');
 		print <<< SCRIPT
 <script type="text/javascript">
 //<![CDATA[
@@ -103,4 +115,29 @@ class Genesis_Club_Accordion {
 </script>	
 SCRIPT;
 	}
+
+	private static function get_current_archive_accordion() {
+		if (is_tax() || is_category() || is_tag()) 
+			if (is_category())
+				$term = get_term_by('slug',get_query_var('category_name'),'category') ;
+			elseif (is_tag())
+				$term = get_term_by('slug',get_query_var('tag_name'),'post_tags') ;
+			else
+				$term = get_term_by('slug', get_query_var('term'), get_query_var('taxonomy')) ;						
+		else 
+			$term = false;
+		
+		return $term ? self::get_accordion('terms', $term->term_id) : false;
+	}
+
+	public static function maybe_filter_archive( $query ) {
+
+	    if ($query->is_archive 
+	    && ($accordion = self::get_current_archive_accordion())
+	    && $accordion['enabled']
+	    && array_key_exists('nopaging', $accordion)
+	    && $accordion['nopaging']) 	    		 
+	        $query->set( 'nopaging', true );
+	}
+
 }

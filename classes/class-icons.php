@@ -102,7 +102,7 @@ class Genesis_Club_Icons {
 	static function display($attr) {
 		self::init_profiles();
 		$instance = shortcode_atts(self::$defaults, $attr) ;
-		$instance['id'] = 'simple-social-icons-'.rand(1,1000000);
+		$instance['widget_id'] = 'simple-social-icons-'.rand(1000,1000000);
 		$new_window = $instance['new_window'] ? 'target="_blank"' : '';
 		$output ='';
 		foreach ( self::$profiles as $profile => $data ) {
@@ -113,14 +113,15 @@ class Genesis_Club_Icons {
 				$output .= sprintf( $data['pattern'], esc_url( $instance[$profile] ), $new_window );
 		}
 		if ( $output ) {
-			$output = sprintf( '<div class="genesis-club-icons simple-social-icons" style="visibility:hidden"><ul id="%1$s" class="%2$s">%3$s</ul></div>', $instance['id'], $instance['alignment'], $output );
+			$output = sprintf( '<div id="%1$s" class="genesis-club-icons simple-social-icons" style="visibility:hidden"><ul class="%2$s">%3$s</ul></div>', 
+				$instance['widget_id'], $instance['alignment'], $output );
 			self::add_css($instance);
 		}
 		return $output;
 	}
 
 	static function add_css($instance) {
-    	$prefix = '.simple-social-icons ul#'.$instance['id'].' li';	
+    	$prefix = sprintf('#%1$s ul li', $instance['widget_id']);	
 		$font_size = round( (int) $instance['size'] / 2 );
 		$icon_padding = round ( (int) $font_size / 2 );
 		$style = $prefix.' a,'. $prefix . ' a:hover {';

@@ -1,161 +1,275 @@
 <?php
-class Genesis_Club_Admin {
-    const CODE = 'genesis-club';
-    
-	private static $path = GENESIS_CLUB_PLUGIN_PATH;
-    private static $screen_id;
-    private static $keys;
-	private static $tooltips;
+abstract class Genesis_Club_Admin {
+	protected $version;
+	protected $path;
+	protected $parent_slug;
+	protected $slug;
+    protected $screen_id;
+    private $tooltips;
+    private $tips = array();
 
-    private static function get_slug(){
-		return GENESIS_CLUB_PLUGIN_NAME;
+	function __construct($version, $path, $parent_slug, $slug = '') {
+		$this->version = $version;
+		$this->path = $path;
+		$this->parent_slug = $parent_slug;
+		if (empty($slug))
+			$this->slug = $this->parent_slug;
+		else
+			$this->slug = $this->parent_slug.'-'.$slug;
+		$this->tooltips = new Genesis_Club_Tooltip($this->tips);
+		$this->init();
 	}
-		
-    private static function get_screen_id(){
-		return self::$screen_id;
-	}
-
-    private static function get_keys(){
-		return self::$keys;
-	}
-
-	public static function init() {
-		add_action('admin_menu',array(__CLASS__, 'admin_menu'));
-        add_action('admin_enqueue_scripts', array('Genesis_Club_Options', 'register_styles'));		
-		add_action('admin_print_styles', array(__CLASS__, 'style_icon'));        	
-	}
-
-	public static function style_icon() {
-		print <<< ICON
-<style type="text/css">
-#adminmenu .menu-icon-generic.toplevel_page_genesis-club-lite div.wp-menu-image:before { content: '\\f116'; }
-</style>
-ICON;
+	
+    function get_screen_id(){
+		return $this->screen_id;
 	}
 
-	public static function get_nonces() {
-		return wp_nonce_field(__CLASS__,'_wpnonce', true, false).
-			wp_nonce_field('closedpostboxes', 'closedpostboxesnonce', false, false ).
-			wp_nonce_field('meta-box-order', 'meta-box-order-nonce', false, false);
+	function get_version() {
+		return $this->version;
 	}
 
-	public static function admin_menu() {
-		self::$screen_id = add_menu_page(GENESIS_CLUB_FRIENDLY_NAME, GENESIS_CLUB_FRIENDLY_NAME, 'manage_options', 
-			GENESIS_CLUB_PLUGIN_NAME, array(__CLASS__,'settings_panel') );
-		$intro = sprintf('Dashboard (v%1$s)', GENESIS_CLUB_VERSION);				
-		add_submenu_page(GENESIS_CLUB_PLUGIN_NAME, GENESIS_CLUB_FRIENDLY_NAME, $intro, 'manage_options', GENESIS_CLUB_PLUGIN_NAME,array(__CLASS__,'settings_panel') );
- 		add_action('load-'.self::get_screen_id(), array(__CLASS__, 'load_page')); 		
+    function get_path() {
+		return $this->path;
 	}
 
-	public static function load_page() {
- 		if (isset($_POST['options_update'])) self::save();
-		add_action ('admin_enqueue_scripts',array(__CLASS__, 'enqueue_styles'));		
- 		add_action ('admin_enqueue_scripts',array(__CLASS__, 'enqueue_scripts'));		
-		Genesis_Club_Options::add_tooltip_support();
+    function get_parent_slug() {
+		return $this->parent_slug;
 	}
 
-	public static function enqueue_styles() {
-		wp_enqueue_style(self::CODE.'-dashboard', plugins_url('styles/dashboard.css',dirname(__FILE__)), array(),GENESIS_CLUB_VERSION);
- 	}	
- 	
-	public static function enqueue_scripts() {
+    function get_slug() {
+		return $this->slug;
+	}
+
+ 	function get_url() {
+		return admin_url('admin.php?page='.$this->get_slug());
+	}
+
+ 	function get_code($code='') {
+ 		$format = empty($code) ? '%1$s' : '%1$s-%2$s';	
+		return sprintf($format, $this->get_parent_slug(), $code);
+	}
+	
+	function get_keys() { 
+		return array_keys($this->tips);
+	}
+
+	function get_tip($label) { 
+		return $this->tooltips->tip($label);
+	}
+
+	function plugin_action_links ( $links, $file ) {
+		if ( is_array($links) && ($this->get_path() == $file )) {
+			$settings_link = '<a href="' .$this->get_url() . '">Settings</a>';
+			array_unshift( $links, $settings_link );
+		}
+		return $links;
+	}
+
+	function set_tooltips($tips) {
+		$this->tips = $tips;
+		$this->tooltips = new Genesis_Club_Tooltip($this->tips);
+		$this->add_tooltip_support();
+	}
+	
+	function add_tooltip_support() {
+		add_action('admin_enqueue_scripts', array( $this, 'enqueue_tooltip_styles'));
+		add_action('admin_enqueue_scripts', array( $this, 'enqueue_color_picker_styles'));
+		add_action('admin_enqueue_scripts', array( $this, 'enqueue_color_picker_scripts'));
+	}
+	
+	function register_tooltip_styles() {
+		wp_register_style('diy-tooltip', plugins_url('styles/tooltip.css',dirname(__FILE__)), array(), $this->get_version());
+	}	
+
+	function register_admin_styles() {
+		wp_register_style($this->get_code('admin'), plugins_url('styles/admin.css',dirname(__FILE__)), array(),$this->get_version());
+	}
+
+	function enqueue_admin_styles() {
+		wp_enqueue_style($this->get_code('admin'));
+ 	}
+
+	function enqueue_tooltip_styles() {
+		wp_enqueue_style('diy-tooltip');
+		wp_enqueue_style('dashicons');
+	}	
+
+	function enqueue_color_picker_styles() {
+        wp_enqueue_style('wp-color-picker');
+	}
+
+	function enqueue_color_picker_scripts() {
+		wp_enqueue_script('wp-color-picker');
+		add_action('admin_print_footer_scripts', array( $this, 'enable_color_picker'));
+ 	}
+
+    function enable_color_picker() {
+	    print <<< SCRIPT
+	<script type="text/javascript">
+		//<![CDATA[
+		jQuery(document).ready( function($) {
+	        $('.color-picker').wpColorPicker();
+		});
+		//]]>
+	</script>
+SCRIPT;
+    }
+
+	function enqueue_postbox_scripts() {
 		wp_enqueue_script('common');
 		wp_enqueue_script('wp-lists');
 		wp_enqueue_script('postbox');	
-		wp_enqueue_script('mixitup', plugins_url('scripts/jquery.mixitup.min.js',dirname(__FILE__)), array( 'jquery' ), GENESIS_CLUB_VERSION );
-		add_action('admin_footer-'.self::get_screen_id(), array(__CLASS__, 'show_modules'));
+		add_action('admin_footer-'.$this->get_screen_id(), array($this, 'toggle_postboxes'));
  	}
-
-    public static function show_modules() {
-    	$hook = self::get_screen_id();
+ 		
+	function toggle_postboxes() {
+		$hook = $this->get_screen_id();
     	print <<< SCRIPT
 <script type="text/javascript">
 //<![CDATA[
 jQuery(document).ready( function($) {
-	$('.products_grid').mixitup();
-
-	$('#cb-select-all').click(function(){
-        var checkboxes = $(".products_grid").find(':checkbox').not(':disabled');
-        if($(this).prop('checked')) {
-          checkboxes.prop('checked', true);
-        } else {
-          checkboxes.prop('checked', false);
-        }
-    });
+	$('.if-js-closed').removeClass('if-js-closed').addClass('closed');
+	postboxes.add_postbox_toggles('{$hook}');
 });
 //]]>
 </script>
 SCRIPT;
     }	
 
-    private static function fetch_message() {
+ 	function add_meta_box($code, $title, $callback_func, $callback_params = null, $context = 'normal', $priority = 'core', $post_type = false ) {
+		if (empty($post_type)) $post_type = $this->get_screen_id();
+		add_meta_box($this->get_code($code), __($title), array($this, $callback_func), $post_type, $context, $priority, $callback_params);
+	}
+
+	function form_field($id, $name, $label, $value, $type, $options = array(), $args = array(), $wrap = false) {
+		if (!$label) $label = $id;
+		$label_args = (is_array($args) && array_key_exists('label_args', $args)) ? $args['label_args'] : false;
+ 		return Genesis_Club_Utils::form_field($id, $name, $this->tooltips->tip($label, $label_args), $value, $type, $options, $args, $wrap);
+ 	}	
+
+	function print_form_field($fld, $value, $type, $options = array(), $args = array(), $wrap = false) {
+ 		print $this->form_field($fld, $fld, false, $value, $type, $options, $args, $wrap);
+ 	}	
+
+	function print_text_field($fld, $value, $args = array()) {
+ 		$this->print_form_field($fld, $value, 'text', array(), $args);
+ 	}
+ 	
+	function admin_heading($title = '', $icon_class = '') {
+		if (empty($title)) $title = sprintf('%1$s %2$s', ucwords(str_replace('-',' ',$this->slug)), $this->get_version());
+		$icon = empty($icon_class) ? '' : sprintf('<i class="%1$s"></i>',
+			'dashicons-'==substr($icon_class,0,10) ? ('dashicons '.$icon_class) : $icon_class) ;
+    	return sprintf('<h2 class="title">%2$s%1$s</h2>', $title, $icon);				
+	}
+
+	function print_admin_form_with_sidebar_start($title) {
+    	print <<< ADMIN_START
+<div class="wrap">
+{$title}
+<div id="poststuff" class="metabox-holder has-right-sidebar">
+<div id="side-info-column" class="inner-sidebar">
+ADMIN_START;
+	}
+
+	function print_admin_form_with_sidebar_middle() {
+		$this_url = $_SERVER['REQUEST_URI'];
+	    print <<< ADMIN_MIDDLE
+</div>
+<div id="post-body" class="has-sidebar"><div id="post-body-content" class="has-sidebar-content diy-wrap">
+<form id="diy_options" method="post" action="{$this_url}">
+ADMIN_MIDDLE;
+	}
+	
+	function print_admin_form_start($title, $enctype = false) {
+	 	$this_url = $_SERVER['REQUEST_URI'];
+	 	$enctype = $enctype ? 'enctype="multipart/form-data" ' : '';
+    	print <<< ADMIN_START
+<div class="wrap">
+{$title}
+<div id="poststuff" {$enctype}class="metabox-holder"><div id="post-body"><div id="post-body-content">
+<form id="diy_options" method="post" {$enctype}action="{$this_url}">
+ADMIN_START;
+	}
+	
+	function print_admin_form_end($referer = false, $keys = false, $button_text = 'Save Changes') {
+		$nonces = $referer ? $this->get_nonces($referer) : '';
+		$page_options = $button = '';
+		if ($keys) {
+			$keys = is_array($keys) ? implode(',', $keys) : $keys;
+			$page_options = sprintf('<input type="hidden" name="page_options" value="%1$s" />', $keys);
+			$button = $this->submit_button($button_text);
+		}
+		print <<< ADMIN_END
+<p class="submit">{$button}{$page_options}{$nonces}</p>
+</form></div></div><br class="clear"/></div></div>
+ADMIN_END;
+	}
+	
+	function get_nonces($referer) {
+		return wp_nonce_field($referer, '_wpnonce', true, false).
+			wp_nonce_field('closedpostboxes', 'closedpostboxesnonce', false, false ).
+			wp_nonce_field('meta-box-order', 'meta-box-order-nonce', false, false);
+	}
+	
+ 	function submit_button($button_text='Save Changes') {	
+		return sprintf('<input type="submit" name="options_update" value="%1$s" class="button-primary" />', $button_text);
+	}
+ 	
+	function save_options($options_class, $settings_name, $trim_option_prefix = false) {
+	
+  		$page_options = explode(",", stripslashes($_POST['page_options']));
+  		
+  		if (is_array($page_options)) {
+  			$options = call_user_func( array($options_class, 'get_options'));
+  			$updates = false; 
+    		foreach ($page_options as $option) {
+       			$option = trim($option);
+       			$val = array_key_exists($option, $_POST) ? trim(stripslashes($_POST[$option])) : '';
+       			if ($trim_option_prefix) $option = substr($option,$trim_option_prefix); //remove prefix
+				$options[$option] = $val;
+    		} //end for
+   			$saved = call_user_func( array($options_class, 'save_options'), $options) ;
+   			if ($saved)  {
+	  		    $class='updated fade';		
+       			$message = 'settings saved successfully.';
+   			} else {
+ 	 		    $class='error fade';
+       			$message = 'settings have not been changed.';
+			}
+  		} else {
+  		    $class='error';
+       		$message= 'settings not found!';
+  		}
+  		return sprintf('<div id="message" class="%1$s"><p>%2$s %3$s</p></div>',
+  			$class, __($settings_name), __($message));
+	}
+
+    function fetch_message() {
 		$message = '' ;
 		if (isset($_REQUEST['message']) && ! empty($_REQUEST['message'])) { 
 			$message = urldecode($_REQUEST['message']);
 			$_SERVER['REQUEST_URI'] = remove_query_arg(array('message'), $_SERVER['REQUEST_URI']);
-			$style = strpos($message,'success') !== FALSE ? ' success' : (strpos($message,'fail') !== FALSE ? ' failure' : '');
+			$style = strpos($message,'success') !== FALSE ? ' success' : (strpos($message,'fail') !== FALSE ? ' error' : '');
 			$message = sprintf('<div class="updated %2$$">%1$s</div>',$message,$style); 
 		}
 		return $message;
     } 
 
-	public static function save() {
-		check_admin_referer(__CLASS__);
-		$modules = Genesis_Club_Plugin::get_modules_present();
-		$new_options = array();
-		$checked =  array_key_exists('checked_modules', $_POST) ? (array) $_POST['checked_modules'] : array();
-		foreach ( $modules as $module => $info ) {
-			$key = Genesis_Club_Plugin::get_disabled_key($module);
-			$new_options[$key] = ! in_array($module, $checked); 
+	function screen_layout_columns($columns, $screen) {
+		if (!defined( 'WP_NETWORK_ADMIN' ) && !defined( 'WP_USER_ADMIN' )) {
+			if ($screen == $this->get_screen_id()) {
+				$columns[$this->get_screen_id()] = 2;
+			}
 		}
-  		$updates = Genesis_Club_Options::save_options($new_options); 
-   		$message = $updates ? 'Genesic Club Settings saved.' : 
-   				'No Genesis Club settings were changed since last update.';
-		$redir = add_query_arg( array('message' => urlencode(__($message,GENESIS_CLUB_DOMAIN))), $_SERVER['REQUEST_URI'] ); //add the message 
-    	wp_redirect( $redir ); 
-    	exit;
+		return $columns;
 	}
 
-	private static function checkbox_helper($module, $checked, $disabled = false) {
-		return sprintf ('<input type="checkbox" id="cb-select-%1$s" name="checked_modules[]" %2$svalue="%1$s" %3$s/>',
-			$module, $checked ? 'checked="checked" ' : '', $disabled ? 'disabled="disabled" ' : '');			
-	}
+	abstract function init() ;
 
-	public static function settings_panel() {
- 		$this_url = $_SERVER['REQUEST_URI'];
- 		$friendly = __(GENESIS_CLUB_FRIENDLY_NAME);
-    	$title = sprintf('<h2 class="title">%1$s %2$s</h2>',$friendly, GENESIS_CLUB_VERSION);				
- 		$pro = sprintf('<a target="_blank" rel="external" href="%1$s">Genesis Club Pro</a>', GENESIS_CLUB_PRO_URL); 
-		$nonces = self::get_nonces();
-		$message = self::fetch_message();
-		$modules = Genesis_Club_Plugin::get_modules();
-		print <<< SETTINGS_PANEL
-<div class="wrap">
-{$title}
-<div id="poststuff"><div id="post-body"><div id="post-body-content">
-{$message}
-<form id="admin_options" method="post" action="{$this_url}">
-<p class="save"><input type="submit" class="button-primary" name="options_update" value="Save Changes" /></p>
-<div class="actions"><input id="cb-select-all" type="checkbox" />Select/Deselect All or individually select the Genesis Club modules you need.  Or click the link to find out more about {$pro} features.</div>
-<ul class="products_grid" class="wrap">
-SETTINGS_PANEL;
-		foreach ( $modules as $module => $info ) {
-			$present = Genesis_Club_Plugin::module_exists($module);
-			$enabled = $present && Genesis_Club_Plugin::is_module_enabled($module);
-			$verbose_status = $present ? ($enabled ? '' :  __('Inactive', GENESIS_CLUB_DOMAIN)) :  __('Pro', GENESIS_CLUB_DOMAIN);
-			printf ('<li class="mix product-card"><div class="status-action clear"><span class="status">%1$s</span>%2$s</div><h2>%3$s</h2><div class="summary">%4$s</div></li>',
-				$verbose_status, self::checkbox_helper($module, $enabled, ! $present), $info['heading'], $info['tip']);
-		}
-		print <<< SETTINGS_END_PANEL
-</ul>
-<p class="save"><input type="submit" class="button-primary" name="options_update" value="Save Changes" /></p>
-<p>
-{$nonces}
-</p>
-</form>
-</div></div><br class="clear"/></div>
-</div>
-SETTINGS_END_PANEL;
-	} 
+	abstract function admin_menu() ;
+
+	abstract function page_content(); 
+
+	abstract function load_page();
 
 }

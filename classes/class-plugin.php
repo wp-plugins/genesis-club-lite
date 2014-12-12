@@ -5,7 +5,9 @@ if (!class_exists('Genesis_Club_Plugin')) {
  	private static $path = GENESIS_CLUB_PLUGIN_PATH;
  	private static $slug = GENESIS_CLUB_PLUGIN_NAME;
  	private static $version = GENESIS_CLUB_VERSION;
+	private static $admin_modules = array();
 	private static $modules = array(
+		'api' => array('class'=> 'Genesis_Club_API','heading' => 'API Keys', 'tip' => 'Check your Genesis Club Pro license is up to date and if an new version of the plugin is available.'),
 		'accordion' => array('class'=> 'Genesis_Club_Accordion', 'heading' => 'Accordion', 'tip' => 'Create one or more accordions to display your frequently answered questions'),
 		'background' => array('class'=> 'Genesis_Club_Background','heading' => 'Background', 'tip' => 'Add stylish image or video backgrounds to your pages.'),
 		'bar' => array('class'=> 'Genesis_Club_Bar','heading' => 'Bar', 'tip' => 'Add an animated top bar for your calls to action'),
@@ -16,7 +18,7 @@ if (!class_exists('Genesis_Club_Plugin')) {
 		'landing' => array('class'=> 'Genesis_Club_Landing','heading' => 'Landing Pages', 'tip' => 'Use our lead capture forms for your landing pages. Integrates with Aweber, MailChimp, SendReach and Infusionsoft'),
 		'media' => array('class'=> 'Genesis_Club_Media','heading' => 'Media', 'tip' => 'Must have features if you are <em>not</em> hosting all your media files in the Media Library'),
 		'menu' => array('class'=> 'Genesis_Club_Menu','heading' => 'Menus', 'tip' => 'Use mobile responsive "hamburgers" for your primary, secondary and header right navigation menus'),
-		'seo' => array('class'=> 'Genesis_Club_Seo','heading' => 'SEO Migration', 'tip' => 'SEO migrations from the Thesis theme and the WordPress SEO plugin'),
+		'seo' => array('class'=> 'Genesis_Club_Seo','heading' => 'SEO Migration', 'tip' => 'SEO migrations from the Thesis theme to Genesis and to and from the WordPress SEO plugin'),
 		'signature' => array('class'=> 'Genesis_Club_Signature','heading' => 'Signatures', 'tip' => 'Add author signatures to the foot of your posts'),
 		'slider' => array('class'=> 'Genesis_Club_Slider','heading' => 'Slider', 'tip' => 'Deliver your message using animated words and images using a mobile responsive layer slider'),
 		'social' => array('class'=> 'Genesis_Club_Social','heading' => 'Social Sharing', 'tip' => 'Add a floating or fixed social panel to get likes for your pages.'),
@@ -60,8 +62,11 @@ if (!class_exists('Genesis_Club_Plugin')) {
 	}
 
 	public static function init() {
+		require_once (dirname(__FILE__) . '/class-diy-options.php');
+		require_once (dirname(__FILE__) . '/class-options.php');
+		require_once (dirname(__FILE__) . '/class-utils.php');
+		Genesis_Club_Options::init();
 		if (self::is_genesis_loaded()) {
-			require_once (dirname(__FILE__) . '/class-options.php');
 			$modules = array_keys(self::$modules);
 			foreach ($modules as $module) 
 				if (self::is_module_enabled($module))
@@ -72,9 +77,10 @@ if (!class_exists('Genesis_Club_Plugin')) {
 	public static function admin_init() {
 		if (self::is_genesis_loaded()) {
 			require_once (dirname(__FILE__) . '/class-tooltip.php');
-			require_once (dirname(__FILE__) . '/class-admin.php');		
-			Genesis_Club_Admin::init();
-			$modules = array_keys(self::$modules);			
+			require_once (dirname(__FILE__) . '/class-admin.php');
+			require_once (dirname(__FILE__) . '/class-dashboard.php');
+			new Genesis_Club_Dashboard(self::$version, self::$path, self::$slug);
+			$modules = array_keys(self::$modules);		
 			foreach ($modules as $module) 
 				if (self::is_module_enabled($module))
 					self::init_module($module, true);
@@ -88,7 +94,7 @@ if (!class_exists('Genesis_Club_Plugin')) {
 			self::deactivate('genesis-club-pro/main.php'); 
 			self::deactivate('genesis-club-lite/main.php'); 
        		 wp_die(  __( sprintf('You cannot run both Genesis Club Lite and Genesis Club Pro at the same time.<br/><strong>Both have been deactivated</strong>.<br/>Now go to the WordPress <a href="%1$s" style="text-decoration:underline"><em>Plugins page</em></a> and activate the one you want to use.',
-        		 get_admin_url(null, 'plugins.php?s=genesis%20club')), GENESIS_CLUB_PLUGIN_NAME ));			 
+        		 get_admin_url(null, 'plugins.php?s=genesis%20club')), GENESIS_CLUB_DOMAIN ));			 
 		}
 	}
 
@@ -98,7 +104,7 @@ if (!class_exists('Genesis_Club_Plugin')) {
 		} else {
         	self::deactivate();
        		 wp_die(  __( sprintf('Sorry, you cannot use %1$s unless you are using a child theme based on the StudioPress Genesis theme framework. The %1$s plugin has been deactivated. Go to the WordPress <a href="%2$s"><em>Plugins page</em></a>.',
-        		GENESIS_CLUB_FRIENDLY_NAME, get_admin_url(null, 'plugins.php')), GENESIS_CLUB_PLUGIN_NAME ));
+        		GENESIS_CLUB_FRIENDLY_NAME, get_admin_url(null, 'plugins.php')), GENESIS_CLUB_DOMAIN ));
    		} 
 	}
 	
@@ -127,7 +133,7 @@ if (!class_exists('Genesis_Club_Plugin')) {
 				$file = $prefix . '-admin.php';
 				if (!class_exists($class) && file_exists($file)) {
 					require_once($file);
-					if (is_callable(array($class, 'init')))  call_user_func(array($class, 'init'));	
+					self::$admin_modules[$module] = new $class(self::$version, self::$path, self::$slug, $module);
  				}
 			} else {
 				$file = $prefix . '.php';
@@ -141,10 +147,20 @@ if (!class_exists('Genesis_Club_Plugin')) {
 		}
 	}
 
+	public static function call_module_func($module, $func) {	
+		if (array_key_exists($module, self::$modules)
+		&& array_key_exists($module, self::$admin_modules)
+		&& is_callable(array( self::$admin_modules[$module], $func))) {
+			return call_user_func(array(self::$admin_modules[$module], $func));
+		}
+	}
+
 	private static function upgrade_module($module) {	
 		if (array_key_exists($module, self::$modules)
 		&& ($class = self::$modules[$module]['class'])) {
-			if (is_callable(array($class.'_Admin','upgrade'))) call_user_func(array($class.'_Admin', 'upgrade'));
+			if (array_key_exists($module, self::$admin_modules)
+			&& is_callable(array( self::$admin_modules[$module],'upgrade'))) 
+				call_user_func(array(self::$admin_modules[$module], 'upgrade'));
 			self::unset_activation_key($class);
 		}
 	}

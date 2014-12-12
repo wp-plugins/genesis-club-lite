@@ -71,26 +71,27 @@ SCRIPT;
 		return $instance;
 	}
 
-	function print_form_field($fld, $type, $options = array(), $args = array()) {
-		print Genesis_Club_Options::form_field( 
-			$this->get_field_id($fld), $this->get_field_name($fld), 
-			$this->tooltips->tip($fld), 
-			$this->instance[$fld],
-			$type, $options, $args, 'br');
-	}
-
 	function form( $instance ) {
 		$this->instance = wp_parse_args( (array) $instance, $this->get_defaults() );
-		$this->tooltips = new DIY_Tooltip($this->tips);
+		$this->tooltips = new Genesis_Club_Tooltip($this->tips);
 		print '<div class="diy-wrap">';		
 		$sizes = array_keys(genesis_get_image_sizes());
-		$this->print_form_field('title', 'text', array(), array('size' => 12));
+		$this->print_form_field('title', 'text', array(), array('size' => 10));
 		$this->print_form_field('size', 'select', array_combine($sizes,$sizes));
 		$this->print_form_field('posts_per_page',  'text', array(), array('size' => 3 ,'maxlength' => 3));
 		$this->print_form_field('lightbox', 'checkbox');
 		$this->print_form_field('hide_featured', 'checkbox');
 		print '</div>';		
 	}
+
+	private function print_form_field($fld, $type, $options = array(), $args = array()) {
+		print Genesis_Club_Utils::form_field( 
+			$this->get_field_id($fld), $this->get_field_name($fld), 
+			$this->tooltips->tip($fld), 
+			$this->instance[$fld],
+			$type, $options, $args, 'br');
+	}
+
 }
 
 class Genesis_Club_Facebook_Likebox_Widget extends WP_Widget {
@@ -104,7 +105,7 @@ class Genesis_Club_Facebook_Likebox_Widget extends WP_Widget {
 
 	private $tips = array(
 			'title' => array('heading' => 'Title', 'tip' => 'Widget Title'),
-			'href' => array('heading' => 'Facebook Page URL', 'tip' => 'URL of Facebook page. For example,  https://www,facebook.com/yourpage/'),
+			'href' => array('heading' => 'Facebook URL', 'tip' => 'URL of Facebook page. For example,  https://www,facebook.com/yourpage/'),
 			'header' => array('heading' => 'Show Header', 'tip' => 'Show Header.'),
 			'faces' => array('heading' => 'Show Faces', 'tip' => 'Show faces of those who liked this site'),
 			'border' => array('heading' => 'Show Border', 'tip' => 'Show solid border.'),
@@ -156,21 +157,13 @@ class Genesis_Club_Facebook_Likebox_Widget extends WP_Widget {
 		return $instance;
 	}
 
-	function print_form_field($fld, $type, $options = array(), $args = array()) {
-		print Genesis_Club_Options::form_field(
-			$this->get_field_id($fld), $this->get_field_name($fld), 
-			$this->tooltips->tip($fld), 
-			$this->instance[$fld],
-			$type, $options, $args, 'br');
-	}
-
 	function form( $instance ) {
 		print '<div class="diy-wrap">';		
 		$this->instance = wp_parse_args( (array) $instance, $this->get_defaults() );
-		$this->tooltips = new DIY_Tooltip($this->tips);
-		$this->print_form_field('title', 'text', array(), array('size' => 25 ));
+		$this->tooltips = new Genesis_Club_Tooltip($this->tips);
+		$this->print_form_field('title', 'text', array(), array('size' => 12 ));
 		print '<hr/>';
-		$this->print_form_field('href', 'textarea', array(), array('cols' => 25, 'rows'=> 2));
+		$this->print_form_field('href', 'textarea', array(), array('cols' => 12, 'rows'=> 4));
 		$this->print_form_field('width', 'text',array(), array('size' => 4 ,'maxlength' => 4, 'suffix' => 'px'));
 		$this->print_form_field('height', 'text',array(), array('size' => 4 ,'maxlength' => 4, 'suffix' => 'px'));
 		$this->print_form_field('colorscheme', 'select', array('light' => 'Light', 'dark' => 'Dark'));
@@ -179,5 +172,14 @@ class Genesis_Club_Facebook_Likebox_Widget extends WP_Widget {
 		$this->print_form_field('border', 'checkbox');
 		$this->print_form_field('stream', 'checkbox');
 		print '</div>';
+	}
+
+
+	private function print_form_field($fld, $type, $options = array(), $args = array()) {
+		print Genesis_Club_Utils::form_field(
+			$this->get_field_id($fld), $this->get_field_name($fld), 
+			$this->tooltips->tip($fld), 
+			$this->instance[$fld],
+			$type, $options, $args, 'br');
 	}
 }

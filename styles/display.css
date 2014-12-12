@@ -1,0 +1,10 @@
+.clearfix:before, .clearfix:after { content: "\0020";  display: table; }
+.clearfix:after { clear: both; }
+.clearfix { *zoom: 1; }
+.dropcaps main p:first-child:first-letter { 
+	font-family: Georgia;
+	float: left; 
+	font-size: 5em; 
+	line-height: 0.8em; 
+	padding-top: 5px;  
+}
