@@ -78,6 +78,7 @@ if (!class_exists('Genesis_Club_Plugin')) {
 		if (self::is_genesis_loaded()) {
 			require_once (dirname(__FILE__) . '/class-tooltip.php');
 			require_once (dirname(__FILE__) . '/class-admin.php');
+			require_once (dirname(__FILE__) . '/class-feed-widget.php');
 			require_once (dirname(__FILE__) . '/class-dashboard.php');
 			new Genesis_Club_Dashboard(self::$version, self::$path, self::$slug);
 			$modules = array_keys(self::$modules);		

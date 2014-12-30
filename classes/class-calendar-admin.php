@@ -18,7 +18,9 @@ class Genesis_Club_Calendar_Admin extends Genesis_Club_Admin {
 	
 	function page_content() {
 		$title = $this->admin_heading('Google Calendar Settings', GENESIS_CLUB_ICON);		
-		$this->print_admin_form_start($title);
+		$this->print_admin_form_with_sidebar_start($title); 
+		do_meta_boxes($this->get_screen_id(), 'side', null); 
+		$this->print_admin_form_with_sidebar_middle();
 		do_meta_boxes($this->get_screen_id(), 'normal', null); 
 		$this->print_admin_form_end( __CLASS__, $this->get_keys());
 	}  
@@ -28,7 +30,8 @@ class Genesis_Club_Calendar_Admin extends Genesis_Club_Admin {
  		$message = isset($_POST['options_update']) ? $this->save_calendar() : '';	
 		$callback_params = array ('options' => Genesis_Club_Calendar::get_options(), 'message' => $message);
 		$this->add_meta_box('intro', 'Intro', 'intro_panel',  $callback_params);
-		$this->add_meta_box('menu', 'Google Calendar Defaults', 'calendar_panel',  $callback_params);
+		$this->add_meta_box('menu', 'Google Calendar Defaults', 'calendar_panel', $callback_params);
+		$this->add_meta_box('news', 'Genesis Club News', 'news_panel',$callback_params, 'side');
 		$this->set_tooltips($this->tips);
 		add_action('admin_enqueue_scripts',array($this, 'enqueue_admin_styles'));
 		add_action('admin_enqueue_scripts',array($this, 'enqueue_postbox_scripts'));
@@ -54,5 +57,9 @@ INTRO_PANEL;
 		$this->print_form_field("label", $options['label'], 'textarea', array(), array('rows' => 3, 'cols' => 50)) ;
 		$this->print_form_field("timezone", $options['timezone'], 'select', Genesis_Club_Calendar::timezones()) ;
 	}	
+
+ 	function news_panel($post,$metabox){	
+		Genesis_Club_Feed_Widget::display_feeds();
+	}
   
 }

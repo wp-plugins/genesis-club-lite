@@ -3,8 +3,8 @@ Contributors: powerblogservice
 Donate link: http://www.diywebmastery.com/donate/
 Tags: genesis, signature 
 Requires at least: 3.0
-Tested up to: 4.0.1
-Stable tag: 1.4
+Tested up to: 4.1
+Stable tag: 1.5
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -21,22 +21,23 @@ FEATURES:
 * Include responsive clickable logo image in the title instead of text and tagline
 * Add a responsive hamburger menu icon to your primary, secondary and header navigation which can locate the menu to the left, to the right or below the hamburger
 * Add a responsive top bar for your marketing messages
+* Embed a Google Calendar on your page where the users can adjust the timezone so they can see your meetings and webinars scheduled in their own time zone
 * Apply the accordion feature to your FAQ page or FAQ category
 * Add an author signature at the foot of each post
 * With the [genesis-club-signature] shortcode you can position the signature anywhere in the post and hence you can use a PS and a PPS
 * Use the Genesis Club Hider to hide features on selected pages or posts: e.g the page title, the top bar, an author signature, or to exclude the page from the site search. For example, you may want to not have landing pages, "thank you" pages and any download pages appear on a site search.
 * Add extra widget areas at the top or foot of each post or archive page
-* Change or remove the content in the postinfo and postmeta sections at the top and bottom of each post
+* Change or remove the content in the postinfo and postmeta sections at the top and bottom of each post, page or archive
 * Change "read more..." label 
 * Change breadcrumb labels such as "Archives for"
 * Change commentary label "Leave A Reply" in HTML5 sites and "Speak Your Mind" in XHTML sites 
 * Remove comment form notices
 * Use alternative 404 page
-* Add clarify class
+* Add clearfix class
 * Add a Facebook LikeBox widget which you you can customize to match your theme colours
 * Post Image Gallery sidebar widget with optional lightbox for showing random selection of photos where you have many photos attached to a post. 
 * Enables Simple Social Icons plugin to have multiple widgets on the same page with different sizes
-* Use [simple-social-icon] short code to allow inclusion of social icons in the body of a post
+* Use [simple-social-icons] short code to allow inclusion of social icons in the body of a post
 
 == Installation ==
 1. Use the standard WordPress plugin automatic updates system for updating to the latest version or use the manual steps below. 
@@ -58,6 +59,14 @@ FEATURES:
 1. Frequently Asked Questions After Clicking A Question  
 
 == Changelog ==
+
+= 1.5 =
+* Updated for WordPress 4.1
+* Add ability to affect postinfo and postmeta on the home page
+* Fix bug in hiding pages from the internal search
+* Fix bug in page level controls for author signatures
+* Added missing dashicons CSS if hamburger menu is used but the display module is disabled
+* Added Genesis Club News Feed to the plugin admin panel
 
 = 1.4 = 
 * Embed Google Calendars where users can choose their own timezone to view your meetings and webinars
@@ -93,7 +102,7 @@ FEATURES:
 
 == Upgrade Notice ==
 
-= 1.4 = Optional - Google Calendar integration, enhanced Top Bar, Alternative 404 page, hide comment notes and clearfix CSS
+= 1.5 = Optional - Updated for WordPress 4.1, plus a few minor bug fixes
 
 == Links ==
 

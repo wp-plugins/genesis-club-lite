@@ -22,7 +22,9 @@ class Genesis_Club_Menu_Admin extends Genesis_Club_Admin {
 
 	function page_content() {
 		$title =  $this->admin_heading('Hamburger Menu Settings', GENESIS_CLUB_ICON);				
-		$this->print_admin_form_start($title); 
+		$this->print_admin_form_with_sidebar_start($title); 
+		do_meta_boxes($this->get_screen_id(), 'side', null); 
+		$this->print_admin_form_with_sidebar_middle();
 		do_meta_boxes($this->get_screen_id(), 'normal', null); 
 		$this->print_admin_form_end(__CLASS__, $this->get_keys());
 	}    
@@ -34,6 +36,7 @@ class Genesis_Club_Menu_Admin extends Genesis_Club_Admin {
 		$callback_params = array ('options' => Genesis_Club_Menu::get_options(), 'message' => $message);
 		$this->add_meta_box('intro', 'Intro',  'intro_panel', $callback_params);
 		$this->add_meta_box('menu', 'Responsive Menu', 'responsive_menu_panel', $callback_params);
+		$this->add_meta_box('news', 'Genesis Club News', 'news_panel',$callback_params, 'side');
 		add_action ('admin_enqueue_scripts',array($this, 'enqueue_admin_styles'));
 		add_action ('admin_enqueue_scripts',array($this, 'enqueue_postbox_scripts'));
 	}
@@ -43,6 +46,10 @@ class Genesis_Club_Menu_Admin extends Genesis_Club_Admin {
 		return $this->save_options('Genesis_Club_Menu', 'Menu');
 	}
 
+ 	function news_panel($post,$metabox){	
+		Genesis_Club_Feed_Widget::display_feeds();
+	}
+	
  	function intro_panel($post,$metabox){	
 		$message = $metabox['args']['message'];	 	
 		print <<< INTRO_PANEL
