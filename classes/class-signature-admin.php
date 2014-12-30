@@ -21,7 +21,9 @@ class Genesis_Club_Signature_Admin extends Genesis_Club_Admin {
 	
 	function page_content() {
  		$title =  $this->admin_heading('Signatures', GENESIS_CLUB_ICON);				
-		$this->print_admin_form_start($title); 
+		$this->print_admin_form_with_sidebar_start($title); 
+		do_meta_boxes($this->get_screen_id(), 'side', null); 
+		$this->print_admin_form_with_sidebar_middle();
 		do_meta_boxes($this->get_screen_id(), 'normal', null); 
 		$this->print_admin_form_end(__CLASS__);
 	} 	
@@ -30,6 +32,7 @@ class Genesis_Club_Signature_Admin extends Genesis_Club_Admin {
 		$this->add_meta_box('intro', __('Instructions',GENESIS_CLUB_DOMAIN),  'intro_panel');
 		$this->add_meta_box('help', __('Help Creating A Signature',GENESIS_CLUB_DOMAIN), 'help_panel');
 		$this->add_meta_box('example', __('Example Signature',GENESIS_CLUB_DOMAIN), 'example_panel');
+		$this->add_meta_box('news', 'Genesis Club News', 'news_panel',null, 'side');
 		$this->add_tooltip_support();
 		add_action ('admin_enqueue_scripts',array($this, 'enqueue_admin_styles'));
 		add_action ('admin_enqueue_scripts',array($this, 'enqueue_postbox_scripts'));
@@ -97,14 +100,14 @@ class Genesis_Club_Signature_Admin extends Genesis_Club_Admin {
 	function page_visibility_save($post_id) {
 		$post_type = get_post_type( $post_id);
 		$post_author = get_post_field( 'post_author', $post_id);	
-		$key = $this->TOGGLE_SIGNATURE;
+		$key = self::TOGGLE_SIGNATURE;
 		$meta_key = Genesis_Club_Signature::get_toggle_meta_key($post_type, $post_author);	
 		update_post_meta( $post_id, $meta_key, array_key_exists($key, $_POST) ? $_POST[$key] : false);
 	}
 
 	function page_visibility_show($post) {
 		$meta_key = Genesis_Club_Signature::get_toggle_meta_key($post->post_type, $post->post_author);
-		echo $this->form_field($this->TOGGLE_SIGNATURE, $this->TOGGLE_SIGNATURE, 
+		echo $this->form_field(self::TOGGLE_SIGNATURE, self::TOGGLE_SIGNATURE, 
 			__(strpos($meta_key, 'hide') !== FALSE ? 'Do not show the author signature on this page' : 'Show the author signature on this page'), 
 			get_post_meta($post->ID, $meta_key, true),  'checkbox', array(), array(), 'br') ;
     }
@@ -134,6 +137,10 @@ class Genesis_Club_Signature_Admin extends Genesis_Club_Admin {
 </table>
 SIGNATURE_PANEL;
     }    
+	
+ 	function news_panel($post,$metabox){	
+		Genesis_Club_Feed_Widget::display_feeds();
+	}	
 	
 	function intro_panel() {
 		$url = admin_url('profile.php#genesis-club-signature');

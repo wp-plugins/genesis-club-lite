@@ -171,12 +171,13 @@ SCRIPT;
 ADMIN_START;
 	}
 
-	function print_admin_form_with_sidebar_middle() {
+	function print_admin_form_with_sidebar_middle($enctype = false) {
 		$this_url = $_SERVER['REQUEST_URI'];
+	 	$enctype = $enctype ? 'enctype="multipart/form-data" ' : '';
 	    print <<< ADMIN_MIDDLE
 </div>
 <div id="post-body" class="has-sidebar"><div id="post-body-content" class="has-sidebar-content diy-wrap">
-<form id="diy_options" method="post" action="{$this_url}">
+<form id="diy_options" method="post" {$enctype}action="{$this_url}">
 ADMIN_MIDDLE;
 	}
 	

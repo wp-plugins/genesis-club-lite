@@ -1,7 +1,7 @@
 <?php
 class Genesis_Club_Display_Admin extends Genesis_Club_Admin {
     const INDICATOR = 'genesis_club_hiding';
-    const HIDE_FROM_SEARCH = 'genesis_club_not_on_404';
+    const HIDE_FROM_SEARCH = 'genesis_club_hide_from_search';
     const HIDE_TITLE = 'genesis_club_hide_title';
     const HIDE_BEFORE_CONTENT = 'genesis_club_hide_before_content';
     const HIDE_BEFORE_ENTRY = 'genesis_club_hide_before_entry';
@@ -51,7 +51,9 @@ class Genesis_Club_Display_Admin extends Genesis_Club_Admin {
 
 	function page_content() {
 		$title = $this->admin_heading('Display Settings', GENESIS_CLUB_ICON);		
-		$this->print_admin_form_start($title);
+		$this->print_admin_form_with_sidebar_start($title); 
+		do_meta_boxes($this->get_screen_id(), 'side', null); 
+		$this->print_admin_form_with_sidebar_middle();
 		do_meta_boxes($this->get_screen_id(), 'normal', null); 
 		$this->print_admin_form_end(__CLASS__, $this->get_keys());		
 	}  
@@ -67,6 +69,7 @@ class Genesis_Club_Display_Admin extends Genesis_Club_Admin {
 		$this->add_meta_box('facebook', 'Facebook',  'facebook_panel', $callback_params);
 		$this->add_meta_box('404', '404 Page',  'alt_404_panel', $callback_params);
 		$this->add_meta_box('css', 'CSS Classes',  'css_panel', $callback_params);		
+		$this->add_meta_box('news', 'Genesis Club News', 'news_panel', $callback_params, 'side');
 		$this->set_tooltips($this->tips);
 		add_action ('admin_enqueue_scripts',array($this, 'enqueue_admin_styles'));
 		add_action ('admin_enqueue_scripts',array($this, 'enqueue_postbox_scripts'));
@@ -81,13 +84,15 @@ class Genesis_Club_Display_Admin extends Genesis_Club_Admin {
 		if (array_key_exists(self::INDICATOR, $_POST)) {
 			$post_type = get_post_type( $post_id);
 			$keys = array();
-			$keys[self::HIDE_FROM_SEARCH] = Genesis_Club_Display::PAGE_HIDER_METAKEY;
+			$keys[self::HIDE_FROM_SEARCH] = Genesis_Club_Display::HIDE_FROM_SEARCH_METAKEY;
 			$keys[self::HIDE_TITLE] = Genesis_Club_Display::HIDE_TITLE_METAKEY;
 			$keys[self::HIDE_BEFORE_CONTENT] = Genesis_Club_Display::HIDE_BEFORE_CONTENT_METAKEY;
 			$keys[self::HIDE_BEFORE_ENTRY] = Genesis_Club_Display::HIDE_BEFORE_ENTRY_METAKEY;
 			$keys[self::HIDE_BEFORE_ENTRY_CONTENT] = Genesis_Club_Display::HIDE_BEFORE_ENTRY_CONTENT_METAKEY;
 			$keys[self::HIDE_AFTER_ENTRY_CONTENT] = Genesis_Club_Display::HIDE_AFTER_ENTRY_CONTENT_METAKEY;
 			$keys[self::HIDE_AFTER_ENTRY] = Genesis_Club_Display::HIDE_AFTER_ENTRY_METAKEY;
+			$keys[self::HIDE_AFTER_CONTENT] = Genesis_Club_Display::HIDE_AFTER_CONTENT_METAKEY;
+
 			foreach ($keys as $key => $metakey)
 				update_post_meta( $post_id, $metakey, array_key_exists($key, $_POST) ? $_POST[$key] : false);			
 			do_action('genesis_club_hiding_settings_save',$post_id);
@@ -130,11 +135,12 @@ class Genesis_Club_Display_Admin extends Genesis_Club_Admin {
 	function hiding_panel($post,$metabox) {
 		print $this->form_field(self::INDICATOR, self::INDICATOR, '', 1, 'hidden'); 
 
-		print $this->visibility_checkbox('page_from_search', true, '%1$s this page on the site search results page');
+		print $this->visibility_checkbox('from_search', true, '%1$s this page on the site search results page');
 
 		print $this->visibility_checkbox('title', true, '%1$s the title on this page');
 
 		$options = Genesis_Club_Display::get_options();
+
 		if ($options['before_content'])
 			print $this->widget_area_visibility_checkbox('before_content');
 				
@@ -167,8 +173,8 @@ INTRO_PANEL;
 	function logo_panel($post,$metabox){	
 		$options = $metabox['args']['options'];	 	
 		$this->print_form_field('remove_blog_title', $options['remove_blog_title'], 'checkbox');
-		$this->print_text_field('logo', $options['logo'], array('size' => 80));
-		$this->print_text_field('logo_alt', $options['logo_alt'], array('size' => 80));
+		$this->print_text_field('logo', $options['logo'], array('size' => 55));
+		$this->print_text_field('logo_alt', $options['logo_alt'], array('size' => 55));
 	}
  
 	function facebook_panel($post,$metabox){	
@@ -220,5 +226,8 @@ INTRO_PANEL;
 		$this->print_form_field('css_hacks', $options['css_hacks'], 'checkbox');
 	}	  
 
+ 	function news_panel($post,$metabox){	
+		Genesis_Club_Feed_Widget::display_feeds();
+	}
 }
 

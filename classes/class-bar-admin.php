@@ -34,7 +34,9 @@ class Genesis_Club_Bar_Admin extends Genesis_Club_Admin {
 
 	function page_content() {
  		$title = $this->admin_heading('Bar Settings', GENESIS_CLUB_ICON);				
-		$this->print_admin_form_start($title); 
+		$this->print_admin_form_with_sidebar_start($title); 
+		do_meta_boxes($this->get_screen_id(), 'side', null); 
+		$this->print_admin_form_with_sidebar_middle();
 		do_meta_boxes($this->get_screen_id(), 'normal', null); 
 		$this->print_admin_form_end(__CLASS__, (array)$this->get_keys());
 	} 
@@ -49,6 +51,7 @@ class Genesis_Club_Bar_Admin extends Genesis_Club_Admin {
 		$this->add_meta_box('timimgs','Timing', 'timings_panel', $callback_params);
 		$this->add_meta_box('effects', 'Effects',  'effects_panel', $callback_params);
 		$this->add_meta_box('location', 'Location',  'location_panel', $callback_params);
+		$this->add_meta_box('news', 'Genesis Club News', 'news_panel',$callback_params, 'side');
 		$this->set_tooltips($this->tips);
 		add_action('admin_enqueue_scripts',array($this, 'enqueue_admin_styles'));
 		add_action('admin_enqueue_scripts',array($this, 'enqueue_postbox_scripts'));
@@ -135,16 +138,16 @@ BAR_PANEL;
 
 	function messages_panel($post,$metabox){	
 		$options = $metabox['args']['options'];
-		$this->print_text_field('bar_full_message',$options['full_message'], array('size' => 80));
-		$this->print_text_field('bar_laptop_message',$options['laptop_message'],  array('size' => 70));
-		$this->print_text_field('bar_tablet_message',$options['tablet_message'], array('size' => 60));
-		$this->print_text_field('bar_short_message',$options['short_message'], array('size' => 50));
+		$this->print_text_field('bar_full_message',$options['full_message'], array('size' => 55));
+		$this->print_text_field('bar_laptop_message',$options['laptop_message'],  array('size' => 50));
+		$this->print_text_field('bar_tablet_message',$options['tablet_message'], array('size' => 45));
+		$this->print_text_field('bar_short_message',$options['short_message'], array('size' => 40));
 	}
 
 	function colors_panel($post,$metabox){	
 		$options = $metabox['args']['options'];
 		$this->print_text_field('bar_font_color',$options['font_color'], array('size' => 8, 'class' => 'color-picker'));
-		$this->print_text_field('bar_background',$options['background'], array('size' => 80));
+		$this->print_text_field('bar_background',$options['background'], array('size' => 50));
 	}
 
 	function timings_panel($post,$metabox){	
@@ -166,4 +169,7 @@ BAR_PANEL;
 		$this->print_form_field('bar_position',$options['position'], 'radio', array('top' => 'Top', 'bottom' => 'Bottom'));
 	}
 
+ 	function news_panel($post,$metabox){	
+		Genesis_Club_Feed_Widget::display_feeds();
+	}
 }

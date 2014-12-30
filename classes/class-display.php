@@ -9,7 +9,7 @@ class Genesis_Club_Display {
 	const AFTER_ARCHIVE_SIDEBAR_ID = 'genesis-after-archive';
 	const AFTER_CONTENT_SIDEBAR_ID = 'genesis-after-content-sidebar-wrap';
 
-    const PAGE_HIDER_METAKEY = '_genesis_page_not_on_404';
+    const HIDE_FROM_SEARCH_METAKEY = '_genesis_club_hide_from_search';
     const HIDE_TITLE_METAKEY = '_genesis_club_hide_title';
     const HIDE_AFTER_CONTENT_METAKEY = '_genesis_club_hide_after_content';
     const HIDE_AFTER_ENTRY_METAKEY = '_genesis_club_hide_after_entry';
@@ -215,36 +215,24 @@ class Genesis_Club_Display {
 				}
 			}
 		}
-		
-		if (is_singular()) {  //remove or replace post info 
-		 	if (is_page() && self::get_option('no_page_postmeta')) { //remove postinfo on pages
-		 		if (self::$is_html5) 
-					remove_action( 'genesis_entry_header', 'genesis_post_info', 12 ); 
-				else  
-					remove_action( 'genesis_before_post_content', 'genesis_post_info' );		 			
-			}
-			elseif ( ! self::$is_landing && ($postinfo = self::get_option('postinfo_shortcodes'))) { //replace shortcodes
-		 		if (self::$is_html5) {
-					remove_action( 'genesis_entry_header', 'genesis_post_info', 12 );
-					add_action ('genesis_entry_header', array(__CLASS__,'post_info'),12); 
-				} else { 
-					remove_action( 'genesis_before_post_content', 'genesis_post_info' );		 			
-					add_action( 'genesis_before_post_content', array(__CLASS__,'post_info') );	
-				}
-	 		}
+
+		if (self::get_option('no_page_postmeta') && (is_page() || is_front_page())) {  //remove postinfo and postmeta on pages
+			self::replace_postinfo(false);
+			self::replace_postmeta(false);
+		} elseif (self::get_option('postinfo_shortcodes') && is_singular() && !self::$is_landing)  {//replace postinfo 
+			self::replace_postinfo(true);
 		}
 		 	
-		if (is_single()) {  
-		 	if ($postmeta = self::get_option('postmeta_shortcodes')) { //replace postmeta on posts 
-				$hook = self::$is_html5 ?  'genesis_entry_footer' : 'genesis_after_post_content';
-				remove_action( $hook, 'genesis_post_meta');
-				add_action ($hook, array(__CLASS__,'post_meta')); 
-			}
-			if (is_active_widget( false, false, 'genesis-club-post-image-gallery', false )) add_thickbox();				
+		if (self::get_option('postmeta_shortcodes') && is_single()) { //replace postmeta on posts 
+			self::replace_postmeta(true);
+		}
+
+		if (is_single() && is_active_widget( false, false, 'genesis-club-post-image-gallery', false )) {
+			add_thickbox();
 		}
 
 		if (is_active_widget( false, false, 'genesis-club-likebox', false )) {
-			add_action( 'genesis_before', array(__CLASS__,'add_fb_root') );			
+			add_action('genesis_before', array(__CLASS__,'add_fb_root') );			
 		}
 		
 		if ( self::$is_landing )  {//disable breadcrumbs on landing pages
@@ -257,6 +245,27 @@ class Genesis_Club_Display {
 
 		add_action('wp_enqueue_scripts', array(__CLASS__,'enqueue_styles'));
 	}
+
+	private static function replace_postinfo($replace = false) {
+		 if (self::$is_html5) {
+			remove_action( 'genesis_entry_header', 'genesis_post_info', 12 );
+			if ($replace) add_action ('genesis_entry_header', array(__CLASS__,'post_info'),12); 
+		} else { 
+			remove_action( 'genesis_before_post_content', 'genesis_post_info' );		 			
+			if ($replace) add_action( 'genesis_before_post_content', array(__CLASS__,'post_info') );	
+		} 			
+	}
+
+	private static function replace_postmeta($replace = false) {
+		 if (self::$is_html5) {
+			remove_action( 'genesis_entry_footer', 'genesis_post_meta');
+			if ($replace) add_action ('genesis_entry_footer', array(__CLASS__,'post_meta')); 
+		} else { 
+			remove_action( 'genesis_after_post_content', 'genesis_post_meta' );		 			
+			if ($replace) add_action( 'genesis_after_post_content', array(__CLASS__,'post_meta') );	
+		} 			
+	}
+
 
 	public static function get_defaults() {
     	return self::$defaults;
@@ -334,7 +343,7 @@ class Genesis_Club_Display {
 	public static function excluded_pages($content) {
 		global $wpdb;
 		$post_ids = $wpdb->get_col( $wpdb->prepare(
-			"SELECT post_id FROM $wpdb->postmeta WHERE meta_key = %s AND meta_value = '1'",self::PAGE_HIDER_METAKEY));
+			"SELECT post_id FROM $wpdb->postmeta WHERE meta_key = %s AND meta_value = '1'",self::HIDE_FROM_SEARCH_METAKEY));
         if ($post_ids && is_array($post_ids)) return (array)$content + $post_ids; 
 		return $content;
 	} 
@@ -342,7 +351,7 @@ class Genesis_Club_Display {
 	public static function excluded_posts($content, $args) {
 		global $wpdb;
         $post_ids = $wpdb->get_col( $wpdb->prepare(
-        	"SELECT post_id FROM $wpdb->postmeta WHERE meta_key = %s AND meta_value = '1'",self::PAGE_HIDER_METAKEY));
+        	"SELECT post_id FROM $wpdb->postmeta WHERE meta_key = %s AND meta_value = '1'",self::HIDE_FROM_SEARCH_METAKEY));
         if ($post_ids && is_array($post_ids)) $content .= sprintf (' AND ID NOT IN (%1$s)', implode(',',$post_ids));
 		return $content;
 	} 	

@@ -29,10 +29,11 @@ class Genesis_Club_Menu {
 				add_filter('genesis_do_subnav', array(__CLASS__,'add_responsive_menu'),100,3);
 			if ($header = self::get_option('header')) 
 				add_filter('wp_nav_menu', array(__CLASS__,'add_responsive_widget_menu'),100,2);
-			if ($primary || $secondary || $header) {	
+			if ($primary || $secondary || $header) {				
+				add_action('wp_enqueue_scripts',array(__CLASS__,'enqueue_dashicons'));
 				if (in_array('left',array($primary,$secondary,$header)) || in_array('right',array($primary,$secondary,$header))) {
-					add_action('wp_enqueue_scripts',array(__CLASS__,'enqueue_styles'));
-					add_action('wp_enqueue_scripts',array(__CLASS__,'enqueue_scripts'));
+					add_action('wp_enqueue_scripts',array(__CLASS__,'enqueue_sidr_styles'));
+					add_action('wp_enqueue_scripts',array(__CLASS__,'enqueue_sidr_scripts'));
 				}
 				add_action('wp_print_styles', array(__CLASS__, 'print_styles'));
 				add_action('wp_print_footer_scripts', array(__CLASS__, 'print_scripts'));
@@ -45,11 +46,15 @@ class Genesis_Club_Menu {
 
 	}
 
-	public static function enqueue_styles() {
+	public static function enqueue_dashicons() {
+		wp_enqueue_style('dashicons');
+	}
+
+	public static function enqueue_sidr_styles() {
 		wp_enqueue_style('jquery-sidr', plugins_url('styles/jquery.sidr.dark.css',dirname(__FILE__)), array(), '1.2.1');
 	}
 
-	public static function enqueue_scripts() {
+	public static function enqueue_sidr_scripts() {
 		wp_enqueue_script('jquery-sidr', plugins_url('scripts/jquery.sidr.min.js',dirname(__FILE__)), array('jquery'), '1.2.1', true);
 	}
 

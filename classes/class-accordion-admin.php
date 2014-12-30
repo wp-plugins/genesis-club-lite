@@ -24,7 +24,9 @@ class Genesis_Club_Accordion_Admin extends Genesis_Club_Admin {
 
 	function page_content() {
  		$title = $this->admin_heading('Accordion Settings', GENESIS_CLUB_ICON);				
-		$this->print_admin_form_start($title); 
+		$this->print_admin_form_with_sidebar_start($title); 
+		do_meta_boxes($this->get_screen_id(), 'side', null); 
+		$this->print_admin_form_with_sidebar_middle();
 		do_meta_boxes($this->get_screen_id(), 'normal', null); 
 		$this->print_admin_form_end(__CLASS__);
 	} 	
@@ -35,6 +37,7 @@ class Genesis_Club_Accordion_Admin extends Genesis_Club_Admin {
 		$this->add_meta_box('help', 'Help On Accordion Settings',  'help_panel');
 		$this->add_meta_box('tips', 'Tips On Setting Up A FAQ',  'tips_panel');
 		$this->add_meta_box('example','Example Of An Accordion In Action', 'example_panel');
+		$this->add_meta_box('news', 'Genesis Club News', 'news_panel', null, 'side');
 		add_action ('admin_enqueue_scripts',array($this, 'enqueue_admin_styles'));
 		add_action ('admin_enqueue_scripts',array($this, 'enqueue_postbox_scripts'));
 	}
@@ -50,6 +53,10 @@ class Genesis_Club_Accordion_Admin extends Genesis_Club_Admin {
 			$this->add_meta_box( 'accordion', 'Genesis Club Accordion Settings', 'accordion_panel' , null, 'advanced', 'low', $post_type);	
 		}
 	}
+	
+ 	function news_panel($post,$metabox){	
+		Genesis_Club_Feed_Widget::display_feeds(array(GENESIS_CLUB_NEWS));
+	}	
 	
 	function intro_panel() {
 		$url = admin_url('edit.php');

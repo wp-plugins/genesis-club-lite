@@ -29,7 +29,7 @@ if (!class_exists('Genesis_Club_Tooltip')) {
 	function tip($label,$args=false) {
 		$heading = $this->heading($label, $args); 
 		return $heading ? sprintf('<a href="#" class="diy-tooltip" tabindex="%3$s">%1$s<span class="tip">%2$s</span></a>',
-			$heading, $this->text($label, $args), $this->tabindex++) : ucwords($label);
+			$heading, $this->text($label, $args), $this->tabindex++) : ucfirst($label);
 	}
 
 	function apply_args($content, $args = false) {
