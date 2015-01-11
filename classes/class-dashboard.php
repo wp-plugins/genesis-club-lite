@@ -6,12 +6,8 @@ if (!class_exists('Genesis_Club_Dashboard')) {
 
 	function init() {
 		add_action('admin_menu',array($this, 'admin_menu'));
-		add_action('load-widgets.php', array( $this, 'add_tooltip_support'));
- 		add_action('load-edit.php', array( $this, 'add_tooltip_support'));
- 		add_action('load-post.php', array( $this, 'add_tooltip_support'));
- 		add_action('load-post-new.php', array( $this, 'add_tooltip_support'));
-        add_action('admin_enqueue_scripts', array($this, 'register_tooltip_styles'));
-        add_action('admin_enqueue_scripts', array($this, 'register_admin_styles'));     	
+		add_action('admin_enqueue_scripts', array($this, 'register_admin_styles'));
+		add_action('admin_enqueue_scripts', array($this, 'register_tooltip_styles'));
 	}
 
 	function admin_menu() {
@@ -20,6 +16,10 @@ if (!class_exists('Genesis_Club_Dashboard')) {
 		$intro = sprintf('Dashboard (v%1$s)', GENESIS_CLUB_VERSION);				
 		add_submenu_page(GENESIS_CLUB_PLUGIN_NAME, GENESIS_CLUB_FRIENDLY_NAME, $intro, 'manage_options', GENESIS_CLUB_PLUGIN_NAME,array($this,'page_content') );
  		add_action('load-'.$this->get_screen_id(), array($this, 'load_page')); 		
+		add_action('load-widgets.php', array( $this, 'add_tooltip_support'));
+ 		add_action('load-edit.php', array( $this, 'add_tooltip_support'));
+ 		add_action('load-post.php', array( $this, 'add_tooltip_support'));
+ 		add_action('load-post-new.php', array( $this, 'add_tooltip_support'));
 	}
 
 	function page_content() {

@@ -62,9 +62,11 @@ if (!class_exists('Genesis_Club_Plugin')) {
 	}
 
 	public static function init() {
-		require_once (dirname(__FILE__) . '/class-diy-options.php');
-		require_once (dirname(__FILE__) . '/class-options.php');
-		require_once (dirname(__FILE__) . '/class-utils.php');
+		$d = dirname(__FILE__) . '/';
+		require_once ($d . 'class-diy-options.php');
+		require_once ($d . 'class-options.php');
+		require_once ($d . 'class-utils.php');
+		require_once ($d . 'class-widget.php');
 		Genesis_Club_Options::init();
 		if (self::is_genesis_loaded()) {
 			$modules = array_keys(self::$modules);
@@ -76,10 +78,11 @@ if (!class_exists('Genesis_Club_Plugin')) {
 
 	public static function admin_init() {
 		if (self::is_genesis_loaded()) {
-			require_once (dirname(__FILE__) . '/class-tooltip.php');
-			require_once (dirname(__FILE__) . '/class-admin.php');
-			require_once (dirname(__FILE__) . '/class-feed-widget.php');
-			require_once (dirname(__FILE__) . '/class-dashboard.php');
+			$d = dirname(__FILE__) . '/';		
+			require_once ($d . 'class-tooltip.php');
+			require_once ($d . 'class-admin.php');
+			require_once ($d . 'class-feed-widget.php');
+			require_once ($d . 'class-dashboard.php');
 			new Genesis_Club_Dashboard(self::$version, self::$path, self::$slug);
 			$modules = array_keys(self::$modules);		
 			foreach ($modules as $module) 

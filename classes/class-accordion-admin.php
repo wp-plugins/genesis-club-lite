@@ -11,6 +11,8 @@ class Genesis_Club_Accordion_Admin extends Genesis_Club_Admin {
 	function init() {		
 		add_action('admin_menu',array($this, 'admin_menu'));
 		add_action('load-edit-tags.php', array($this, 'load_archive_page'));	
+		add_action('load-post.php', array($this, 'load_post_page'));	
+		add_action('load-post-new.php', array($this, 'load_post_page'));	
 		add_action('edit_term', array($this, 'save_archive'), 10, 2 );	
 		add_action('do_meta_boxes', array($this, 'do_meta_boxes'), 20, 2 );
 		add_action('save_post', array($this, 'save_postmeta'));
@@ -42,9 +44,13 @@ class Genesis_Club_Accordion_Admin extends Genesis_Club_Admin {
 		add_action ('admin_enqueue_scripts',array($this, 'enqueue_postbox_scripts'));
 	}
 
+	function load_post_page() {
+		$this->set_tooltips($this->tips);
+	}
+
 	function load_archive_page() {
 		add_action( $_REQUEST['taxonomy'] . '_edit_form', array($this, 'archive_panel'), 10, 2 );	
- 		$this->add_tooltip_support();		
+		$this->set_tooltips($this->tips);
 	}
 	
 	function do_meta_boxes( $post_type, $context) {
@@ -131,8 +137,7 @@ EXAMPLE;
 		$this->accordion_section(Genesis_Club_Accordion::get_accordion('terms', $term->term_id), true) ;
     }	
 
-	private function accordion_section($accordion, $is_archive){	
-		$this->set_tooltips($this->tips);
+	private function accordion_section($accordion, $is_archive){
 		$defaults = array('enabled' => '', 'header_class' => '', 'content_class' => '', 'container_class' => '', 'nopaging' => false);
 		$accordion = is_array($accordion) ?  shortcode_atts($defaults,$accordion) : $defaults;
 		if ($is_archive) {  //use table on archive pages
@@ -142,7 +147,7 @@ EXAMPLE;
 		} else {  //use div on page editor
 			$start_wrap = '<div class="diy-wrap">';			
 			$end_wrap ='</div>';		
-			$wrap = 'p';
+			$wrap = 'div';
 		}
 
 		print $start_wrap;	

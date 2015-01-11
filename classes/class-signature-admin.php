@@ -33,7 +33,6 @@ class Genesis_Club_Signature_Admin extends Genesis_Club_Admin {
 		$this->add_meta_box('help', __('Help Creating A Signature',GENESIS_CLUB_DOMAIN), 'help_panel');
 		$this->add_meta_box('example', __('Example Signature',GENESIS_CLUB_DOMAIN), 'example_panel');
 		$this->add_meta_box('news', 'Genesis Club News', 'news_panel',null, 'side');
-		$this->add_tooltip_support();
 		add_action ('admin_enqueue_scripts',array($this, 'enqueue_admin_styles'));
 		add_action ('admin_enqueue_scripts',array($this, 'enqueue_postbox_scripts'));
 	}
@@ -117,7 +116,8 @@ class Genesis_Club_Signature_Admin extends Genesis_Club_Admin {
 		$key2 = Genesis_Club_Signature::SIGNATURE_ON_POSTS_KEY;			
 		$sig_url = get_user_option($key1, $user->ID);
 		$show_sig = get_user_option($key2, $user->ID)   ? 'checked="checked"' : '';
-		$sig_img = empty($sig_url) ? '' : sprintf('<img alt="Author Signature" src="%1$s" /><br/>',$sig_url);		
+		$sig_img = empty($sig_url) ? '' : sprintf('<img alt="Author Signature" src="%1$s" /><br/>',$sig_url);	
+		$accept = 'image/' . '*';	
 		print <<< SIGNATURE_PANEL
 <h3 id="genesis-club-signature">Signature Settings</h3>
 <table class="form-table">
@@ -125,7 +125,7 @@ class Genesis_Club_Signature_Admin extends Genesis_Club_Admin {
 	<th><label for="gcsig">Author Signature</label></th>
 	<td>{$sig_img}
 	<input type="text" id="{$key1}" name="{$key1}" size="80" value="{$sig_url}" /><br/>
-	<input id="gcsig" name="gcsig" type="file" size="80" accept="image/*" value="{$sig_url}" /><br/>
+	<input id="gcsig" name="gcsig" type="file" accept="{$accept}" size="80"  value="{$sig_url}" /><br/>
 	<span class="description">Enter the signature URL or upload a new image file of your signature with approximate dimensions of say, 400px by 200px.</span></td>
 </tr>
 <tr>
@@ -136,7 +136,7 @@ class Genesis_Club_Signature_Admin extends Genesis_Club_Admin {
 </tr>
 </table>
 SIGNATURE_PANEL;
-    }    
+   }
 	
  	function news_panel($post,$metabox){	
 		Genesis_Club_Feed_Widget::display_feeds();
@@ -170,5 +170,5 @@ HELP;
 			!empty($usersig) ? $usersig :  plugins_url('images/signature-example.png',dirname(__FILE__)));		
 		print $sig;
 	}		
-	
+
 }
