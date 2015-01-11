@@ -23,11 +23,14 @@ border-top: 8px solid #ddd;border-left: 8px solid transparent;border-right: 8px 
 .diy-fieldset {display: inline-block; margin: 5px; }
 .diy-fieldset label { min-width: 70px; margin: 3px 15px 3px 5px; vertical-align:middle; }
 .diy-fieldset input { margin: 3px 0; }
-.diy-label { min-width: 200px; margin-right: 10px;  vertical-align: top;  display: inline-block;}
+.diy-label { min-width: 200px; margin-right: 10px;  vertical-align: top; display: inline-block;}
 .diy-wrap { margin: 10px 0; }
+.diy-wrap div label {padding-top:5px; }
 .diy-wrap h4 { margin: 10px 0;}
+.diy-checkbox { margin-left: 3px;}
 .diy-wrap p { margin: 5px 0 0; }
 .widgets-holder-wrap .diy-wrap .diy-label { min-width: 100px; }
 .widgets-holder-wrap .diy-label { min-width: 120px; }
 .widgets-holder-wrap .diy-fieldset label { min-width: 30px; }
 tr.diy-row th, tr.diy-row td { margin: 0; padding: 5px;}
+.wrapfieldset label { padding-top: 10px; }

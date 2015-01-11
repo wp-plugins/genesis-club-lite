@@ -19,8 +19,16 @@ abstract class Genesis_Club_Admin {
 		$this->tooltips = new Genesis_Club_Tooltip($this->tips);
 		$this->init();
 	}
-	
-    function get_screen_id(){
+
+	abstract function init() ;
+
+	abstract function admin_menu() ;
+
+	abstract function page_content(); 
+
+   abstract function load_page();
+
+   function get_screen_id(){
 		return $this->screen_id;
 	}
 
@@ -103,17 +111,6 @@ abstract class Genesis_Club_Admin {
 		add_action('admin_print_footer_scripts', array( $this, 'enable_color_picker'));
  	}
 
-    function enable_color_picker() {
-	    print <<< SCRIPT
-	<script type="text/javascript">
-		//<![CDATA[
-		jQuery(document).ready( function($) {
-	        $('.color-picker').wpColorPicker();
-		});
-		//]]>
-	</script>
-SCRIPT;
-    }
 
 	function enqueue_postbox_scripts() {
 		wp_enqueue_script('common');
@@ -122,19 +119,6 @@ SCRIPT;
 		add_action('admin_footer-'.$this->get_screen_id(), array($this, 'toggle_postboxes'));
  	}
  		
-	function toggle_postboxes() {
-		$hook = $this->get_screen_id();
-    	print <<< SCRIPT
-<script type="text/javascript">
-//<![CDATA[
-jQuery(document).ready( function($) {
-	$('.if-js-closed').removeClass('if-js-closed').addClass('closed');
-	postboxes.add_postbox_toggles('{$hook}');
-});
-//]]>
-</script>
-SCRIPT;
-    }	
 
  	function add_meta_box($code, $title, $callback_func, $callback_params = null, $context = 'normal', $priority = 'core', $post_type = false ) {
 		if (empty($post_type)) $post_type = $this->get_screen_id();
@@ -154,59 +138,28 @@ SCRIPT;
 	function print_text_field($fld, $value, $args = array()) {
  		$this->print_form_field($fld, $value, 'text', array(), $args);
  	}
+
+	function print_meta_form_field($meta, $key, $type, $options=array(), $args=array()) {
+		print $this->form_field( $meta[$key]['id'], $meta[$key]['name'], false, 
+			$meta[$key]['value'], $type, $options, $args);
+	}  
  	
-	function admin_heading($title = '', $icon_class = '') {
-		if (empty($title)) $title = sprintf('%1$s %2$s', ucwords(str_replace('-',' ',$this->slug)), $this->get_version());
-		$icon = empty($icon_class) ? '' : sprintf('<i class="%1$s"></i>',
-			'dashicons-'==substr($icon_class,0,10) ? ('dashicons '.$icon_class) : $icon_class) ;
-    	return sprintf('<h2 class="title">%2$s%1$s</h2>', $title, $icon);				
-	}
-
-	function print_admin_form_with_sidebar_start($title) {
-    	print <<< ADMIN_START
-<div class="wrap">
-{$title}
-<div id="poststuff" class="metabox-holder has-right-sidebar">
-<div id="side-info-column" class="inner-sidebar">
-ADMIN_START;
-	}
-
-	function print_admin_form_with_sidebar_middle($enctype = false) {
-		$this_url = $_SERVER['REQUEST_URI'];
-	 	$enctype = $enctype ? 'enctype="multipart/form-data" ' : '';
-	    print <<< ADMIN_MIDDLE
-</div>
-<div id="post-body" class="has-sidebar"><div id="post-body-content" class="has-sidebar-content diy-wrap">
-<form id="diy_options" method="post" {$enctype}action="{$this_url}">
-ADMIN_MIDDLE;
-	}
-	
-	function print_admin_form_start($title, $enctype = false) {
-	 	$this_url = $_SERVER['REQUEST_URI'];
-	 	$enctype = $enctype ? 'enctype="multipart/form-data" ' : '';
-    	print <<< ADMIN_START
-<div class="wrap">
-{$title}
-<div id="poststuff" {$enctype}class="metabox-holder"><div id="post-body"><div id="post-body-content">
-<form id="diy_options" method="post" {$enctype}action="{$this_url}">
-ADMIN_START;
-	}
-	
-	function print_admin_form_end($referer = false, $keys = false, $button_text = 'Save Changes') {
-		$nonces = $referer ? $this->get_nonces($referer) : '';
-		$page_options = $button = '';
-		if ($keys) {
-			$keys = is_array($keys) ? implode(',', $keys) : $keys;
-			$page_options = sprintf('<input type="hidden" name="page_options" value="%1$s" />', $keys);
-			$button = $this->submit_button($button_text);
+ 	function get_meta_form_data($metakey, $prefix, $values ) {
+      $content = array();
+		if (($post_id = Genesis_Club_Utils::get_post_id())
+		&& ($meta = Genesis_Club_Utils::get_meta($post_id, $metakey)))
+			$values = Genesis_Club_Options::validate_options($values, $meta);	
+		foreach ($values as $key => $val) {
+			$content[$key] = array();
+			$content[$key]['value'] = $val;
+			$content[$key]['id'] = $prefix.$key;
+			$content[$key]['name'] = $metakey. '[' . $key . ']';
 		}
-		print <<< ADMIN_END
-<p class="submit">{$button}{$page_options}{$nonces}</p>
-</form></div></div><br class="clear"/></div></div>
-ADMIN_END;
-	}
-	
-	function get_nonces($referer) {
+		return $content;
+ 	}
+ 
+ 
+ 	function get_nonces($referer) {
 		return wp_nonce_field($referer, '_wpnonce', true, false).
 			wp_nonce_field('closedpostboxes', 'closedpostboxesnonce', false, false ).
 			wp_nonce_field('meta-box-order', 'meta-box-order-nonce', false, false);
@@ -265,12 +218,82 @@ ADMIN_END;
 		return $columns;
 	}
 
-	abstract function init() ;
+ 
+	function admin_heading($title = '', $icon_class = '') {
+		if (empty($title)) $title = sprintf('%1$s %2$s', ucwords(str_replace('-',' ',$this->slug)), $this->get_version());
+		$icon = empty($icon_class) ? '' : sprintf('<i class="%1$s"></i>',
+			'dashicons-'==substr($icon_class,0,10) ? ('dashicons '.$icon_class) : $icon_class) ;
+    	return sprintf('<h2 class="title">%2$s%1$s</h2>', $title, $icon);				
+	}
 
-	abstract function admin_menu() ;
+	function print_admin_form_with_sidebar_start($title) {
+    	print <<< ADMIN_START
+<div class="wrap">
+{$title}
+<div id="poststuff" class="metabox-holder has-right-sidebar">
+<div id="side-info-column" class="inner-sidebar">
+ADMIN_START;
+	}
 
-	abstract function page_content(); 
+	function print_admin_form_with_sidebar_middle($enctype = false) {
+		$this_url = $_SERVER['REQUEST_URI'];
+	 	$enctype = $enctype ? 'enctype="multipart/form-data" ' : '';
+	   print <<< ADMIN_MIDDLE
+</div>
+<div id="post-body" class="has-sidebar"><div id="post-body-content" class="has-sidebar-content diy-wrap">
+<form id="diy_options" method="post" {$enctype}action="{$this_url}">
+ADMIN_MIDDLE;
+	}
+	
+	function print_admin_form_start($title, $enctype = false) {
+	 	$this_url = $_SERVER['REQUEST_URI'];
+	 	$enctype = $enctype ? 'enctype="multipart/form-data" ' : '';
+    	print <<< ADMIN_START
+<div class="wrap">
+{$title}
+<div id="poststuff" {$enctype}class="metabox-holder"><div id="post-body"><div id="post-body-content">
+<form id="diy_options" method="post" {$enctype}action="{$this_url}">
+ADMIN_START;
+	}
+	
+	function print_admin_form_end($referer = false, $keys = false, $button_text = 'Save Changes') {
+		$nonces = $referer ? $this->get_nonces($referer) : '';
+		$page_options = $button = '';
+		if ($keys) {
+			$keys = is_array($keys) ? implode(',', $keys) : $keys;
+			$page_options = sprintf('<input type="hidden" name="page_options" value="%1$s" />', $keys);
+			$button = $this->submit_button($button_text);
+		}
+		print <<< ADMIN_END
+<p class="submit">{$button}{$page_options}{$nonces}</p>
+</form></div></div><br class="clear"/></div></div>
+ADMIN_END;
+	}
+	
+	function toggle_postboxes() {
+		$hook = $this->get_screen_id();
+    	print <<< SCRIPT
+<script type="text/javascript">
+//<![CDATA[
+jQuery(document).ready( function($) {
+	$('.if-js-closed').removeClass('if-js-closed').addClass('closed');
+	postboxes.add_postbox_toggles('{$hook}');
+});
+//]]>
+</script>
+SCRIPT;
+    }	
 
-	abstract function load_page();
+    function enable_color_picker() {
+	    print <<< SCRIPT
+<script type="text/javascript">
+//<![CDATA[
+jQuery(document).ready( function($) {
+   $('.color-picker').wpColorPicker();
+});
+//]]>
+</script>
+SCRIPT;
+    }
 
 }

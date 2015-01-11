@@ -114,6 +114,7 @@ class Genesis_Club_Display {
     }
 
 	public static function register_widgets() {
+		register_widget( 'Genesis_Club_Text_Widget' );		
 		register_widget( 'Genesis_Club_Post_Image_Gallery_Widget' );
 		register_widget( 'Genesis_Club_Facebook_Likebox_Widget' );		
 	}	

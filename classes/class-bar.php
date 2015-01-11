@@ -3,10 +3,10 @@ class Genesis_Club_Bar {
 	const HIDE_BAR_METAKEY = '_genesis_club_bar_hide';
 	const SHOW_BAR_METAKEY = '_genesis_club_bar_show';
 
-    protected static $bar = false;
-	protected static $defaults  = array(
+   protected static $bar = false;
+
+   protected static $defaults  = array(
 			'enabled' => false,
-			'title' => '',
 			'full_message' => '',
 			'laptop_message' => '',
 			'tablet_message' => '',

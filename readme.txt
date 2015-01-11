@@ -4,7 +4,7 @@ Donate link: http://www.diywebmastery.com/donate/
 Tags: genesis, signature 
 Requires at least: 3.0
 Tested up to: 4.1
-Stable tag: 1.5
+Stable tag: 1.6
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -34,6 +34,7 @@ FEATURES:
 * Remove comment form notices
 * Use alternative 404 page
 * Add clearfix class
+* New Genesis Club Text Widget with two titles, so each widget can have a unique title on the Widgets Dashboard  making it instantly identifiable, and have a public widget title with an optional link, break or span
 * Add a Facebook LikeBox widget which you you can customize to match your theme colours
 * Post Image Gallery sidebar widget with optional lightbox for showing random selection of photos where you have many photos attached to a post. 
 * Enables Simple Social Icons plugin to have multiple widgets on the same page with different sizes
@@ -60,6 +61,10 @@ FEATURES:
 
 == Changelog ==
 
+= 1.6 =
+* Added Enhanced Widget Titles to all Genesis Club Widgets so each can have a unique title on the Widgets Dashboard  making them readily identifiable, and have a public widget title with an optional link, break or span
+* New Genesis Club Text  Widget with enhanced title
+
 = 1.5 =
 * Updated for WordPress 4.1
 * Add ability to affect postinfo and postmeta on the home page
@@ -77,32 +82,12 @@ FEATURES:
 * clearfix class for clearing float
 * fix CSS bug in extension to Simple Social Icons
 
-= 1.3.1 = 
+For full plugin histoy please see http://www.diywebmastery.com/plugins/genesis-club-lite/changelog
 
-* Add exclusion clause to accordion to avoid collision with JetPack social sharing headings
-* Prevent activation of Genesis Club Pro when Genesis Club Lite is activated
-
-= 1.3 = 
-
-* Added a mobile responsive top bar for your marketing messages
-* Enhanced mobile responsive hamburger menus can slide into view on the left and right as well as below
-* Added Genesis Club Hiding panel for hiding pages from site search, and hiding titles, author signatures and the top bar on individual posts or pages
-* Added simple-social-icons shortcode
-* Added app_id in Facebook LikeBox to avoid javascript warning
-* Using Dashicons font for plugin icon, mobile responsive hamburger menu and tooltips
-* Integrated WordPress colorpicker to make choosing colors easier
-* New dashboard so you can load only the modules you need
-
-= 1.2 = Added gallery widget, configuration options for postinfo and postmeta, and fixed NextGen conflict
-
-= 1.1.1 = Set Hamburger menu default setting as disabled so existing sites are unaffected 
-= 1.1 = Added FAQ Accordion, hamburger responsive menu icon and Facebook LikeBox Widget
-= 1.01 = Fix so it runs on PHP 5.2
-= 1.0 = Original Version
 
 == Upgrade Notice ==
 
-= 1.5 = Optional - Updated for WordPress 4.1, plus a few minor bug fixes
+= 1.6 = Optional - Enhanced Genesis Club Widget titles
 
 == Links ==
 

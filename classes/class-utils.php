@@ -144,7 +144,7 @@ if (! class_exists('Genesis_Club_Utils')) {
 							$fld_id, $fld_name, str_replace('\'','"',checked($optkey, $value, false)), $optkey, $optlabel, $separator); 
 					$input = sprintf('<fieldset class="diy-fieldset">%1$s</fieldset>',$input); 						
 				} else {		
-					$input .= sprintf('<input type="checkbox" class="checkbox" id="%1$s" name="%2$s" %3$svalue="1"/>',
+					$input .= sprintf('<input type="checkbox" class="checkbox" id="%1$s" name="%2$s" %3$svalue="1" class="diy-checkbox" />',
 						$fld_id, $fld_name, checked($value, '1', false));
 				}
 				break;
