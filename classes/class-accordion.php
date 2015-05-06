@@ -53,6 +53,7 @@ class Genesis_Club_Accordion {
 		if (!$accordions) $accordions = self::get_accordions();
 		if (is_array($accordions)
 		&& array_key_exists($type, $accordions)
+		&& is_array($accordions[$type])
 		&& array_key_exists($id, $accordions[$type]))
 			return $accordions[$type][$id];
 		else
@@ -94,34 +95,12 @@ class Genesis_Club_Accordion {
     		return 0; //do not limit the number of characters
     }
 
-	public static function init_accordion() {
-		$is_html5 = Genesis_Club_Utils::is_html5();
-		if (is_admin()) 
-			self::$accordion['header'] = 'h3';
-		else
-			if ($is_html5)
-				self::$accordion['header'] = is_archive() ? 'article header' : '.entry-content h3';
-			else
-				self::$accordion['header'] = is_archive() ?  '.post > h2, .post .wrap > h2' : '.post h3';
-		unset(self::$accordion['enabled']);
-		foreach (self::$accordion as $key => $val) if (empty($val)) unset(self::$accordion[$key]);
-		$params = Genesis_Club_Utils::json_encode(self::$accordion);	
-		$container = is_admin() ? '#wpcontent .accordion' : ( $is_html5 ? 'main.content' : '#content');
-		print <<< SCRIPT
-<script type="text/javascript">
-//<![CDATA[
-	jQuery(document).ready( function() { jQuery('{$container}').gcaccordion({$params}); });
-//]]>
-</script>	
-SCRIPT;
-	}
-
 	private static function get_current_archive_accordion() {
 		if (is_tax() || is_category() || is_tag()) 
 			if (is_category())
 				$term = get_term_by('slug',get_query_var('category_name'),'category') ;
 			elseif (is_tag())
-				$term = get_term_by('slug',get_query_var('tag_name'),'post_tags') ;
+				$term = get_term_by('slug', get_query_var('tag'),'post_tag') ;
 			else
 				$term = get_term_by('slug', get_query_var('term'), get_query_var('taxonomy')) ;						
 		else 
@@ -138,6 +117,29 @@ SCRIPT;
 	    && array_key_exists('nopaging', $accordion)
 	    && $accordion['nopaging']) 	    		 
 	        $query->set( 'nopaging', true );
+	}
+
+	public static function init_accordion() {
+		$is_html5 = Genesis_Club_Utils::is_html5();
+		if (is_admin()) 
+			self::$accordion['header'] = 'h3';
+		else
+			if ($is_html5)
+				self::$accordion['header'] = is_archive() ? 'article header' : '.entry-content h3';
+			else
+				self::$accordion['header'] = is_archive() ?  '.post > h2, .post .wrap > h2' : '.post h3';
+		if (is_archive()) self::$accordion['content_class'] .= ' entry-content';
+		unset(self::$accordion['enabled']);
+		foreach (self::$accordion as $key => $val) if (empty($val)) unset(self::$accordion[$key]);
+		$params = Genesis_Club_Utils::json_encode(self::$accordion);	
+		$container = is_admin() ? '#wpcontent .accordion' : ( $is_html5 ? 'main.content' : '#content');
+		print <<< SCRIPT
+<script type="text/javascript">
+//<![CDATA[
+	jQuery(document).ready( function() { jQuery('{$container}').gcaccordion({$params}); });
+//]]>
+</script>	
+SCRIPT;
 	}
 
 }

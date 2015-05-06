@@ -12,7 +12,7 @@ class Genesis_Club_Text_Widget extends Genesis_Club_Widget {
 	function __construct() {
 		$widget_ops = array('description' => __('Displays a Text widget with enhanced Title', GENESIS_CLUB_DOMAIN) );
 		$control_ops = array();
-		parent::__construct('genesis-club-text', __('Genesis Club Text Widget', GENESIS_CLUB_DOMAIN), $widget_ops, $control_ops, $this->defaults);
+		parent::__construct('genesis-club-text', __('Genesis Club Text', GENESIS_CLUB_DOMAIN), $widget_ops, $control_ops, $this->defaults);
 	}
 
 	function widget( $args, $instance ) {
@@ -38,84 +38,6 @@ class Genesis_Club_Text_Widget extends Genesis_Club_Widget {
 		$this->form_init ($instance, $this->tips);
 		$this->print_form_field('text', 'textarea', array(), array('rows' => 16, 'cols' => 30, 'class' => 'widefat' ));
 		$this->print_form_field('autop', 'checkbox');		
-	}
-
-}
-
-
-
-
-class Genesis_Club_Post_Image_Gallery_Widget extends Genesis_Club_Widget {
-
-	private $tips = array(
-			'size' => array('heading' => 'Size', 'tip' => 'Image size'),
-			'posts_per_page' => array('heading' => 'Images', 'tip' => 'Maximum number of images to show in the sidebar'),
-			'lightbox' => array('heading' => 'Show In Thickbox', 'tip' => 'Click to show larger photo in  lightbox'),
-			'hide_featured' => array('heading' => 'Hide Featured Image', 'tip' => 'Hide featured image to avoid duplication.'),
-			);
-	
-    private	$defaults = array('title' => 'Gallery', 
-    	'size' => 'medium', 'hide_featured' => false, 'lightbox' => false,
-    	'posts_per_page' => 3); //# of visible images);
-	
-	function __construct() {
-		$widget_ops = array('description' => __('Displays a Post Image Gallery in a sidebar widget with optional lightbox', GENESIS_CLUB_DOMAIN) );
-		$control_ops = array('width' => 400, 'height' => 350);
-		parent::__construct('genesis-club-post-image-gallery', __('Genesis Club Post Images', GENESIS_CLUB_DOMAIN), $widget_ops, $control_ops, $this->defaults );
-	}
-
-	function limit_images($id, $number, $lightbox) {
-		$gid = '.galleryid-'.$id;
-		$lbox = 'thickbox-'.$id;		
-		$add_lbox = '';
-		if ($lightbox) {
-			$add_lbox .= sprintf('jQuery("%1$s").find("a").addClass("thickbox").attr("rel","%2$s");',$gid,$lbox); 
-			$add_lbox .= 'jQuery("<style type=\"text/css\">#TB_caption {height: auto;}</style>").appendTo("head");';
-		}
-		print <<< SCRIPT
-<script type="text/javascript"> {$add_lbox}
-	jQuery('{$gid}').find('br').slice({$number}).hide();
-	jQuery('{$gid}').find('.gallery-item').slice({$number}).hide();
-</script>
-SCRIPT;
-	}
-
-	function widget( $args, $instance ) {
-		if (!is_singular()) return;  //only run on single post/page/custom post_type pages
-		$post = get_post();
-		if (is_null($post)) return; //we have a post to work with
-
-		$gargs = array('columns'=>1, 'link'=>'file', 'orderby' => 'rand', 'size' => $instance['size']);
-		if ($instance['hide_featured']
-		&& ($featured_image = get_post_thumbnail_id($post->ID))) 
-			$gargs['exclude'] = $featured_image;	
-		$gallery = gallery_shortcode($gargs);
-		if (empty($gallery)) return; //no gallery so do not display an empty widget
-
-      $args = $this->override_args($args, $instance) ;
-      extract($args);
-      echo $before_widget;
-		echo $gallery;
-		echo $after_widget;
-		self::limit_images($post->ID, $instance['posts_per_page'],$instance['lightbox']);
-	}
-
-	function update( $new_instance, $old_instance ) {
-		$instance = $this->update_instance( $new_instance, $old_instance );
-		$instance['size'] = strip_tags( $new_instance['size'] );
-		$instance['hide_featured'] = empty($new_instance['hide_featured']) ? 0 : 1;
-		$instance['lightbox'] = empty($new_instance['lightbox']) ? 0 : 1;
-		$instance['posts_per_page'] = $new_instance['posts_per_page'];	
-		return $instance;
-	}
-
-	function form( $instance ) {
-		$this->form_init ($instance, $this->tips);		
-		$sizes = array_keys(genesis_get_image_sizes());
-		$this->print_form_field('size', 'select', array_combine($sizes,$sizes));
-		$this->print_form_field('posts_per_page',  'text', array(), array('size' => 3 ,'maxlength' => 3));
-		$this->print_form_field('lightbox', 'checkbox');
-		$this->print_form_field('hide_featured', 'checkbox');
 	}
 
 }
@@ -176,7 +98,7 @@ class Genesis_Club_Facebook_Likebox_Widget extends Genesis_Club_Widget {
 
 	function form( $instance ) {
 		$this->form_init ($instance, $this->tips);
-		$this->print_form_field('href', 'textarea', array(), array('cols' => 30, 'rows'=> 4));
+		$this->print_form_field('href', 'textarea', array(), array('class' => 'widefat'));
 		$this->print_form_field('width', 'text',array(), array('size' => 4 ,'maxlength' => 4, 'suffix' => 'px'));
 		$this->print_form_field('height', 'text',array(), array('size' => 4 ,'maxlength' => 4, 'suffix' => 'px'));
 		$this->print_form_field('colorscheme', 'select', array('light' => 'Light', 'dark' => 'Dark'));

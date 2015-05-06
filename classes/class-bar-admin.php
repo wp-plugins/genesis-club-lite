@@ -22,8 +22,8 @@ class Genesis_Club_Bar_Admin extends Genesis_Club_Admin {
 
 	function init() {
 		add_action('admin_menu',array($this, 'admin_menu'));
-		add_action('genesis_club_hiding_settings_show', array($this, 'page_visibility_show'), 10, 1);
-		add_action('genesis_club_hiding_settings_save', array($this, 'page_visibility_save'), 10, 1);
+		add_action('genesis_club_hiding_settings_save', array($this, 'save_page_visibility'), 10, 1);
+		add_filter('genesis_club_hiding_settings_show', array($this, 'add_page_visibility'), 10, 2);
 	}
 	
 	function admin_menu() {
@@ -33,27 +33,20 @@ class Genesis_Club_Bar_Admin extends Genesis_Club_Admin {
 	}
 
 	function page_content() {
- 		$title = $this->admin_heading('Bar Settings', GENESIS_CLUB_ICON);				
-		$this->print_admin_form_with_sidebar_start($title); 
-		do_meta_boxes($this->get_screen_id(), 'side', null); 
-		$this->print_admin_form_with_sidebar_middle();
-		do_meta_boxes($this->get_screen_id(), 'normal', null); 
-		$this->print_admin_form_end(__CLASS__, (array)$this->get_keys());
+ 		$title = $this->admin_heading('Genesis Club Bar Settings', GENESIS_CLUB_ICON);				
+		$this->print_admin_form_with_sidebar($title, __CLASS__, (array)$this->get_keys()); 
 	} 
 
 	function load_page() {
  		$message =  isset($_POST['options_update']) ? $this->save_bar() : '';	
 		$options = Genesis_Club_Bar::get_options();
 		$callback_params = array ('options' => $options, 'message' => $message);
-		$this->add_meta_box('bar', 'Top Bar',  'bar_panel', $callback_params);
-		$this->add_meta_box('messages','Message',  'messages_panel', $callback_params);
-		$this->add_meta_box('colors', 'Colors', 'colors_panel', $callback_params);
-		$this->add_meta_box('timimgs','Timing', 'timings_panel', $callback_params);
-		$this->add_meta_box('effects', 'Effects',  'effects_panel', $callback_params);
-		$this->add_meta_box('location', 'Location',  'location_panel', $callback_params);
+		$this->add_meta_box('bar', 'Top Bar',  'intro_panel', $callback_params);
+		$this->add_meta_box('defaults', 'Defaults',  'defaults_panel', $callback_params);
 		$this->add_meta_box('news', 'Genesis Club News', 'news_panel',$callback_params, 'side');
 		$this->set_tooltips($this->tips);
 		add_action('admin_enqueue_scripts',array($this, 'enqueue_admin_styles'));
+		add_action('admin_enqueue_scripts',array($this, 'enqueue_metabox_scripts'));
 		add_action('admin_enqueue_scripts',array($this, 'enqueue_postbox_scripts'));
 	}
 
@@ -94,20 +87,24 @@ class Genesis_Club_Bar_Admin extends Genesis_Club_Admin {
 		return 'post'==$post_type;
     }  
     
-	function page_visibility_save($post_id) {
+	function add_page_visibility($content, $post) {
+      return $content . $this->fetch_page_visibility($post);
+	}
+
+	function fetch_page_visibility($post) {
+		$key = self::TOGGLE_BAR;	
+		$meta_key = Genesis_Club_Bar::get_toggle_meta_key($post->post_type);
+		return $this->form_field($key, $key, 
+			__(strpos($meta_key, 'hide') !== FALSE ? 'Do not show the top bar on this page' : 'Show the top bar on this page'), 
+			get_post_meta($post->ID, $meta_key, true),  'checkbox', array(), array(), 'br') ;
+    }
+
+	function save_page_visibility($post_id) {
 		$key = self::TOGGLE_BAR;
 		$post_type = get_post_type( $post_id);
 		$meta_key = Genesis_Club_Bar::get_toggle_meta_key($post_type);	
 		update_post_meta( $post_id, $meta_key, array_key_exists($key, $_POST) ? $_POST[$key] : false);
 	}
-
-	function page_visibility_show($post) {
-		$key = self::TOGGLE_BAR;	
-		$meta_key = Genesis_Club_Bar::get_toggle_meta_key($post->post_type);
-		print $this->form_field($key, $key, 
-			__(strpos($meta_key, 'hide') !== FALSE ? 'Do not show the top bar on this page' : 'Show the top bar on this page'), 
-			get_post_meta($post->ID, $meta_key, true),  'checkbox', array(), array(), 'br') ;
-    }
 
 	function bar_visibility_panel() {
 		global $post;
@@ -123,53 +120,63 @@ class Genesis_Club_Bar_Admin extends Genesis_Club_Admin {
 BAR_VISIBILITY;
     }    
  
-	function bar_panel($post,$metabox){	
+
+	function intro_panel($post,$metabox){	
 		$options = $metabox['args']['options'];
 		$message = $metabox['args']['message'];			 	
-		print <<< BAR_PANEL
+		print <<< INTRO
 {$message}	
 <p>The top bar is a responsive bar that allows you add a message at the top of each page: you can display different messages on different devices. For example, you
 can specify a click to call button on mobile devices.<p>
 <p>Below you can set the default bar settings. Use this feature if you want to have the same message content in the top bar on most of the pages on the site.</p>
 <p>You can use the <em>Genesis Club Hiding Settings</em> in the Page Editor to suppress the top bar on pages where you do not want it to appear.</p>
-BAR_PANEL;
-		$this->print_form_field('bar_enabled',$options['enabled'], 'checkbox');
+INTRO;
+		print $this->fetch_form_field('bar_enabled',$options['enabled'], 'checkbox');
 	}
 
-	function messages_panel($post,$metabox){	
+ 
+ 	function defaults_panel($post,$metabox) {
 		$options = $metabox['args']['options'];
-		$this->print_text_field('bar_full_message',$options['full_message'], array('size' => 55));
-		$this->print_text_field('bar_laptop_message',$options['laptop_message'],  array('size' => 50));
-		$this->print_text_field('bar_tablet_message',$options['tablet_message'], array('size' => 45));
-		$this->print_text_field('bar_short_message',$options['short_message'], array('size' => 40));
+      $this->display_metabox( array(
+         'Messages' => $this->messages_panel($options),
+         'Colors' => $this->colors_panel($options),
+         'Timings' => $this->timings_panel($options),
+         'Effects' => $this->effects_panel($options),
+         'Location' => $this->location_panel($options)
+		));
 	}
 
-	function colors_panel($post,$metabox){	
-		$options = $metabox['args']['options'];
-		$this->print_text_field('bar_font_color',$options['font_color'], array('size' => 8, 'class' => 'color-picker'));
-		$this->print_text_field('bar_background',$options['background'], array('size' => 50));
+	function messages_panel($options){	
+      return
+         $this->fetch_text_field('bar_full_message',$options['full_message'], array('size' => 55)).
+         $this->fetch_text_field('bar_laptop_message',$options['laptop_message'],  array('size' => 50)).
+         $this->fetch_text_field('bar_tablet_message',$options['tablet_message'], array('size' => 45)).
+         $this->fetch_text_field('bar_short_message',$options['short_message'], array('size' => 40));
 	}
 
-	function timings_panel($post,$metabox){	
-		$options = $metabox['args']['options'];
-		$this->print_text_field('bar_show_timeout',$options['show_timeout'], array('size' => 4, 'suffix' => 'seconds'));
-		$this->print_text_field('bar_hide_timeout',$options['hide_timeout'], array('size' => 4, 'suffix' => 'seconds'));
+	function colors_panel($options){	
+		return
+         $this->fetch_text_field('bar_font_color',$options['font_color'], array('size' => 8, 'class' => 'color-picker')).
+         $this->fetch_text_field('bar_background',$options['background'], array('size' => 50));
 	}
 
-	function effects_panel($post,$metabox){	
-		$options = $metabox['args']['options'];
-		$this->print_form_field('bar_bounce',$options['bounce'], 'checkbox');
-		$this->print_form_field('bar_shadow',$options['shadow'], 'checkbox');
-		$this->print_form_field('bar_opener',$options['opener'], 'checkbox');
+	function timings_panel($options){	
+		return
+         $this->fetch_text_field('bar_show_timeout',$options['show_timeout'], array('size' => 4, 'suffix' => 'seconds')).
+         $this->fetch_text_field('bar_hide_timeout',$options['hide_timeout'], array('size' => 4, 'suffix' => 'seconds'));
 	}
 
-	function location_panel($post,$metabox){	
-		$options = $metabox['args']['options'];
-		$this->print_text_field('bar_location',$options['location'], array('size' => 20));
-		$this->print_form_field('bar_position',$options['position'], 'radio', array('top' => 'Top', 'bottom' => 'Bottom'));
+	function effects_panel($options){	
+		return
+         $this->fetch_form_field('bar_bounce',$options['bounce'], 'checkbox').
+         $this->fetch_form_field('bar_shadow',$options['shadow'], 'checkbox').
+         $this->fetch_form_field('bar_opener',$options['opener'], 'checkbox');
 	}
 
- 	function news_panel($post,$metabox){	
-		Genesis_Club_Feed_Widget::display_feeds();
+	function location_panel($options){	
+		return
+         $this->fetch_text_field('bar_location',$options['location'], array('size' => 20)).
+         $this->fetch_form_field('bar_position',$options['position'], 'radio', array('top' => 'Top', 'bottom' => 'Bottom'));
 	}
+
 }

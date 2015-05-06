@@ -1,0 +1,64 @@
+html {background: #FFF9EC !important;}
+body, body.login {margin:0 auto 0 auto; border-top-width: 0px;
+  background-repeat: no-repeat; 
+  background-size: cover;
+  background-image: url(images/login-background.jpg); }
+
+#logo { background-repeat: no-repeat; 
+  background-image: url(images/login-logo.png); 
+  background-size:200px auto;
+}
+
+#login { max-width: 560px; min-height:750px; padding-top: 10px;}
+#login h1 a { width: 100%; text-align: left; height:160px;}
+#login form input {font-family:inherit;}
+#login form label {color:#fff;cursor:pointer;font-weight:700;text-shadow:none;}
+
+#loginform,#registerform,#lostpasswordform { 
+ margin: 0px auto; 
+ padding: 10px 20px; 
+ position:relative; overflow:hidden; box-shadow:none; 
+ border: none;
+ color:#fff;  
+ background-color:rgba(36, 29, 16, 0.8);
+ border-radius:5px;
+}
+
+#loginform input#user_login, #loginform input#user_pass {
+   height:36px;
+   font-size:20px;
+   border-radius:3px;
+}
+
+#loginform h2, #lostpasswordform h2 {
+    padding-bottom: 20px; font-size: 20px; 
+    text-align:center;
+}
+
+#login form .submit input,#login form .submit input:active {
+ border-radius:5px;
+ background-color:#7EA74D;
+ color:#fff!important;
+ cursor:pointer;font-family:inherit;font-size:16px;height:36px;width:120px;border:none;
+ margin-top: 15px;
+ margin-bottom:0px;
+ clear:both;
+}
+
+#login #login_error, .message { text-align: center; margin: 20px auto;
+ color:#222; background-color:#ffebe8; border:1px solid #c00;  
+ -webkit-border-radius: 12px;  -moz-border-radius: 12px;}
+#login #login_error a {color:#222!important;border-bottom:1px solid #222;}
+#login .message { border: brown 1px solid; }
+
+#login #nav {font-size: 14px; text-align:right; text-shadow:none; padding:0px 0px 15px 0px;  float:right; clear:both;}
+#login #nav a {color: white !important; text-decoration: underline;}
+#login #nav a:hover { text-decoration: underline; }
+
+#desc {font-size:1.083em;font-weight:700;margin:0 0 3em 15px;text-align:center;}
+
+p#backtoblog { display: none;}
+
+#form-opt {margin:0 1.5em;}
+.form-buttons {text-align:right;}
+.error p {background:#8A1F11;color:#fff;padding:1em;}

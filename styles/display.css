@@ -1,7 +1,7 @@
 .clearfix:before, .clearfix:after { content: "\0020";  display: table; }
 .clearfix:after { clear: both; }
 .clearfix { *zoom: 1; }
-.dropcaps main p:first-child:first-letter { 
+.dropcaps main .entry-content p:nth-of-type(1):first-letter { 
 	font-family: Georgia;
 	float: left; 
 	font-size: 5em; 

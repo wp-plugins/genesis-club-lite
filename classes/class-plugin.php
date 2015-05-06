@@ -7,21 +7,23 @@ if (!class_exists('Genesis_Club_Plugin')) {
  	private static $version = GENESIS_CLUB_VERSION;
 	private static $admin_modules = array();
 	private static $modules = array(
-		'api' => array('class'=> 'Genesis_Club_API','heading' => 'API Keys', 'tip' => 'Check your Genesis Club Pro license is up to date and if an new version of the plugin is available.'),
+//		'api' => array('class'=> 'Genesis_Club_API','heading' => 'API Keys', 'tip' => 'Check your Genesis Club Pro license is up to date and if an new version of the plugin is available.'),
 		'accordion' => array('class'=> 'Genesis_Club_Accordion', 'heading' => 'Accordion', 'tip' => 'Create one or more accordions to display your frequently answered questions'),
 		'background' => array('class'=> 'Genesis_Club_Background','heading' => 'Background', 'tip' => 'Add stylish image or video backgrounds to your pages.'),
 		'bar' => array('class'=> 'Genesis_Club_Bar','heading' => 'Bar', 'tip' => 'Add an animated top bar for your calls to action'),
 		'calendar' => array('class'=> 'Genesis_Club_Calendar','heading' => 'Calendar', 'tip' => 'Add an Google Calendar that can show your events in your visitors local time'),
 		'display' => array('class'=> 'Genesis_Club_Display','heading' => 'Display', 'tip' => 'Extra widget areas and widgets, post meta overrides, page specific hiding, and many more useful features.'),
+		'fonts' => array('class'=> 'Genesis_Club_Fonts','heading' => 'Fonts', 'tip' => 'Add Google Fonts and Google Font Effects to add variety to your titles and landing pages'),
 		'footer' => array('class'=> 'Genesis_Club_Footer','heading' => 'Footer', 'tip' => 'Boost site credibility using footer credits and trademark widgets'),
 		'icons' => array('class'=> 'Genesis_Club_Icons','heading' => 'Icons', 'tip' => 'Enhanced Simple Social Icons allowing different sizes for different sets of icons on the same page.'),
 		'landing' => array('class'=> 'Genesis_Club_Landing','heading' => 'Landing Pages', 'tip' => 'Use our lead capture forms for your landing pages. Integrates with Aweber, MailChimp, SendReach and Infusionsoft'),
 		'media' => array('class'=> 'Genesis_Club_Media','heading' => 'Media', 'tip' => 'Must have features if you are <em>not</em> hosting all your media files in the Media Library'),
 		'menu' => array('class'=> 'Genesis_Club_Menu','heading' => 'Menus', 'tip' => 'Use mobile responsive "hamburgers" for your primary, secondary and header right navigation menus'),
-		'seo' => array('class'=> 'Genesis_Club_Seo','heading' => 'SEO Migration', 'tip' => 'SEO migrations from the Thesis theme to Genesis and to and from the WordPress SEO plugin'),
+		'post' => array('class'=> 'Genesis_Club_Post','heading' => 'Post Widgets', 'tip' => 'Widgets for displaying post specific information and images'),
+		'seo' => array('class'=> 'Genesis_Club_Seo','heading' => 'SEO ', 'tip' => 'SEO migrations from Thesis to Genesis and to and from the WordPress SEO plugin by Yoast'),
 		'signature' => array('class'=> 'Genesis_Club_Signature','heading' => 'Signatures', 'tip' => 'Add author signatures to the foot of your posts'),
-		'slider' => array('class'=> 'Genesis_Club_Slider','heading' => 'Slider', 'tip' => 'Deliver your message using animated words and images using a mobile responsive layer slider'),
-		'social' => array('class'=> 'Genesis_Club_Social','heading' => 'Social Sharing', 'tip' => 'Add a floating or fixed social panel to get likes for your pages.'),
+		'slider' => array('class'=> 'Genesis_Club_Slider','heading' => 'Slider', 'tip' => 'Deliver your message in animated words and images using a parallax mobile responsive layer slider'),
+		'social' => array('class'=> 'Genesis_Club_Social','heading' => 'Social Sharing', 'tip' => 'Add a floating or fixed social panel to allow users to share your pages.'),
 		);
 
     public static function get_path(){
@@ -89,16 +91,6 @@ if (!class_exists('Genesis_Club_Plugin')) {
 				if (self::is_module_enabled($module))
 					self::init_module($module, true);
  			if (self::get_activation_key(__CLASS__)) add_action('admin_init',array(__CLASS__, 'upgrade'));  
-		}
-	}
-
-	private static function check_multiple_versions() {
-		if (is_plugin_active('genesis-club-pro/main.php') 
-		&& is_plugin_active('genesis-club-lite/main.php')) {
-			self::deactivate('genesis-club-pro/main.php'); 
-			self::deactivate('genesis-club-lite/main.php'); 
-       		 wp_die(  __( sprintf('You cannot run both Genesis Club Lite and Genesis Club Pro at the same time.<br/><strong>Both have been deactivated</strong>.<br/>Now go to the WordPress <a href="%1$s" style="text-decoration:underline"><em>Plugins page</em></a> and activate the one you want to use.',
-        		 get_admin_url(null, 'plugins.php?s=genesis%20club')), GENESIS_CLUB_DOMAIN ));			 
 		}
 	}
 
@@ -202,5 +194,14 @@ if (!class_exists('Genesis_Club_Plugin')) {
     	return strtolower($class) . '_activation'; 
     }
     
+	private static function check_multiple_versions() {
+		if (is_plugin_active('genesis-club-pro/main.php') 
+		&& is_plugin_active('genesis-club-lite/main.php')) {
+			self::deactivate('genesis-club-pro/main.php'); 
+			self::deactivate('genesis-club-lite/main.php'); 
+       		 wp_die(  __( sprintf('You cannot run both Genesis Club Lite and Genesis Club Pro at the same time.<br/><strong>Both have been deactivated</strong>.<br/>Now go to the WordPress <a href="%1$s" style="text-decoration:underline"><em>Plugins page</em></a> and activate the one you want to use.',
+        		 get_admin_url(null, 'plugins.php?s=genesis%20club')), GENESIS_CLUB_DOMAIN ));			 
+		}
+	}
  }
 }

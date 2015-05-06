@@ -126,14 +126,8 @@ if (!class_exists('Genesis_Club_Feed_Widget')) {
 				}
 			}
 
-			if ( $link == '' ) 
-				$format = '<span>%3$s</span>%4$s%6$s';
-			elseif ( $show_summary ) 
-				$format = '<span><a class="rsswidget" href="%1$s"%2$s>%3$s</a></span>%4$s%5$s%6$s';
-			else
-				$format = '<span><a class="rsswidget" href="%1$s"%2$s>%3$s</a></span>%4$s%6$s';
-
-			printf('<span class="diy-image-feed-widget-item">'.$format.'</span>', $link, $link_title, $title, $date, $summary, $author );
+			if ($link) $title = sprintf('<a target="_blank" class="rsswidget" href="%1$s"%2$s>%3$s</a>', $link, $link_title, $title);
+			printf('<span class="diy-image-feed-widget-item"><span>%1$s</span>%2$s%3$s%4$s</span>', $title, $date, $summary, $author );
 		}
 
 		if ( ! is_wp_error($rss) )
@@ -142,7 +136,6 @@ if (!class_exists('Genesis_Club_Feed_Widget')) {
 	}
 
 	static function display_feeds($feeds = false) {
-		if (false == $feeds) $feeds = array(GENESIS_CLUB_NEWS);
 		if (is_array($feeds) && (count($feeds) > 0)) {
 			echo '<div class="diy-image-feed-widget">';
 			foreach( $feeds as $url ) {

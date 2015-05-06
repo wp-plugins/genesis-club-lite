@@ -8,9 +8,11 @@ class Genesis_Club_Signature_Admin extends Genesis_Club_Admin {
 		add_action('load-user-edit.php', array($this, 'load_profile'));	
 		add_action('personal_options_update', array($this, 'save_profile'));		
 		add_action('edit_user_profile_update', array($this, 'save_user'));
-		add_action('genesis_club_hiding_settings_show', array($this, 'page_visibility_show'), 20, 1);
-		add_action('genesis_club_hiding_settings_save', array($this, 'page_visibility_save'), 20, 1);
+		add_action('genesis_club_hiding_settings_show', array($this, 'add_page_visibility'), 20, 2);
+		add_action('genesis_club_hiding_settings_save', array($this, 'save_page_visibility'), 20, 1);
 		add_action('admin_menu',array($this, 'admin_menu'));
+		//add_action('user_register', array($this, 'maybe_fix_user_nicename'), 10, 1);
+		//add_action('profile_update', array($this, 'maybe_fix_user_nicename'), 10, 2);		
 	}
 	
 	function admin_menu() {
@@ -20,20 +22,16 @@ class Genesis_Club_Signature_Admin extends Genesis_Club_Admin {
 	}
 	
 	function page_content() {
- 		$title =  $this->admin_heading('Signatures', GENESIS_CLUB_ICON);				
-		$this->print_admin_form_with_sidebar_start($title); 
-		do_meta_boxes($this->get_screen_id(), 'side', null); 
-		$this->print_admin_form_with_sidebar_middle();
-		do_meta_boxes($this->get_screen_id(), 'normal', null); 
-		$this->print_admin_form_end(__CLASS__);
+ 		$title =  $this->admin_heading('Genesis Club Signatures', GENESIS_CLUB_ICON);				
+		$this->print_admin_form_with_sidebar($title, __CLASS__); 
 	} 	
 	
 	function load_page() {
 		$this->add_meta_box('intro', __('Instructions',GENESIS_CLUB_DOMAIN),  'intro_panel');
-		$this->add_meta_box('help', __('Help Creating A Signature',GENESIS_CLUB_DOMAIN), 'help_panel');
-		$this->add_meta_box('example', __('Example Signature',GENESIS_CLUB_DOMAIN), 'example_panel');
+		$this->add_meta_box('signature', __('Signatures',GENESIS_CLUB_DOMAIN), 'signature_panel');
 		$this->add_meta_box('news', 'Genesis Club News', 'news_panel',null, 'side');
 		add_action ('admin_enqueue_scripts',array($this, 'enqueue_admin_styles'));
+		add_action ('admin_enqueue_scripts',array($this, 'enqueue_metabox_scripts'));		
 		add_action ('admin_enqueue_scripts',array($this, 'enqueue_postbox_scripts'));
 	}
  		
@@ -94,9 +92,55 @@ class Genesis_Club_Signature_Admin extends Genesis_Club_Admin {
 		$old_val =  get_user_option($key2, $user_id);		
 		$new_val = array_key_exists($key2,$_POST) ? $_POST[$key2] : '';
 		if ($old_val != $new_val) update_usermeta( $user_id, $key2, $new_val );			
+
+		$key3 = Genesis_Club_Signature::FIX_USER_NICENAME;
+      	if (array_key_exists($key3,$_POST)) {
+        	$this->maybe_fix_user_nicename($user_id);
+      	}
 	}	
 
-	function page_visibility_save($post_id) {
+   function maybe_fix_user_nicename ($user_id, $old_user_data = null) {
+      global $wpdb;
+      $user = new WP_User( $user_id );   
+      $user_login = $user->user_login;
+      $user_nicename = $user->user_nicename;  
+      if ($user_nicename != $user_login) return; //nothing to fix
+		$user_nicename = sanitize_user($user->display_name, true ) ;  //base the slug/nicename on display name
+      $user_nicename = preg_replace( '|[ _@]|i', '', $user_nicename );
+      $user_nicename = preg_replace( '|[^a-z\-]|i', '', strtolower($user_nicename ));
+
+   	$user_nicename_check = $wpdb->get_var( $wpdb->prepare("SELECT ID FROM $wpdb->users WHERE user_nicename = %s OR user_login = %s LIMIT 1" , $user_nicename, $user_nicename));
+
+      if ( $user_nicename_check ) {
+         $suffix = 2;
+         while ($user_nicename_check) {
+			   $alt_user_nicename = $user_nicename . "-$suffix";
+			   $user_nicename_check = $wpdb->get_var( $wpdb->prepare("SELECT ID FROM $wpdb->users WHERE user_nicename = %s OR user_login = %s LIMIT 1" , $alt_user_nicename, $alt_user_nicename));
+			   $suffix++;
+         }
+         $user_nicename = $alt_user_nicename;
+      }
+      
+      //update the user_nicename
+      $compacted = compact( 'user_nicename' );
+      $data = wp_unslash( $compacted );
+      $ID = (int) $user_id;
+		$wpdb->update( $wpdb->users, $data, compact( 'ID' ) );
+      clean_user_cache( $user_id );  
+   }
+
+	function add_page_visibility($content, $post) {
+      return $content . $this->fetch_page_visibility($post);
+   }
+
+	function fetch_page_visibility($post) {
+		$meta_key = Genesis_Club_Signature::get_toggle_meta_key($post->post_type, $post->post_author);
+		return $this->form_field(self::TOGGLE_SIGNATURE, self::TOGGLE_SIGNATURE, 
+			__(strpos($meta_key, 'hide') !== FALSE ? 'Do not show the author signature on this page' : 'Show the author signature on this page'), 
+			get_post_meta($post->ID, $meta_key, true),  'checkbox', array(), array(), 'br') ;
+	}	
+
+	function save_page_visibility($post_id) {
 		$post_type = get_post_type( $post_id);
 		$post_author = get_post_field( 'post_author', $post_id);	
 		$key = self::TOGGLE_SIGNATURE;
@@ -104,16 +148,11 @@ class Genesis_Club_Signature_Admin extends Genesis_Club_Admin {
 		update_post_meta( $post_id, $meta_key, array_key_exists($key, $_POST) ? $_POST[$key] : false);
 	}
 
-	function page_visibility_show($post) {
-		$meta_key = Genesis_Club_Signature::get_toggle_meta_key($post->post_type, $post->post_author);
-		echo $this->form_field(self::TOGGLE_SIGNATURE, self::TOGGLE_SIGNATURE, 
-			__(strpos($meta_key, 'hide') !== FALSE ? 'Do not show the author signature on this page' : 'Show the author signature on this page'), 
-			get_post_meta($post->ID, $meta_key, true),  'checkbox', array(), array(), 'br') ;
-    }
 
 	function show_authors_panel($user) {
 		$key1 = Genesis_Club_Signature::SIGNATURE_URL_KEY;
 		$key2 = Genesis_Club_Signature::SIGNATURE_ON_POSTS_KEY;			
+		$key3 = Genesis_Club_Signature::FIX_USER_NICENAME;
 		$sig_url = get_user_option($key1, $user->ID);
 		$show_sig = get_user_option($key2, $user->ID)   ? 'checked="checked"' : '';
 		$sig_img = empty($sig_url) ? '' : sprintf('<img alt="Author Signature" src="%1$s" /><br/>',$sig_url);	
@@ -131,15 +170,18 @@ class Genesis_Club_Signature_Admin extends Genesis_Club_Admin {
 <tr>
 	<th><label for="{$key2}">Show Signature On Posts</label></th>
 	<td><input id="{$key2}" name="{$key2}" type="checkbox" class="valinp" {$show_sig} value="1" /><br/>
-	<span class="description">Check this box to have your signature appear at the foot of all posts by default.
-			You can override this setting on a post by post basis.</span></td>
+	<span class="description">Check this box to have your signature appear at the foot of all posts by default. You can override this setting on a post by post basis.</span></td>
 </tr>
-</table>
 SIGNATURE_PANEL;
-   }
-	
- 	function news_panel($post,$metabox){	
-		Genesis_Club_Feed_Widget::display_feeds();
+   $nicename_fix = <<< NICENAME_FIX
+<tr>
+	<th><label for="{$key3}">Fix User Author URL</label></th>
+	<td><input id="{$key3}" name="{$key3}" type="checkbox" class="valinp" value="1" /><br/>
+	<span class="description">This option appears because your private user login and the public URL of your author page are the same and hence hackers will try using brute force login attempts using the correct user login. Check this box to make the author URL different from your user login and hence render the login attempts ineffective as they will be user the wrong user login when trying to hack your site.</span></td>
+</tr>
+NICENAME_FIX;
+   if ($user->user_nicename == $user->user_login) print $nicename_fix;
+   print ('</table>');
 	}	
 	
 	function intro_panel() {
@@ -154,7 +196,7 @@ INTRO;
 
 	function help_panel() {
 		$screenshot = plugins_url('images/signature-settings.jpg',dirname(__FILE__));
-		print <<< HELP
+		return <<< HELP
 <p>On the <em>User Profile page</em> look for the section called <em>Signature Settings</em>:</p>
 <p><img class="dashed-border" alt="User Profile signature settings" src="{$screenshot}"></p>
 <p>Every author on your site can upload their own signature of whatever size they prefer.</p>
@@ -164,11 +206,32 @@ INTRO;
 HELP;
 	}	
 
+
+	function faq_panel() {
+		return <<< FAQ
+<h4>Where Does The Author Signature Appear?</h4>
+<p>At the foot of your post.</p>
+<h4>Does A Signature Appear On All Posts Automatically??</h4>
+<p>That depends of your settings! You can have the signature appear by default at the foot of all your posts, and switch the featured off on individual posts, or 
+alternatively you can have the feature inactive by default and then only enable it on individual posts</p>
+<h4>What If I Want A P.S. After the Signature?</h4> 
+<p>Disable the automatic signature on that page and use the [<i>genesis_club_signature</i>] shortcode.</p>
+FAQ;
+	}	
+
 	function example_panel() {
 		$usersig = Genesis_Club_Signature::get_author_signature(get_current_user_id());
-		$sig =  sprintf('<p><img src="%1$s" alt="Author Signature"/></p>', 
+		return sprintf('<p><img src="%1$s" alt="Author Signature"/></p>', 
 			!empty($usersig) ? $usersig :  plugins_url('images/signature-example.png',dirname(__FILE__)));		
-		print $sig;
+	}	
+	
+
+	function signature_panel($post,$metabox) {
+       return $this->display_metabox( array(
+         'Help' => $this->help_panel(),
+         'FAQ' => $this->faq_panel(),
+         'Example Signature' => $this->example_panel($post)
+		));
 	}		
 
 }

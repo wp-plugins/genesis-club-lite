@@ -10,9 +10,9 @@ class Genesis_Club_Accordion_Admin extends Genesis_Club_Admin {
 	
 	function init() {		
 		add_action('admin_menu',array($this, 'admin_menu'));
-		add_action('load-edit-tags.php', array($this, 'load_archive_page'));	
 		add_action('load-post.php', array($this, 'load_post_page'));	
 		add_action('load-post-new.php', array($this, 'load_post_page'));	
+		add_action('load-edit-tags.php', array($this, 'load_archive_page'));	
 		add_action('edit_term', array($this, 'save_archive'), 10, 2 );	
 		add_action('do_meta_boxes', array($this, 'do_meta_boxes'), 20, 2 );
 		add_action('save_post', array($this, 'save_postmeta'));
@@ -25,22 +25,17 @@ class Genesis_Club_Accordion_Admin extends Genesis_Club_Admin {
 	}
 
 	function page_content() {
- 		$title = $this->admin_heading('Accordion Settings', GENESIS_CLUB_ICON);				
-		$this->print_admin_form_with_sidebar_start($title); 
-		do_meta_boxes($this->get_screen_id(), 'side', null); 
-		$this->print_admin_form_with_sidebar_middle();
-		do_meta_boxes($this->get_screen_id(), 'normal', null); 
-		$this->print_admin_form_end(__CLASS__);
+ 		$title = $this->admin_heading('Genesis Club Accordion Settings', GENESIS_CLUB_ICON);				
+		$this->print_admin_form_with_sidebar($title, __CLASS__); 
 	} 	
 	
 	function load_page() {
 		Genesis_Club_Accordion::add_accordion (array('enabled' => true, 'header_class' => '', 'content_class' => '.accordion-content no-margin'));
 		$this->add_meta_box('intro', 'Instructions',  'intro_panel');
-		$this->add_meta_box('help', 'Help On Accordion Settings',  'help_panel');
-		$this->add_meta_box('tips', 'Tips On Setting Up A FAQ',  'tips_panel');
-		$this->add_meta_box('example','Example Of An Accordion In Action', 'example_panel');
+		$this->add_meta_box('accordion', 'Accordion',  'accordion_panel');
 		$this->add_meta_box('news', 'Genesis Club News', 'news_panel', null, 'side');
 		add_action ('admin_enqueue_scripts',array($this, 'enqueue_admin_styles'));
+		add_action ('admin_enqueue_scripts',array($this, 'enqueue_metabox_scripts'));
 		add_action ('admin_enqueue_scripts',array($this, 'enqueue_postbox_scripts'));
 	}
 
@@ -49,20 +44,16 @@ class Genesis_Club_Accordion_Admin extends Genesis_Club_Admin {
 	}
 
 	function load_archive_page() {
-		add_action( $_REQUEST['taxonomy'] . '_edit_form', array($this, 'archive_panel'), 10, 2 );	
+		add_filter( 'genesis_club_archive_settings', array($this, 'add_archive_panel'), 10, 3 );	
 		$this->set_tooltips($this->tips);
 	}
 	
 	function do_meta_boxes( $post_type, $context) {
 		$post_types=get_post_types();
 		if ( in_array($post_type, $post_types ) && ('advanced' === $context )) {
-			$this->add_meta_box( 'accordion', 'Genesis Club Accordion Settings', 'accordion_panel' , null, 'advanced', 'low', $post_type);	
+		    add_filter( 'genesis_club_post_settings', array($this, 'add_post_panel'), 10, 2);	//add to plugin metabox
 		}
 	}
-	
- 	function news_panel($post,$metabox){	
-		Genesis_Club_Feed_Widget::display_feeds(array(GENESIS_CLUB_NEWS));
-	}	
 	
 	function intro_panel() {
 		$url = admin_url('edit.php');
@@ -75,21 +66,29 @@ class Genesis_Club_Accordion_Admin extends Genesis_Club_Admin {
 INTRO;
 	}
 	
+ 	function accordion_panel($post,$metabox) {
+      $this->display_metabox( array(
+         'Help' => $this->help_panel(),
+         'Tips' => $this->tips_panel(),
+         'Example' => $this->example_panel(),
+		));
+   }
+	
 	function help_panel() {
  		$screenshot = plugins_url('images/accordion.jpg',dirname(__FILE__));
-		print <<< HELP
+		return <<< HELP
 <p>Below is a annotated screenshot of the <i>Accordion Settings</i>.</p>
 <p>Simply click the checkbox to enable the accordion</p>
 <p>If you want to add your own styling you have the option to override the CSS class for the header (the question), and the CSS class for the content (the answer). </p>
 <p><img src="{$screenshot}" alt="Screenshot on Accordion Settings" /></p>
 <p>If the section does not appear in the Post or Category Editor then click the <i>Screen Options</i> at the top of the page and make sure you click the checkboxes to show the Accordion Settings.</p>
-<p>For an accordion made from posts in a category, then the plugin uses the post titles as the question, and the post content as the answers.<p>
+<p>For an accordion made from posts in a category, then the plugin uses each post title as the question, and the post content as the answer.<p>
 <p>For an accordion made on a single page then the page should consist of a &lt;h3&gt; heading for each question with a single paragraph beneath it for each answer. You can have multi-paragraph answers but in this case to you need to wrap all the paragraphs that hold the answer in a DIV element.</p>
 HELP;
 	}
 
 	function tips_panel() {
-		print <<< TIPS
+		return <<< TIPS
 <p>Use a single page for your FAQ when you have relatively few questions and short answers and you do not envisage your FAQ changing much over time.</p>
 <p>Conversely, if you have many questions, long answers or frequent updates then choosing the FAQ category approach will be better from the point of view of SEO, the user experience, and from  administration of the FAQ.</p>
 <p>Also remember that if you have a lot of frequently asked questions you may want to break it up into separate FAQs which can be subcategories. For example, on the <a href="http://www.genesisclub.co">Genesis Club website</a>, we have a Genesis FAQ, a Membership FAQ and a WordPress FAQ.</p>
@@ -99,7 +98,7 @@ TIPS;
 	function example_panel() {
 		Genesis_Club_Accordion::add_accordion(array('enabled' => true));
 		$support_url = GENESIS_CLUB_SUPPORT_URL;
-		print <<< EXAMPLE
+		return <<< EXAMPLE
 <p>Click the questions below to see an accordion FAQ in action.</p>
 <div class="accordion">
 <h3>What Is A FAQ?</h3>
@@ -129,19 +128,19 @@ EXAMPLE;
 			Genesis_Club_Accordion::save_accordion('posts', $post_id, (array) $_POST['accordion']) : false;
 	}
 
-	function accordion_panel($post,$metabox){	 		
-		$this->accordion_section(Genesis_Club_Accordion::get_accordion('posts', $post->ID), false) ;
-	}
+	function add_post_panel($content, $post) {
+		return $content + array ('Accordion' => $this->accordion_section(Genesis_Club_Accordion::get_accordion('posts', $post->ID), false)) + $content ;
+   }	
 
-	function archive_panel($term, $tt_id) {
-		$this->accordion_section(Genesis_Club_Accordion::get_accordion('terms', $term->term_id), true) ;
-    }	
+	function add_archive_panel($content, $term, $tt_id) {
+		return array ('Accordion' => $this->accordion_section(Genesis_Club_Accordion::get_accordion('terms', $term->term_id), true)) + $content ;
+	}	
 
 	private function accordion_section($accordion, $is_archive){
 		$defaults = array('enabled' => '', 'header_class' => '', 'content_class' => '', 'container_class' => '', 'nopaging' => false);
 		$accordion = is_array($accordion) ?  shortcode_atts($defaults,$accordion) : $defaults;
 		if ($is_archive) {  //use table on archive pages
-			$start_wrap = '<h3>Accordion Settings</h3><table class="form-table">';
+			$start_wrap = '<table class="form-table">';
 			$end_wrap = '</table>';
 			$wrap = 'tr';
 		} else {  //use div on page editor
@@ -149,22 +148,21 @@ EXAMPLE;
 			$end_wrap ='</div>';		
 			$wrap = 'div';
 		}
-
-		print $start_wrap;	
-		$this->print_accordion_form_field('enabled', $accordion['enabled'], 'checkbox', array(), $wrap);
-		$this->print_accordion_form_field('header_class', $accordion['header_class'], 'text', array('size' => 20), $wrap);
-		$this->print_accordion_form_field('content_class', $accordion['content_class'], 'text', array('size' => 20), $wrap);
-		$this->print_accordion_form_field('container_class', $accordion['container_class'], 'text', array('size' => 20), $wrap);
+		$s = '';	
+		$s .= $this->accordion_form_field('enabled', $accordion['enabled'], 'checkbox', array(), $wrap);
+		$s .= $this->accordion_form_field('header_class', $accordion['header_class'], 'text', array('size' => 20), $wrap);
+		$s .= $this->accordion_form_field('content_class', $accordion['content_class'], 'text', array('size' => 20), $wrap);
+		$s .= $this->accordion_form_field('container_class', $accordion['container_class'], 'text', array('size' => 20), $wrap);
 		if ($is_archive)
-			$this->print_accordion_form_field('nopaging', $accordion['nopaging'], 'checkbox', array(), $wrap);
-		print $end_wrap;
+			$s.= $this->accordion_form_field('nopaging', $accordion['nopaging'], 'checkbox', array(), $wrap);
+		return $start_wrap . $s . $end_wrap;
 	}
 
-	private function print_accordion_form_field($fld, $value, $type, $args, $wrap) {
+	private function accordion_form_field($fld, $value, $type, $args, $wrap) {
 		$id = 'accordion_'.$fld;
 		$name = 'accordion['.$fld.']';	
 		$options = array();
-		print $this->form_field($id, $name, false, $value, $type, $options, $args, $wrap);
+		return $this->form_field($id, $name, false, $value, $type, $options, $args, $wrap);
 	}
 
 }

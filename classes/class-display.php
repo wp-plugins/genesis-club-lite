@@ -17,8 +17,11 @@ class Genesis_Club_Display {
     const HIDE_BEFORE_CONTENT_METAKEY = '_genesis_club_hide_before_content';
     const HIDE_BEFORE_ENTRY_METAKEY = '_genesis_club_hide_before_entry';
     const HIDE_BEFORE_ENTRY_CONTENT_METAKEY = '_genesis_club_hide_before_entry_content';
+   const DISABLE_AUTOP_METAKEY = '_genesis_club_disable_autop';
     const BGCOLOR_KEY = 'facebook_likebox_bgcolor';
 	const BORDER_KEY = 'facebook_likebox_border';
+	
+	const FACEBOOK_IMAGE_SCALE_FACTOR = 1.91;
 	
 	protected static $defaults  = array(
 		'remove_blog_title' => false,
@@ -44,21 +47,42 @@ class Genesis_Club_Display {
 		'facebook_app_id' => '',
 		'facebook_likebox_bgcolor' => '',
 		'alt_404_page' => 0,
+		'alt_404_status' => 404,
 		'css_hacks' => false,
+		'facebook_featured_images' => false,
+		'facebook_sized_images' => false,
+		'custom_login_enabled' => false, 
+		'custom_login_background' => '', 
+		'custom_login_logo' => '', 
+		'custom_login_button_color' => '', 
+		'custom_login_user_label' => 'User Login',
+		'excerpt_images_on_front_page' => false,
+		'archives' => false,
 	);
 	
 	protected static $is_html5 = false;
 	protected static $is_landing = false;
 	protected static $post_id = false;
+	protected static $og_title = false;
+	protected static $og_desc = false;
+	protected static $og_image = false;	
+	protected static $term_featured_image = false;	
 	
 	public static function init() {
 		Genesis_Club_Options::init(array('display' => self::$defaults));		
 		add_action('widgets_init', array(__CLASS__,'register_sidebars'));
 		add_action('widgets_init', array(__CLASS__,'register_widgets'));			
+		add_filter('status_header', array(__CLASS__,'status_header'),10,4);	
+    	if (self::get_option('facebook_featured_images')) {
+         self::set_facebook_featured_image_size();           
+    	}
+				
 		if (!is_admin()) {
 			add_action('parse_query', array(__CLASS__,'parse_query'));
+			add_action('pre_get_posts', array(__CLASS__,'customize_archive'), 15 );			
 			add_action('wp', array(__CLASS__,'prepare'));
 		}
+		self::custom_login();
 	}	
 
     public static function register_sidebars() {
@@ -115,7 +139,6 @@ class Genesis_Club_Display {
 
 	public static function register_widgets() {
 		register_widget( 'Genesis_Club_Text_Widget' );		
-		register_widget( 'Genesis_Club_Post_Image_Gallery_Widget' );
 		register_widget( 'Genesis_Club_Facebook_Likebox_Widget' );		
 	}	
 
@@ -177,14 +200,19 @@ class Genesis_Club_Display {
 		if (is_singular()) {  //remove title
 			if (get_post_meta(self::$post_id, self::HIDE_TITLE_METAKEY, true))
 				add_filter('genesis_post_title_text', '__return_empty_string', 100);
+
+			if (get_post_meta(self::$post_id, self::DISABLE_AUTOP_METAKEY, true))
+				remove_filter('the_content', 'wpautop');
 		}
 
-		if (self::should_show_sidebar('before_content'))  
+		if (self::get_option('before_content'))
 			add_action( 'genesis_before_content_sidebar_wrap', array(__CLASS__, 'show_before_content_sidebar')); 
 
-		if (self::should_show_sidebar('after_content'))  
+		if (self::get_option('after_content'))
 			add_action( 'genesis_after_content_sidebar_wrap', array(__CLASS__, 'show_after_content_sidebar')); 
 								
+		if (is_single()) {  //insert widgets before and after entries or entry content 
+
 		if (self::should_show_sidebar('before_entry'))  
 			add_action( self::$is_html5 ? 'genesis_before_entry' :'genesis_before_post', array(__CLASS__, 'show_before_entry_sidebar')); 
 
@@ -196,6 +224,7 @@ class Genesis_Club_Display {
 
 		if (self::should_show_sidebar('after_entry_content'))  
 			add_action( self::$is_html5 ? 'genesis_after_entry_content' :'genesis_after_post_content', array(__CLASS__, 'show_after_entry_content_sidebar'));
+		}
 			
 		if (is_archive()) { //insert widgets before and after entry archives 
 			add_filter ('genesis_term_intro_text_output','do_shortcode',11); //convert shortcode in toppers
@@ -217,10 +246,14 @@ class Genesis_Club_Display {
 			}
 		}
 
+		if (is_front_page()) {
+			add_action( self::$is_html5 ? 'genesis_before_entry' :'genesis_before_post', array(__CLASS__, 'maybe_replace_category_images')); 
+		}
+
 		if (self::get_option('no_page_postmeta') && (is_page() || is_front_page())) {  //remove postinfo and postmeta on pages
 			self::replace_postinfo(false);
 			self::replace_postmeta(false);
-		} elseif (self::get_option('postinfo_shortcodes') && is_singular() && !self::$is_landing)  {//replace postinfo 
+		} elseif (self::get_option('postinfo_shortcodes') && (is_single() || ( is_page() && !self::$is_landing)))  {//replace postinfo 
 			self::replace_postinfo(true);
 		}
 		 	
@@ -291,9 +324,9 @@ class Genesis_Club_Display {
 	public static function blog_title_notext($title, $inside, $wrap) {
         $logo_alt = self::get_option('logo_alt');
         $alt = empty( $logo_alt) ? '' :  sprintf(' alt="%1$s"', $logo_alt);
-		$logo = ($logo = self::get_option('logo')) ?
-			(filter_var($logo, FILTER_VALIDATE_URL) ? sprintf('<img src="%1$s" %2$s/>', $logo, $alt) : $logo) : '';
-
+		$logo = self::get_option('logo');
+		$url = ($logo && (substr($logo,0,2) == '//')  ? 'http:' : '') . $logo;          
+		$logo = filter_var($url, FILTER_VALIDATE_URL) ? sprintf('<img src="%1$s" %2$s/>', $logo, $alt) : $logo;
 		if ($logo)
 			if (strpos($logo, '[') === FALSE) /* Logo image URL gets wrapped as a clickable link */
 				$inside = sprintf( '<a href="%1$s" title="%2$s" style="text-indent:0;background:none">%3$s</a>',
@@ -454,9 +487,219 @@ SCRIPT;
 		&& ( $page_id = self::get_option('alt_404_page'))
 		&& ( $page_id != get_query_var( 'page')) 
 		&& ( get_post_status($page_id ) == 'publish'))  {
-			wp_redirect	(get_permalink($page_id));
+         $status = self::get_option('alt_404_status') ;
+         if (!$status) $status = 404;
+			if (($status==301) || ($status==302)) 
+			   wp_redirect	(get_permalink($page_id), $status);
+         else
+			   wp_redirect	(get_permalink($page_id).'?404stat='.$status, 302);               
 			exit;
 		}
 	}
+
+   public static function status_header($status_header, $code, $description, $protocol) {
+      $qs = $_SERVER['QUERY_STRING'];
+      if ($qs
+      && (strpos($qs, '404stat=') !== FALSE)
+      && ($stat = substr($qs,8,3) )
+      && (($stat == '404') || ($stat == '410'))) {
+         $code = intval($stat);
+         $status_header = "$protocol $code $description";         
+      }
+      return $status_header ;
+   }
+
+	private static function empty_archive($archive) {
+		return ! ($archive && is_array($archive) 		
+		&& (array_key_exists('sorting',$archive) 
+		|| (array_key_exists('orderby',$archive) && !empty($archive['orderby'])) 
+		|| (array_key_exists('order',$archive) && !empty($archive['order'])) ));
+	}
+
+	private static function get_archives() {
+ 		return self::get_option('archives');
+	}
+
+	private static function save_archives($archives) {
+      $display_options = self::get_options(false);
+      $display_options['archives'] = $archives;
+ 		return self::save_options($display_options);
+	}
+
+	public static function save_archive($term_id, $new_archive) {
+ 		$archives = self::get_archives();
+		if (self::empty_archive($new_archive)) {
+			if (is_array($archives)
+			&& array_key_exists($term_id,$archives))
+				unset($archives[$term_id]); //delete it if it is present
+		} else {
+				$archives[$term_id] = $new_archive ;
+		}
+		return self::save_archives($archives);
+	}
+
+ 	public static function get_archive($term_id, $archives = false ) {
+		if (!$archives) $archives = self::get_archives();
+		if (is_array($archives) 
+		&& array_key_exists($term_id, $archives))
+			return $archives[$term_id];
+		else
+			return false;	
+ 	}
+
+	private static function get_current_archive() {
+		if (is_tax() || is_category() || is_tag()) 
+			if (is_category())
+				$term = get_term_by('slug',get_query_var('category_name'),'category') ;
+			elseif (is_tag())
+				$term = get_term_by('slug',get_query_var('tag'),'post_tag') ;
+			else
+				$term = get_term_by('slug', get_query_var('term'), get_query_var('taxonomy')) ;						
+		else 
+			$term = false;
+		return $term ? self::get_archive($term->term_id) : false;
+	}
+
+	public static function customize_archive( $query ) {
+      if ($query->is_archive 
+      && ($archive = self::get_current_archive())) {
+         self::maybe_sort_archive( $query, $archive);   
+         self::maybe_override_opengraph_terms($archive); 
+         self::maybe_override_terms_archive_image($archive);
+      }
+ 	}
+
+	public static function maybe_sort_archive( $query, $archive ) {
+      if (array_key_exists('sorting', $archive)
+      && array_key_exists('orderby', $archive)
+      && array_key_exists('order', $archive)
+      && $archive['sorting']
+      && $query->is_main_query()) {
+         $query->set( 'orderby', $archive['orderby'] );
+         $query->set( 'order', $archive['order']);          
+	    }    		 
+	}
+
+   public static function maybe_replace_category_images() {
+		if (($post_id = Genesis_Club_Utils::get_post_id())
+		&& ($terms = wp_get_post_terms( $post_id, 'category'))
+		&& is_array($terms)
+		&& (count($terms) > 0)
+		&& ($term = $terms[0])
+		&& ($archive = self::get_archive($term->term_id))) {
+			self::maybe_override_terms_archive_image($archive, true);
+		}
+   }
+
+   /* This function can be called on the home page or on archive pages */
+   public static function maybe_override_terms_archive_image($archive, $is_front_page = false) {
+ 		if (isset($archive['excerpt_image']) 
+ 		&& ( ! $is_front_page  ||   
+ 			(isset($archive['excerpt_images_on_front_page']) && $archive['excerpt_images_on_front_page'])))
+         	self::$term_featured_image = $archive['excerpt_image'];
+		else 
+         	self::$term_featured_image = '';
+		add_filter('genesis_pre_get_image', array( __CLASS__,'get_featured_thumbnail'), 20, 3);         
+   }
+
+   public static function get_featured_thumbnail($content, $args, $post) {
+      if (self::$term_featured_image) {
+         $defaults= array('folder' => 'thumbnails','size' => 'thumbnail', 'attr' => array(), 'format' => 'html');
+         $args = wp_parse_args ($args, $defaults); 
+         return 'url'==$args['format'] ? self::$term_featured_image:
+            sprintf('<img src="%1$s" alt="" %2$s/>' ,
+               self::$term_featured_image, 
+               (is_array($args['attr']) && array_key_exists('class',$args['attr'])) ? sprintf('class="%1$s"',$args['attr']['class']) : '');        
+      } else {
+         return $content; //otherwise use post featured image  
+      }
+   } 
+
+	public static function set_facebook_featured_image_size() {
+      /* set up up Facebook friendly image sizes for your featured image, and your archive image */
+	
+      $facebook_image_scale_factor = 1.91;
+         
+      $image_width = apply_filters('genesis-club-fb-featured-image-width', 470); //available to override if you want to
+      $image_height = apply_filters('genesis-club-fb-featured-image-height',round($image_width / self::FACEBOOK_IMAGE_SCALE_FACTOR));
+      add_image_size( 'fb-featured-image', $image_width, $image_height, true ); 
+
+      $image_width = apply_filters('genesis-club-fb-archive-image-width', 240); //thumbnail size for archive pages and widgets
+      $image_height = apply_filters('genesis-club-fb-archive-image-width', round($image_width / self::FACEBOOK_IMAGE_SCALE_FACTOR) );        
+      add_image_size( 'fb-archive-image', $image_width, $image_height, true ); //in proportion to Facebook image
+
+      if (defined('WPSEO_FILE')) { //Yoast WordPress SEO plugin sets up the featured image for Facebook - so get it to use the correct image size
+         add_filter('wpseo_opengraph_image_size', function() { return 'fb-featured-image';} ) ;  
+      }      
+	}
+
+	private static function maybe_override_opengraph_terms( $archive ) {
+      if ((array_key_exists('og_title', $archive) && (self::$og_title = $archive['og_title']))
+         || (array_key_exists('og_desc', $archive) && (self::$og_desc = $archive['og_desc']))
+         || (array_key_exists('og_image', $archive) && (self::$og_image = $archive['og_image']))) {
+         add_action('wpseo_opengraph', array(__CLASS__, 'override_opengraph_terms') , 5);
+	    }    		 
+	}
+
+	public static function override_opengraph_terms() {
+      if (self::$og_title) add_filter('wpseo_opengraph_title', array(__CLASS__, 'override_opengraph_title'));    		 
+      if (self::$og_desc) add_filter('wpseo_opengraph_desc', array(__CLASS__, 'override_opengraph_desc'));    
+      if (self::$og_image) add_filter('wpseo_opengraph_image', array(__CLASS__, 'override_opengraph_image'));    
+	}
+
+	public static function override_opengraph_title( $title ) {
+      return self::$og_title ? self::$og_title : $title; 
+   }
+
+	public static function override_opengraph_desc ( $desc ) {
+      return self::$og_desc ? self::$og_desc : $desc; 
+   }
+
+	public static function override_opengraph_image( $image ) {
+      return self::$og_image ? self::$og_image : $image; 
+   }
+
+   public static function custom_login() {
+ 	  if (self::get_option('custom_login_enabled')) {      
+      add_action('login_head', array(__CLASS__,'custom_login_header'));
+      add_action('login_footer', array(__CLASS__, 'custom_login_footer'));
+ 	  }     
+   }
+
+   public static function custom_login_header() {
+      printf ('<link rel="stylesheet" href="%1$s" type="text/css" media="screen" />', plugins_url('styles/login.css', dirname(__FILE__)));
+   }
+
+	public static function custom_login_footer() {
+	  $url = site_url();
+	  $login = self::get_option('login');
+	  $login_background = self::get_option('custom_login_background');	  
+	  $login_logo = self::get_option('custom_login_logo');
+	  $login_button = self::get_option('custom_login_button_color');	 
+	  $login_reminder = __('Enter your email address. You will receive a password reminder via e-mail.');   
+	  $login_user_label = self::get_option('custom_login_user_label');
+	  $jquery = site_url('wp-includes/js/jquery/jquery.js'); 
+	  print <<< SCRIPT
+<script type="text/javascript" src="{$jquery}"></script>
+<script type="text/javascript">
+//<![CDATA[
+jQuery(document).ready(function(){
+   var lf = jQuery('form#loginform');
+   lf.prepend("<h2>Login</h2>");
+   jQuery("h1 a").attr("id","logo");
+   jQuery("h1 a").attr("href","{$url}");
+   jQuery("h1 a").attr("title","Home Page");
+   jQuery("form#loginform p:first").replaceWith(
+   '<label>{$login_user_label}</label><input type="text" name="log" id="user_login" class="input" value="" size="20" tabindex="10">');
+   jQuery('#nav').appendTo(lf);
+   jQuery("body").css("background-image","{$login_background}");
+   jQuery("#logo").css("background-image","{$login_logo}");
+   jQuery("#wp-submit").css("background-color","{$login_button}");
+   jQuery("form#lostpasswordform").prepend("<h2>{$login_reminder}</h2>");
+});
+//]]>
+</script>
+SCRIPT;
+   }
 
 }
