@@ -2,6 +2,7 @@
 class Genesis_Club_Signature {
     const SIGNATURE_URL_KEY = 'genesis_author_signature';
     const SIGNATURE_ON_POSTS_KEY = 'genesis_signature_on_posts'; 
+    const FIX_USER_NICENAME = 'genesis_signature_fix_nicename'; 
     const HIDE_SIGNATURE_METAKEY = '_genesis_hide_signature';
     const SHOW_SIGNATURE_METAKEY = '_genesis_show_signature'; 
 
@@ -10,8 +11,9 @@ class Genesis_Club_Signature {
 	}	
 
 	static function prepare() {
+		 add_shortcode('genesis-club-signature', array(__CLASS__, 'add_signature'));	
+		 add_shortcode('genesis_club_signature', array(__CLASS__, 'add_signature'));										
 		 if (is_single()) add_filter( 'the_content', array(__CLASS__, 'append_signature'),5);
-		 if (is_singular()) add_shortcode('genesis-club-signature', array(__CLASS__, 'add_signature'));										
 	}
     
 	static function append_signature($content) {

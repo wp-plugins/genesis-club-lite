@@ -7,7 +7,7 @@ abstract class Genesis_Club_Widget extends WP_Widget {
 	private $instance;
 	private $tooltips;
    private $defaults = array('title' => '', 'html_title' => '');
-   private $tips = array('title' => array('heading' => 'Label', 'tip' => 'Label appears in Admin to make identification easier'),
+   private $tips = array('title' => array('heading' => 'Label', 'tip' => 'Label appears only in the Widget Dashboard to make widget identification easier'),
                         'html_title' => array('heading' => 'Widget Title', 'tip' => 'Enhanced widget title can contain some HTML such as links, spans and breaks')
                         );
 
@@ -45,7 +45,7 @@ abstract class Genesis_Club_Widget extends WP_Widget {
  	  $this->tooltips = new Genesis_Club_Tooltip($this->tips);
 	  $this->instance = wp_parse_args( (array) $instance, $this->get_defaults() );      
 	  $this->print_form_field('title', 'text', array(), array('size' => 20));
-	  if ($html_title) $this->print_form_field('html_title', 'textarea', array(), array('rows' => 4, 'cols' => 30 ));
+	  if ($html_title) $this->print_form_field('html_title', 'textarea', array(), array( 'class' => 'widefat' ));
 	  print ('<hr />');	  
 	}
    
@@ -57,5 +57,27 @@ abstract class Genesis_Club_Widget extends WP_Widget {
 			$type, $options, $args);
 	}
 	
+	function taxonomy_options ($fld) {
+	  $selected = array_key_exists($fld, $this->instance) ? $this->instance[$fld] : '';
+		$s = sprintf('<option %1$s value="%2$s">%3$s</option>', 
+			selected('', $selected, false ), '', __('All Taxonomies and Terms', GENESIS_CLUB_DOMAIN ));
+		$taxonomies = get_taxonomies( array('public' => true ), 'objects');
+		foreach ( $taxonomies as $taxonomy ) {
+			if ($taxonomy->name !== 'nav_menu') {
+				$query_label = $taxonomy->name;
+				$s .= sprintf('optgroup label="%1$s">', esc_attr( $taxonomy->labels->name ));
+				$s .= sprintf('<option style="margin-left: 5px; padding-right:10px;" %1$s value="%2$s">%3$s</option>',
+					selected( $query_label , $selected, false), 
+					$query_label, $taxonomy->labels->all_items) ;
+				$terms = get_terms( $taxonomy->name, 'orderby=name&hide_empty=1');
+				foreach ( $terms as $term ) 
+					$s .= sprintf('<option %1$s value="%2$s">%3$s</option>',
+						selected($query_label. ',' . $term->slug, $selected, false),
+						$query_label. ',' . $term->slug, '-' . esc_attr( $term->name )) ;
+				$s .= '</optgroup>';
+			}
+		}
+		return  $s;
+	}
 
 }

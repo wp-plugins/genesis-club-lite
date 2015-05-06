@@ -68,6 +68,7 @@ class Genesis_Club_Icons {
 
 	static function init() {
 		if (class_exists('Simple_Social_Icons_Widget'))	{
+			add_shortcode('simple_social_icons', array(__CLASS__, 'display'));
 			add_shortcode('simple-social-icons', array(__CLASS__, 'display'));
 			add_action('wp', array(__CLASS__,'prepare'));				
 		}
@@ -129,7 +130,7 @@ class Genesis_Club_Icons {
 		if ($icon_padding) $style .= sprintf('padding: %1$spx;',$icon_padding);
 		if ($instance['icon_color']) $style .= sprintf('color: %1$s;',$instance['icon_color']);
 		if ($instance['background_color']) $style .= sprintf('background-color: %1$s;',$instance['background_color']);
-		if ($instance['border_radius']) $style .= sprintf('border-radius: %1$s;-moz-border-radius: %1$spx;-webkit-border-radius:%1$spx;',$instance['border_radius']);
+		if ($instance['border_radius']) $style .= sprintf('border-radius: %1$spx;-moz-border-radius: %1$spx;-webkit-border-radius:%1$spx;',$instance['border_radius']);
 		$style .= '}';
 		$style .= $prefix.' a:hover {';
 		if ($instance['icon_color_hover']) $style .= sprintf('color: %1$s;',$instance['icon_color_hover']);

@@ -15,18 +15,14 @@ class Genesis_Club_Menu_Admin extends Genesis_Club_Admin {
 	}
 	
 	function admin_menu() {
-		$this->screen_id = add_submenu_page($this->get_parent_slug(), __('Genesis Club Hamburger Menus'), __('Menus'), 'manage_options', 
+		$this->screen_id = add_submenu_page($this->get_parent_slug(), __('Menus'), __('Menus'), 'manage_options', 
 			$this->get_slug(), array($this,'page_content'));
 		add_action('load-'.$this->get_screen_id(), array($this, 'load_page'));
 	}
 
 	function page_content() {
-		$title =  $this->admin_heading('Hamburger Menu Settings', GENESIS_CLUB_ICON);				
-		$this->print_admin_form_with_sidebar_start($title); 
-		do_meta_boxes($this->get_screen_id(), 'side', null); 
-		$this->print_admin_form_with_sidebar_middle();
-		do_meta_boxes($this->get_screen_id(), 'normal', null); 
-		$this->print_admin_form_end(__CLASS__, $this->get_keys());
+		$title =  $this->admin_heading('Genesis Club Menu Settings', GENESIS_CLUB_ICON);				
+		$this->print_admin_form_with_sidebar($title, __CLASS__, $this->get_keys()); 
 	}    
 
 	
@@ -35,9 +31,10 @@ class Genesis_Club_Menu_Admin extends Genesis_Club_Admin {
  		$message = isset($_POST['options_update']) ? $this->save_menu() : '';
 		$callback_params = array ('options' => Genesis_Club_Menu::get_options(), 'message' => $message);
 		$this->add_meta_box('intro', 'Intro',  'intro_panel', $callback_params);
-		$this->add_meta_box('menu', 'Responsive Menu', 'responsive_menu_panel', $callback_params);
+		$this->add_meta_box('menu', 'Menu Settings', 'menu_panel', $callback_params);
 		$this->add_meta_box('news', 'Genesis Club News', 'news_panel',$callback_params, 'side');
 		add_action ('admin_enqueue_scripts',array($this, 'enqueue_admin_styles'));
+		add_action ('admin_enqueue_scripts',array($this, 'enqueue_metabox_scripts'));
 		add_action ('admin_enqueue_scripts',array($this, 'enqueue_postbox_scripts'));
 	}
 
@@ -46,10 +43,6 @@ class Genesis_Club_Menu_Admin extends Genesis_Club_Admin {
 		return $this->save_options('Genesis_Club_Menu', 'Menu');
 	}
 
- 	function news_panel($post,$metabox){	
-		Genesis_Club_Feed_Widget::display_feeds();
-	}
-	
  	function intro_panel($post,$metabox){	
 		$message = $metabox['args']['message'];	 	
 		print <<< INTRO_PANEL
@@ -59,17 +52,17 @@ INTRO_PANEL;
 	}
 
   
-	function responsive_menu_panel($post,$metabox){	
-		$options = $metabox['args']['options'];	 	
-		$this->print_responsive_text_field("threshold",$options['threshold'], 4, 'px') ;
-		$this->print_responsive_text_field("icon_size",$options['icon_size'], 4, 'rem') ;
-		$this->print_responsive_text_field("icon_color",$options['icon_color'], 7, '', 'color-picker') ;
-		$this->print_responsive_menu_locations('primary', $options['primary']);
-		$this->print_responsive_menu_locations('secondary', $options['secondary']);
-		$this->print_responsive_menu_locations('header', $options['header']);
+	function hamburger_panel($options){	
+      return 	
+         $this->responsive_text_field("threshold",$options['threshold'], 4, 'px') .
+         $this->responsive_text_field("icon_size",$options['icon_size'], 4, 'rem') .
+         $this->responsive_text_field("icon_color",$options['icon_color'], 7, '', 'color-picker') .
+         $this->responsive_menu_locations('primary', $options['primary']) .
+         $this->responsive_menu_locations('secondary', $options['secondary']) .
+         $this->responsive_menu_locations('header', $options['header']);
 	}	
 
-	private function print_responsive_menu_locations($name, $val) {
+	private function responsive_menu_locations($name, $val) {
 		$opts = array(
 			'0' => 'No responsive menu', 
 			'below' => 'Menu slides open below the hamburger');
@@ -77,14 +70,23 @@ INTRO_PANEL;
 			'left' => 'Menu slides open on the left of the screen',
 			'right' => 'Menu slides open on the right of the screen');	
 		if (Genesis_Club_Utils::is_html5()) $opts = $opts + $sidr;	
-		$this->print_form_field($name,  $val, 'select', $opts) ;
+		return $this->fetch_form_field($name,  $val, 'select', $opts) ;
 	}
 
-	private function print_responsive_text_field($name, $val, $size, $suffix='', $class='') {	
+	private function responsive_text_field($name, $val, $size, $suffix='', $class='') {	
 		$args = array('size'=> $size);
 		if (!empty($suffix)) $args['suffix'] = $suffix;
 		if (!empty($class)) $args['class'] = $class;
-		$this->print_text_field($name, $val, $args) ;
+		return $this->fetch_text_field($name, $val, $args) ;
+	}
+
+	function menu_panel($post,$metabox) {
+      $options = $metabox['args']['options'];
+      $this->display_metabox( array(
+         'Hamburger' => $this->hamburger_panel($options)//,
+   //      'Search' => $this->search_panel(),
+  //     'Fixed Header' => $this->fixed_panel($post)
+		));
 	}
 
 }

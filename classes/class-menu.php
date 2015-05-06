@@ -76,7 +76,7 @@ class Genesis_Club_Menu {
 
 	public static function maybe_add_search_form($items, $args) {
  		if (strpos($items, 'rel="search"') !== FALSE) {
-	  		$regexp = "<a\s[^>]*href=(\"??)([^\" >]*?)\\1[^>]*>(.*)<\/a>";
+	  		$regexp = "<li\s[^>]*><a\s[^>]*href=(\"??)([^\" >]*?)\\1[^>]*>(.*)<\/a></li>";
 	  		if(preg_match_all("/$regexp/siU", $items, $matches)
 			&& is_array($matches[0])) {
 				$i=0;

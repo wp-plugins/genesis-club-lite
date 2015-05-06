@@ -43,10 +43,10 @@ if (! class_exists('Genesis_Club_Utils')) {
 	static function get_meta ($post_id, $key) {
 		if ($post_id && $key
 		&& ($meta = get_post_meta($post_id, $key, true))
-		&& ($options = @unserialize($meta))
-		&& is_array($options))
+		&& ($options = (is_serialized($meta) ? @unserialize($meta) : $meta))
+		&& (is_array($options) || is_string($options)))
 			return $options;
-		else 
+		else
 			return false;
 	}
 
@@ -91,7 +91,7 @@ if (! class_exists('Genesis_Club_Utils')) {
 			'show_landing' => 'Show only on landing pages');
 	}
 
-	static function selector($fld_id, $fld_name, $value, $options) {
+	static function selector($fld_id, $fld_name, $value, $options, $multiple = false) {
 		$input = '';
 		if (is_array($options)) {
 			foreach ($options as $optkey => $optlabel)
@@ -100,7 +100,7 @@ if (! class_exists('Genesis_Club_Utils')) {
 		} else {
 			$input = $options;
 		}
-		return sprintf('<select id="%1$s" name="%2$s">%3$s</select>', $fld_id, $fld_name, $input);							
+		return sprintf('<select id="%1$s" name="%2$s"%4$s>%3$s</select>', $fld_id, $fld_name, $input, $multiple ? ' multiple':'');							
 	}
 
 	static function form_field($fld_id, $fld_name, $label, $value, $type, $options = array(), $args = array(), $wrap = false) {
@@ -148,6 +148,18 @@ if (! class_exists('Genesis_Club_Utils')) {
 						$fld_id, $fld_name, checked($value, '1', false));
 				}
 				break;
+				
+			case 'checkboxes': 
+			   $values = (array) $value;
+			   $options = (array) $options;
+			   if (isset($legend))
+				  $input .= sprintf('<legend class="screen-reader-text"><span>%1$s</span></legend>', $legend);
+				foreach ($options as $optkey => $optlabel)
+				  $input .= sprintf('<li><input type="checkbox" id="%1$s" name="%2$s[]" %3$s value="%4$s" /><label for="%1$s">%5$s</label></li>',
+					$fld_id, $fld_name, in_array($optkey, $values) ? 'checked="checked"' : '', $optkey, $optlabel); 
+				$input = sprintf('<fieldset class="diy-fieldset%2$s"><ul>%1$s</ul></fieldset>',$input, isset($class) ? (' '.$class) : ''); 						
+		
+				break;
 			case 'radio': 
 				if (is_array($options) && (count($options) > 0)) {
 					if (isset($legend))
@@ -160,7 +172,7 @@ if (! class_exists('Genesis_Club_Utils')) {
 				}
 				break;		
 			case 'select': 
-				$input =  self::selector($fld_id, $fld_name, $value, $options);							
+				$input =  self::selector($fld_id, $fld_name, $value, $options, isset($multiple));							
 				break;	
 			case 'hidden': return sprintf('<input type="hidden" name="%1$s" value="%2$s" />', $fld_name, $value);	
 			default: $input = $value;	

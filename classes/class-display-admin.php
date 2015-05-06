@@ -9,6 +9,18 @@ class Genesis_Club_Display_Admin extends Genesis_Club_Admin {
     const HIDE_BEFORE_ENTRY_CONTENT = 'genesis_club_hide_before_entry_content';
     const HIDE_AFTER_ENTRY_CONTENT = 'genesis_club_hide_after_entry_content';
     const HIDE_AFTER_CONTENT = 'genesis_club_hide_after_content';
+    const DISABLE_AUTOP = 'genesis_club_disable_autop';
+
+	protected $archive_tips = array(
+		'archive_sorting' => array('heading' => 'Override Sort Order', 'tip' => 'Click to override the sort order of the posts on this archive.'),
+		'archive_orderby' => array('heading' => 'Order By', 'tip' => 'Select the field to sort by.'),
+		'archive_order' => array('heading' => 'Order', 'tip' => 'Ascending or descending.'),
+		'archive_og_title' => array('heading' => 'Facebook Title', 'tip' => 'Title to use for this archive page on Facebook.'),
+		'archive_og_desc' => array('heading' => 'Facebook Description', 'tip' => 'Description to use for this archive page on Facebook.'),
+		'archive_og_image' => array('heading' => 'Facebook Image', 'tip' => 'URL of image to use on Facebook. It is recommended you provide an image of size 470 by 246px.'),
+		'archive_excerpt_image' => array('heading' => 'Excerpt Image', 'tip' => 'URL of image to use as the archive excerpt image for all posts in this archive. The image is used as is, so you need to provide the image at the exact size you want to display it.'),
+		'archive_excerpt_images_on_front_page' => array('heading' => 'Use On Home Page', 'tip' => 'Use category image rather than individual featured images in post excepts on the home page.'),
+	);
                 
 	protected $tips = array(
 		'remove_blog_title' => array('heading' => 'Remove Blog Title Text', 'tip' => 'Click to remove text and h1 tags from the title on the home page. This feature allows you to place h1 tags elsewhere on the home page and just use a logo image in the #title element.'),
@@ -29,17 +41,29 @@ class Genesis_Club_Display_Admin extends Genesis_Club_Admin {
 		'after_content' => array('heading' => 'After Content', 'tip' => 'Click to add a widget area immediately after the content just before the footer. The widget area will be under the content area and any sidebars. This area will typically be used for ads or calls to action'),
 		'facebook_app_id' => array('heading' => 'Facebook App ID', 'tip' => 'Enter your Facebook App ID (15 characters) as found at https://developers.facebook.com/apps'),
 		'facebook_likebox_bgcolor' => array('heading' => 'LikeBox Background Color', 'tip' => 'Choose the background color of the Facebook LikeBox. The Facebook Likebox widget only gives you light and dark options; this allows you to choose a background color that better suits your WordPress theme'),
+		'facebook_featured_images' => array('heading' => 'Facebook Featured Images', 'tip' => 'Click to set up featured image sizes for use on Facebook. Two image sizes are created: one is 470 by 246px for use on Facebook, and the other is 200 by 105px for use alongside post excerpts on your archive pages.'),
+		'facebook_sized_images' => array('heading' => 'Facebook Ready All Images', 'tip' => 'Click to set up the standard WordPress large, medium and thumbnail sizes to be appropriately sized for use on Facebook. Only do this when you are setting up the site and have decided that all your uploaded images will have a width to height ratio of 1.91:1.'),
 		'postinfo_shortcodes' => array('heading' => 'Post Info Short Codes', 'tip' => 'Content of the byline that is placed typically below or above the post title. Leave blank to use the child theme defaults or enter here to override. <br/>For example: <br/><code>[post_date format=\'M j, Y\'] by [post_author_posts_link] [post_comments] [post_edit]</code><br/>or to hide Post Info entirely use <code>[]</code>'),
 		'postmeta_shortcodes' => array('heading' => 'Post Meta Short Codes', 'tip' => 'Content of the line that is placed typically after the post content. <br/> Leave blank to use the child theme defaults or enter here to override. <br/> For example: <br/><code>[post_categories before=\'More Articles About \'] [post_tags]</code><br/>or to hide Post Meta entirely use <code>[]</code>'),
 		'no_page_postmeta' => array('heading' => 'Remove On Pages', 'tip' => 'Strip any post info from pages.'),
 		'no_archive_postmeta' => array('heading' => 'Remove On Archives', 'tip' => 'Strip any post info and post meta from the top and bottom of post excerpts on archive pages.'),
 		'alt_404_page' => array('heading' => 'Alternative 404 Page', 'tip' => 'Send the user to your own custom 404 page if the chosen page is not found.'),
-		'css_hacks' => array('heading' => 'Add CSS Hacks', 'tip' => 'Add useful classes such as clearfix.'),
+		'alt_404_status' => array('heading' => 'HTTP Status', 'tip' => 'Normally you find want to return 404 however you can choose to return a 410 if say, you have just deleted a whole bunch of pages from your site, or if your site is narrowly based you might want to return a 301 providing the chosen alternative 404 page has a canonical URL.'),
+		'css_hacks' => array('heading' => 'Add CSS Hacks', 'tip' => 'Add useful classes such as clearfix (for clearing floats) and dropcaps (for capitalizing the first letter of the first paragraph.'),
+		'custom_login_enabled' => array('heading' => 'Enable Custom Login', 'tip' => 'Enable Login Page Customizations.'),
+		'custom_login_background' => array('heading' => 'Login Page Background URL', 'tip' => 'URL of image to use as the login page background.'),
+		'custom_login_logo' => array('heading' => 'Logo Background URL', 'tip' => 'URL of image to use as the logo recommended size is 200px square.'),
+		'custom_login_user_label' => array('heading' => 'User Login Label', 'tip' => 'Label for the user/member login / email.'),
+		'custom_login_button_color' => array('heading' => 'Login Button Color', 'tip' => 'Choose color of the login button.'),
 		);
 
 	function init() {
-		add_action('do_meta_boxes', array($this, 'do_meta_boxes'), 30, 2 );
+		add_action('load-post.php', array($this, 'load_post_page'));	
+		add_action('load-post-new.php', array($this, 'load_post_page'));	
 		add_action('save_post', array($this, 'save_postmeta'));
+		add_action('do_meta_boxes', array($this, 'do_meta_boxes'), 30, 2 );
+		add_action('load-edit-tags.php', array($this, 'load_archive_page'));	
+		add_action('edit_term', array($this, 'save_archive'), 10, 2 );	
 		add_action('admin_menu',array($this, 'admin_menu'));
 	}
 	
@@ -50,33 +74,44 @@ class Genesis_Club_Display_Admin extends Genesis_Club_Admin {
 	}
 
 	function page_content() {
-		$title = $this->admin_heading('Display Settings', GENESIS_CLUB_ICON);		
-		$this->print_admin_form_with_sidebar_start($title); 
-		do_meta_boxes($this->get_screen_id(), 'side', null); 
-		$this->print_admin_form_with_sidebar_middle();
-		do_meta_boxes($this->get_screen_id(), 'normal', null); 
-		$this->print_admin_form_end(__CLASS__, $this->get_keys());		
+		$title = $this->admin_heading('Genesis Club Display Settings', GENESIS_CLUB_ICON);		
+		$this->print_admin_form_with_sidebar($title, __CLASS__, $this->get_keys()); 		
 	}  
 	
 	function load_page() {
  		$message =  isset($_POST['options_update']) ? $this->save_display() : '';
 		$callback_params = array ('options' => Genesis_Club_Display::get_options(false), 'message' => $message);
 		$this->add_meta_box('intro', 'Intro',  'intro_panel', $callback_params);
-		$this->add_meta_box('title', 'Responsive Logo', 'logo_panel', $callback_params);
-		$this->add_meta_box('labelling', 'Labels',  'labelling_panel',  $callback_params);
-		$this->add_meta_box('meta', 'Post Info and Post Meta',  'meta_panel', $callback_params);
-		$this->add_meta_box('extras', 'Extra Widget Areas', 'extras_panel', $callback_params);
-		$this->add_meta_box('facebook', 'Facebook',  'facebook_panel', $callback_params);
-		$this->add_meta_box('404', '404 Page',  'alt_404_panel', $callback_params);
-		$this->add_meta_box('css', 'CSS Classes',  'css_panel', $callback_params);		
+		$this->add_meta_box('display', 'Display Settings', 'display_panel', $callback_params);
 		$this->add_meta_box('news', 'Genesis Club News', 'news_panel', $callback_params, 'side');
 		$this->set_tooltips($this->tips);
 		add_action ('admin_enqueue_scripts',array($this, 'enqueue_admin_styles'));
+		add_action ('admin_enqueue_scripts',array($this, 'enqueue_metabox_scripts'));
 		add_action ('admin_enqueue_scripts',array($this, 'enqueue_postbox_scripts'));
 	}
  		
+ 
+	function load_post_page() {
+		$this->set_tooltips($this->tips);
+		add_action ('admin_enqueue_scripts',array($this, 'enqueue_postbox_scripts'));
+		add_action ('admin_enqueue_scripts',array($this, 'enqueue_metabox_scripts'));
+	}
+	 
+ 	function load_archive_page() {
+		$this->set_tooltips($this->archive_tips);
+		add_action( $_REQUEST['taxonomy'] . '_edit_form', array($this, 'archive_panel'), 10, 2 );	
+		add_action ('admin_enqueue_scripts',array($this, 'enqueue_postbox_scripts'));
+		add_action ('admin_enqueue_scripts',array($this, 'enqueue_metabox_scripts'));
+	}
+
+	function save_archive($term_id, $tt_id) {
+		return isset( $_POST['archive'] ) ?
+			Genesis_Club_Display::save_archive($term_id, (array) $_POST['archive']) : false;
+	}	
+
 	function save_display() {
 		check_admin_referer(__CLASS__);
+      self::maybe_make_standard_image_sizes_facebook_ready();
 		return $this->save_options('Genesis_Club_Display', __('Display',GENESIS_CLUB_DOMAIN ));
 	}
     
@@ -92,6 +127,7 @@ class Genesis_Club_Display_Admin extends Genesis_Club_Admin {
 			$keys[self::HIDE_AFTER_ENTRY_CONTENT] = Genesis_Club_Display::HIDE_AFTER_ENTRY_CONTENT_METAKEY;
 			$keys[self::HIDE_AFTER_ENTRY] = Genesis_Club_Display::HIDE_AFTER_ENTRY_METAKEY;
 			$keys[self::HIDE_AFTER_CONTENT] = Genesis_Club_Display::HIDE_AFTER_CONTENT_METAKEY;
+			$keys[self::DISABLE_AUTOP] = Genesis_Club_Display::DISABLE_AUTOP_METAKEY;
 
 			foreach ($keys as $key => $metakey)
 				update_post_meta( $post_id, $metakey, array_key_exists($key, $_POST) ? $_POST[$key] : false);			
@@ -102,7 +138,7 @@ class Genesis_Club_Display_Admin extends Genesis_Club_Admin {
 	function do_meta_boxes( $post_type, $context) {
 		$post_types=get_post_types();
 		if ( in_array($post_type, $post_types ) && ('advanced' === $context )) {
-			add_meta_box( 'genesis-club-hiding', 'Genesis Club Hiding Settings', array($this, 'hiding_panel' ), $post_type, 'advanced', 'low' );
+         add_meta_box('genesis-club-post-settings', 'Genesis Club Post Settings',  array($this,'post_panel'), $post_type);		
 			$current_screen = get_current_screen();
 			if (method_exists($current_screen,'add_help_tab'))
 	    		$current_screen->add_help_tab( array(
@@ -113,12 +149,22 @@ class Genesis_Club_Display_Admin extends Genesis_Club_Admin {
 		}
 	}
 
-
 	function widget_area_visibility_checkbox($option) {
 		global $post;
 		$hide = 'post'==$post->post_type; /* Hide posts, show pages on custom post types */
 		$label = '%1$s the %2$s widget area on this page';
 		return $this->visibility_checkbox($option, $hide, $label);
+    } 
+
+	function disable_checkbox($option, $disable, $label_format) {
+		global $post;
+		$action = $disable ? 'disable' : 'enable'; 
+		$key = sprintf('genesis_club_%1$s_%2$s',$action, $option);
+		$value = get_post_meta($post->ID, '_'.$key, true);
+		$checked = $value ?'checked="checked" ':'';		
+		$label =  __(sprintf($label_format, $disable ? 'Disable' : 'Enable', ucwords(str_replace('_',' ', $option))));
+		return sprintf('<label><input class="valinp" type="checkbox" name="%1$s" id="%1$s" %2$svalue="1" />%3$s</label><br/>',
+			$key, $checked, $label);
     } 
 
 	function visibility_checkbox($option, $hide, $label_format) {
@@ -132,102 +178,177 @@ class Genesis_Club_Display_Admin extends Genesis_Club_Admin {
 			$key, $checked, $label);
     }   
 
-	function hiding_panel($post,$metabox) {
-		print $this->form_field(self::INDICATOR, self::INDICATOR, '', 1, 'hidden'); 
+	function post_panel($post) {
+      $this->display_metabox( apply_filters( 'genesis_club_post_settings', array('Display' => $this->hiding_panel($post)), $post) );
+   }
 
-		print $this->visibility_checkbox('from_search', true, '%1$s this page on the site search results page');
-
-		print $this->visibility_checkbox('title', true, '%1$s the title on this page');
-
+	function hiding_panel($post) {
+      	$s = '';
+		$s .= $this->form_field(self::INDICATOR, self::INDICATOR, '', 1, 'hidden'); 
+		$s .= $this->visibility_checkbox('from_search', true, '%1$s this page on the site search results page');
+		$s .= $this->visibility_checkbox('title', true, '%1$s the title on this page');
 		$options = Genesis_Club_Display::get_options();
-
-		if ($options['before_content'])
-			print $this->widget_area_visibility_checkbox('before_content');
-				
-		if ($options['before_entry'])
-			print $this->widget_area_visibility_checkbox('before_entry');
-				
-		if ($options['before_entry_content'])
-			print $this->widget_area_visibility_checkbox('before_entry_content');
-
-		if ($options['after_entry_content'])
-			print $this->widget_area_visibility_checkbox('after_entry_content');
-
-		if ($options['after_entry'])
-			print $this->widget_area_visibility_checkbox('after_entry');
-
-		if ($options['after_content'])
-			print $this->widget_area_visibility_checkbox('after_content');
-												
-		do_action('genesis_club_hiding_settings_show',$post);
+		if ($options['before_content']) $s .= $this->widget_area_visibility_checkbox('before_content');		
+		if ($options['before_entry']) $s .= $this->widget_area_visibility_checkbox('before_entry');		
+		if ($options['before_entry_content']) $s .= $this->widget_area_visibility_checkbox('before_entry_content');
+		if ($options['after_entry_content']) $s .= $this->widget_area_visibility_checkbox('after_entry_content');
+		if ($options['after_entry']) $s .= $this->widget_area_visibility_checkbox('after_entry');
+		if ($options['after_content']) $s .= $this->widget_area_visibility_checkbox('after_content');
+		$s .= $this->disable_checkbox('autop', true, '%1$s auto-paragraphing of the page content');											
+		$s = apply_filters('genesis_club_hiding_settings_show', $s, $post);
+		return $s;
     }
  
  	function intro_panel($post,$metabox){	
 		$message = $metabox['args']['message'];	 	
-		print <<< INTRO_PANEL
-<p>The following sections allow you to tweak some Genesis settings you want to change on most sites without having to delve into PHP.</p>
-{$message}
-INTRO_PANEL;
+		print('<p>The following sections allow you to tweak some Genesis settings you want to change on most sites without having to delve into PHP.</p>');
+		print $message;
 	}
 
-	function logo_panel($post,$metabox){	
+	function display_panel($post, $metabox) {
 		$options = $metabox['args']['options'];	 	
-		$this->print_form_field('remove_blog_title', $options['remove_blog_title'], 'checkbox');
-		$this->print_text_field('logo', $options['logo'], array('size' => 55));
-		$this->print_text_field('logo_alt', $options['logo_alt'], array('size' => 55));
+      $this->display_metabox( array (
+         'Logo' => $this->logo_panel($options),
+         'Labels' => $this->labelling_panel($options),
+         'PostInfo/Meta' => $this->meta_panel($options),
+         'Extra Widget Areas' => $this->extras_panel($options),
+         'Facebook' => $this->facebook_panel($options),
+         'Alternate 404 Page' => $this->alt_404_panel($options),
+         'CSS Tricks' => $this->css_panel($options),
+         'Custom Login' => $this->custom_login_panel($options),
+      ));
+   }	
+
+	function logo_panel($options){
+	  return	 	
+         $this->fetch_form_field('remove_blog_title', $options['remove_blog_title'], 'checkbox') .
+         $this->fetch_text_field('logo', $options['logo'], array('size' => 55)) .
+         $this->fetch_text_field('logo_alt', $options['logo_alt'], array('size' => 55));
 	}
  
-	function facebook_panel($post,$metabox){	
-		$options = $metabox['args']['options'];	 
-		$this->print_text_field('facebook_app_id', $options['facebook_app_id'],  array('size' => 20));
-		$this->print_text_field('facebook_likebox_bgcolor', $options['facebook_likebox_bgcolor'], array('size' => 8, 'class' => 'color-picker'));
+	function facebook_panel($options){
+      return	 
+         $this->fetch_text_field('facebook_app_id', $options['facebook_app_id'],  array('size' => 20)) .
+         $this->fetch_text_field('facebook_likebox_bgcolor', $options['facebook_likebox_bgcolor'], array('size' => 8, 'class' => 'color-picker')) .
+         $this->fetch_form_field('facebook_featured_images', $options['facebook_featured_images'], 'checkbox') .
+         $this->fetch_form_field('facebook_sized_images', $options['facebook_sized_images'], 'checkbox');
 	}
 	
-	function extras_panel($post,$metabox){	
-		$options = $metabox['args']['options'];	 	
-		$this->print_form_field('before_content', $options['before_content'], 'checkbox');
-		$this->print_form_field('before_archive', $options['before_archive'], 'checkbox');
-		$this->print_form_field('before_entry', $options['before_entry'], 'checkbox');
-		$this->print_form_field('before_entry_content', $options['before_entry_content'], 'checkbox');
-		$this->print_form_field('after_entry_content', $options['after_entry_content'], 'checkbox');
-		$this->print_form_field('after_entry', $options['after_entry'], 'checkbox');
-		$this->print_form_field('after_archive', $options['after_archive'], 'checkbox');
-		$this->print_form_field('after_content', $options['after_content'], 'checkbox');
+	function extras_panel($options){
+      return
+         $this->fetch_form_field('before_content', $options['before_content'], 'checkbox') .
+         $this->fetch_form_field('before_archive', $options['before_archive'], 'checkbox') .
+         $this->fetch_form_field('before_entry', $options['before_entry'], 'checkbox') .
+         $this->fetch_form_field('before_entry_content', $options['before_entry_content'], 'checkbox') .
+         $this->fetch_form_field('after_entry_content', $options['after_entry_content'], 'checkbox') .
+         $this->fetch_form_field('after_entry', $options['after_entry'], 'checkbox') .
+         $this->fetch_form_field('after_archive', $options['after_archive'], 'checkbox') .
+         $this->fetch_form_field('after_content', $options['after_content'], 'checkbox');
 	}	
 
-	function meta_panel($post,$metabox){	
-		$options = $metabox['args']['options'];	 	
-		$this->print_form_field('no_archive_postmeta', $options['no_archive_postmeta'],  'checkbox');
-		$this->print_form_field('no_page_postmeta', $options['no_page_postmeta'],  'checkbox');
-		$this->print_text_field('postinfo_shortcodes', $options['postinfo_shortcodes'], array('size' => 60));
-		$this->print_text_field('postmeta_shortcodes', $options['postmeta_shortcodes'], array('size' => 60));
+	function meta_panel($options){
+      return
+         $this->fetch_form_field('no_archive_postmeta', $options['no_archive_postmeta'],  'checkbox') .
+         $this->fetch_form_field('no_page_postmeta', $options['no_page_postmeta'],  'checkbox') .
+         $this->fetch_text_field('postinfo_shortcodes', $options['postinfo_shortcodes'], array('size' => 60)) .
+         $this->fetch_text_field('postmeta_shortcodes', $options['postmeta_shortcodes'], array('size' => 60));
 	}
 
-	function labelling_panel($post,$metabox){	
-		$options = $metabox['args']['options'];	 	
-		$this->print_text_field('read_more_text', $options['read_more_text'], array('size' => 40));
-		$this->print_text_field('comment_invitation', $options['comment_invitation'], array('size' => 40));
-		$this->print_form_field('comment_notes_hide', $options['comment_notes_hide'], 'radio', 
-			array(0 => 'hide neither', 'before' => 'hide note before', 'after' => 'hide note after', 'both' => 'hide both' ));
-		$this->print_text_field('breadcrumb_prefix', $options['breadcrumb_prefix'],  array('size' => 40));
-		$this->print_text_field('breadcrumb_archive', $options['breadcrumb_archive'], array('size' => 40));
+	function labelling_panel($options){		 	
+      return
+         $this->fetch_text_field('read_more_text', $options['read_more_text'], array('size' => 40)) .
+         $this->fetch_text_field('comment_invitation', $options['comment_invitation'], array('size' => 40)) .
+         $this->fetch_form_field('comment_notes_hide', $options['comment_notes_hide'], 'radio', 
+			array(0 => 'hide neither', 'before' => 'hide note before', 'after' => 'hide note after', 'both' => 'hide both' )) .
+         $this->fetch_text_field('breadcrumb_prefix', $options['breadcrumb_prefix'],  array('size' => 40)) .
+         $this->fetch_text_field('breadcrumb_archive', $options['breadcrumb_archive'], array('size' => 40));
 	}	
 
-	function alt_404_panel($post,$metabox){	
-		$options = $metabox['args']['options'];	 	
-		$this->print_form_field('alt_404_page', 
+	function alt_404_panel($options) {
+      if ( ! ($status = $options['alt_404_status'])) $status = '404';
+      return
+         $this->fetch_form_field('alt_404_page', 
 			wp_dropdown_pages( array( 'name' => 'alt_404_page', 'selected' => $options['alt_404_page'], 'echo' => false, 
 				'depth' => 1, 'option_none_value' => 0, 'show_option_none' => 'Use default 404 page')),
-			'fixed');
+			   'fixed') .
+         $this->fetch_form_field('alt_404_status', $status,  'radio', 
+            array('404' => '404 - Not Found', '410' => '410 - Gone Away', '301' => '301 - Moved Permanently', '307' => '307 - Moved Temporarily'));
 	}
 
-	function css_panel($post,$metabox){	
-		$options = $metabox['args']['options'];	 	
-		$this->print_form_field('css_hacks', $options['css_hacks'], 'checkbox');
+	function css_panel($options){
+	  return
+         $this->fetch_form_field('css_hacks', $options['css_hacks'], 'checkbox');
 	}	  
 
- 	function news_panel($post,$metabox){	
-		Genesis_Club_Feed_Widget::display_feeds();
+	function custom_login_panel($options){	
+      return	 	
+         $this->fetch_form_field('custom_login_enabled', $options['custom_login_enabled'], 'checkbox') .
+         $this->fetch_text_field('custom_login_background', $options['custom_login_background'], array('size' => 50)) .
+         $this->fetch_text_field('custom_login_logo', $options['custom_login_logo'], array('size' => 50)) .
+         $this->fetch_text_field('custom_login_user_label', $options['custom_login_user_label'], array('size' => 50)) .
+         $this->fetch_text_field('custom_login_button_color', $options['custom_login_button_color'], array('size' => 8, 'class' => 'color-picker'));
+	}	  
+
+	function archive_panel($term, $tt_id) {
+		$archive = Genesis_Club_Display::get_archive($term->term_id) ;
+ 		$defaults = array('sorting' => false, 'orderby' => 'date', 'order' => 'DESC');
+		$archive = is_array($archive) ?  array_merge($defaults,$archive) : $defaults;
+
+      printf('<h3>%1$s</h3>', __('Genesis Club Archive Settings', GENESIS_CLUB_DOMAIN));
+      $this->display_metabox( apply_filters( 'genesis_club_archive_settings', array(
+         'Sort Order' => $this->archive_sort_panel($archive),
+         'Facebook' => $this->archive_facebook_panel($archive),
+         'Excerpt Image' => $this->archive_excerpt_panel($archive)), $term, $tt_id));
+   }
+
+	private function archive_sort_panel($archive) {
+      $sort_options = array( '' => 'Select order', 'post_date' => 'Date first published', 'post_modified_gmt' => 'Date last updated', 
+         'comment_count' => 'Number of comments', 'post_author' => 'Post Author Name',  'ID' => 'Post ID',
+         'post_title' => 'Post Title', 'rand' => 'Random'  );
+
+		return sprintf('<table class="form-table">%1$s%2$s%3$s</table>',	
+         $this->archive_form_field($archive, 'sorting', 'checkbox') ,
+         $this->archive_form_field($archive, 'orderby', 'select', $sort_options) ,
+		   $this->archive_form_field($archive, 'order', 'radio', array('ASC' => 'Ascending', 'DESC' => 'Descending')) );
+	}
+
+	private function archive_facebook_panel($archive) {
+		return sprintf('<table class="form-table">%1$s%2$s%3$s</table>',	
+         $this->archive_form_field($archive, 'og_title', 'text', array(), array('size' => 50)) ,
+         $this->archive_form_field($archive, 'og_desc', 'textarea', array(), array('cols' => 50, 'rows' => 3)) ,
+		   $this->archive_form_field($archive, 'og_image', 'textarea', array(), array('cols' => 50, 'rows' => 2)) );
+	}
+
+	private function archive_excerpt_panel($archive) {
+		return sprintf('<table class="form-table">%1$s%2$s</table>',	
+		   $this->archive_form_field($archive, 'excerpt_image', 'textarea', array(), array('cols' => 50, 'rows' => 2)),
+		   $this->archive_form_field($archive, 'excerpt_images_on_front_page', 'checkbox')
+			);
+	}
+
+	private function archive_form_field($archive, $fld, $type, $options = array(), $args = array()) {
+		$id = 'archive_'.$fld;
+		$name = 'archive['.$fld.']';	
+		$value = isset($archive[$fld]) ? $archive[$fld] : '';
+		return $this->form_field($id, $name, false, $value, $type, $options, $args, 'tr');
+	}
+	
+	private function maybe_make_standard_image_sizes_facebook_ready() {
+      $old_value = Genesis_Club_Display::get_option('facebook_sized_images');
+		if (!$old_value && array_key_exists('facebook_sized_images', $_POST)) {
+         $image_width = apply_filters('genesis-club-large-image-width', 960); //large size for post images
+         $image_height = apply_filters('genesis-club-large-image-height',round($image_width / Genesis_Club_Display::FACEBOOK_IMAGE_SCALE_FACTOR));
+         update_option( 'large_size_w', $image_width);
+         update_option( 'large_size_h', $image_height); 
+         $image_width = apply_filters('genesis-club-medium-image-width', 320); //medium size for post images
+         $image_height = apply_filters('genesis-club-medium-image-height',round($image_width / Genesis_Club_Display::FACEBOOK_IMAGE_SCALE_FACTOR));
+         update_option( 'medium_size_w', $image_width);
+         update_option( 'medium_size_h', $image_height); 
+         $image_width = apply_filters('genesis-club-thumbnail-image-width', 160); //thumbnail size for archives
+         $image_height = apply_filters('genesis-club-thumbnail-image-height',round($image_width / Genesis_Club_Display::FACEBOOK_IMAGE_SCALE_FACTOR));
+         update_option( 'thumbnail_size_w', $image_width);
+         update_option( 'thumbnail_size_h', $image_height);
+      }
 	}
 }
 
