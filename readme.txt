@@ -71,8 +71,8 @@ FEATURES:
 * Added new shortcodes for PostInfo dates, [genesis_club_recent_update] and [genesis_club_post_dates]
 * Added new featured post widget with post selection by category, tag or custom taxonomies
 * Added Facebook OG support, ordering and paging options for archive pages
-* Addition of Facebook friendly image sizes where you want to promote your posts on Facbook
-* Easy customization of your login pages
+* Addition of Facebook friendly image sizes where you want to promote your posts on Facebook
+* Easy customization of your WordPress login page
 * Improved [genesis_club_calendar]  shortcode with more formatting options for your Google Calendars
 * Improved user admin screens with tabbed controls
 * Updated for WordPress 4.2.1
