@@ -4,7 +4,7 @@ Donate link: http://www.diywebmastery.com/donate/
 Tags: genesis, signature 
 Requires at least: 3.0
 Tested up to: 4.2.2
-Stable tag: 1.7.1
+Stable tag: 1.7.2
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -111,6 +111,9 @@ SIGNATURE MODULE:
 
 == Changelog ==
 
+= 1.7.2 =
+* Fix jQuery CSS bug with Custom Login Background and Logo
+
 = 1.7.1 =
 * Fix bug by ensure default values are always applied for new option settings 
 * Updated for WordPress 4.2.2
@@ -143,7 +146,7 @@ For full plugin history please see http://www.diywebmastery.com/plugins/genesis-
 
 == Upgrade Notice ==
 
-= 1.7.1 = Recommended - Bug fix to set default values for new settings.
+= 1.7.2 = Recommended - Fix jQuery CSS bug with Custom Login Background and Logo
 
 == Links ==
 
