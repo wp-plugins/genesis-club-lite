@@ -673,8 +673,10 @@ SCRIPT;
 	public static function custom_login_footer() {
 	  $url = site_url();
 	  $login = self::get_option('login');
-	  $login_background = self::get_option('custom_login_background');	  
+	  $login_background = self::get_option('custom_login_background');
+	  if (!empty($login_background)) $login_background = sprintf('url(\"%1$s\")', $login_background) ;  
 	  $login_logo = self::get_option('custom_login_logo');
+	  $login_logo = empty($login_logo) ? 'none' :  sprintf('url(\"%1$s\")', $login_logo) ;  
 	  $login_button = self::get_option('custom_login_button_color');	 
 	  $login_reminder = __('Enter your email address. You will receive a password reminder via e-mail.');   
 	  $login_user_label = self::get_option('custom_login_user_label');
