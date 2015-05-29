@@ -9,19 +9,21 @@ class Genesis_Club_Display {
 	const AFTER_ARCHIVE_SIDEBAR_ID = 'genesis-after-archive';
 	const AFTER_CONTENT_SIDEBAR_ID = 'genesis-after-content-sidebar-wrap';
 
-    const HIDE_FROM_SEARCH_METAKEY = '_genesis_club_hide_from_search';
-    const HIDE_TITLE_METAKEY = '_genesis_club_hide_title';
-    const HIDE_AFTER_CONTENT_METAKEY = '_genesis_club_hide_after_content';
-    const HIDE_AFTER_ENTRY_METAKEY = '_genesis_club_hide_after_entry';
-    const HIDE_AFTER_ENTRY_CONTENT_METAKEY = '_genesis_club_hide_after_entry_content';
-    const HIDE_BEFORE_CONTENT_METAKEY = '_genesis_club_hide_before_content';
-    const HIDE_BEFORE_ENTRY_METAKEY = '_genesis_club_hide_before_entry';
-    const HIDE_BEFORE_ENTRY_CONTENT_METAKEY = '_genesis_club_hide_before_entry_content';
+	const HIDE_FROM_SEARCH_METAKEY = '_genesis_club_hide_from_search';
+	const HIDE_TITLE_METAKEY = '_genesis_club_hide_title';
+	const HIDE_AFTER_CONTENT_METAKEY = '_genesis_club_hide_after_content';
+	const HIDE_AFTER_ENTRY_METAKEY = '_genesis_club_hide_after_entry';
+	const HIDE_AFTER_ENTRY_CONTENT_METAKEY = '_genesis_club_hide_after_entry_content';
+	const HIDE_BEFORE_CONTENT_METAKEY = '_genesis_club_hide_before_content';
+	const HIDE_BEFORE_ENTRY_METAKEY = '_genesis_club_hide_before_entry';
+	const HIDE_BEFORE_ENTRY_CONTENT_METAKEY = '_genesis_club_hide_before_entry_content';
    const DISABLE_AUTOP_METAKEY = '_genesis_club_disable_autop';
-    const BGCOLOR_KEY = 'facebook_likebox_bgcolor';
+	const BGCOLOR_KEY = 'facebook_likebox_bgcolor';
 	const BORDER_KEY = 'facebook_likebox_border';
 	
 	const FACEBOOK_IMAGE_SCALE_FACTOR = 1.91;
+	const FACEBOOK_FEATURED_IMAGE = 'fb-featured-image';
+	const FACEBOOK_ARCHIVE_IMAGE = 'fb-archive-image';
 	
 	protected static $defaults  = array(
 		'remove_blog_title' => false,
@@ -450,16 +452,17 @@ LIKEBOXBGCOLOR;
  	}
 
 	public static function filter_breadcrumb_args( $args ) {
-		$prefix = self::get_option('breadcrumb_prefix');
-		$label = self::get_option('breadcrumb_archive');
-		$label = trim($label).'&nbsp;';
-	    $args['labels']['author']        = $label;
-	    $args['labels']['category']      = $label;
-	    $args['labels']['tag']           = $label;
-	    $args['labels']['date']          = $label;
-	    $args['labels']['tax']           = $label;
-	    $args['labels']['post_type']     = $label; 
-	    $args['labels']['prefix']        = trim($prefix).'&nbsp;';
+		$prefix = trim(self::get_option('breadcrumb_prefix'));
+		if (!empty($prefix)) $prefix .= '&nbsp;';
+		$label = trim(self::get_option('breadcrumb_archive'));
+		if (!empty($label)) $label .= '&nbsp;';
+		$args['labels']['author']        = $label;
+	   $args['labels']['category']      = $label;
+	   $args['labels']['tag']           = $label;
+	   $args['labels']['date']          = $label;
+	   $args['labels']['tax']           = $label;
+	   $args['labels']['post_type']     = $label; 
+	   $args['labels']['prefix']        = $prefix;
 		return $args;
 	} 
 
@@ -620,18 +623,22 @@ SCRIPT;
 	
       $facebook_image_scale_factor = 1.91;
          
-      $image_width = apply_filters('genesis-club-fb-featured-image-width', 470); //available to override if you want to
-      $image_height = apply_filters('genesis-club-fb-featured-image-height',round($image_width / self::FACEBOOK_IMAGE_SCALE_FACTOR));
-      add_image_size( 'fb-featured-image', $image_width, $image_height, true ); 
+      $image_width = apply_filters('genesis-club-fb-featured-image-width', 470, self::FACEBOOK_FEATURED_IMAGE); //available to override if you want to
+      $image_height = apply_filters('genesis-club-fb-featured-image-height',round($image_width / self::FACEBOOK_IMAGE_SCALE_FACTOR), self::FACEBOOK_FEATURED_IMAGE);
+      add_image_size( self::FACEBOOK_FEATURED_IMAGE, $image_width, $image_height, true );
 
-      $image_width = apply_filters('genesis-club-fb-archive-image-width', 240); //thumbnail size for archive pages and widgets
-      $image_height = apply_filters('genesis-club-fb-archive-image-width', round($image_width / self::FACEBOOK_IMAGE_SCALE_FACTOR) );        
-      add_image_size( 'fb-archive-image', $image_width, $image_height, true ); //in proportion to Facebook image
+      $image_width = apply_filters('genesis-club-fb-archive-image-width', 240, self::FACEBOOK_ARCHIVE_IMAGE); //thumbnail size for archive pages and widgets
+      $image_height = apply_filters('genesis-club-fb-archive-image-height', round($image_width / self::FACEBOOK_IMAGE_SCALE_FACTOR), self::FACEBOOK_ARCHIVE_IMAGE);
+      add_image_size(self::FACEBOOK_ARCHIVE_IMAGE, $image_width, $image_height, true ); //in proportion to Facebook image
 
       if (defined('WPSEO_FILE')) { //Yoast WordPress SEO plugin sets up the featured image for Facebook - so get it to use the correct image size
-         add_filter('wpseo_opengraph_image_size', function() { return 'fb-featured-image';} ) ;  
+         add_filter('wpseo_opengraph_image_size', array(__CLASS__, 'set_opengraph_image_size') ) ;  
       }      
 	}
+
+   public static function set_opengraph_image_size ($size) {
+      return self::FACEBOOK_FEATURED_IMAGE;
+   }
 
 	private static function maybe_override_opengraph_terms( $archive ) {
       if ((array_key_exists('og_title', $archive) && (self::$og_title = $archive['og_title']))

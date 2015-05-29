@@ -4,7 +4,7 @@ Donate link: http://www.diywebmastery.com/donate/
 Tags: genesis, signature 
 Requires at least: 3.0
 Tested up to: 4.2.2
-Stable tag: 1.7.2
+Stable tag: 1.7.3
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -51,7 +51,7 @@ TOP BAR MODULE:
 
 * Add a responsive top bar for your marketing messages
 * Can use different messages for desktop, laptop, notepad and mobile sized devices
-* Can control when the bar appears and if and when it disappears
+* Can control timing of when the bar appears and if and when it disappears
 * Can add a shadow and a subtle(ish) bounce effect to attract visitor attention on arrival of the bar
 * Can apply bar to footer instead of header
 
@@ -111,6 +111,9 @@ SIGNATURE MODULE:
 
 == Changelog ==
 
+= 1.7.3 =
+* Remove anonymous function to fix white screen issue for legacy PHP 5.2 users
+
 = 1.7.2 =
 * Fix jQuery CSS bug with Custom Login Background and Logo
 
@@ -146,7 +149,7 @@ For full plugin history please see http://www.diywebmastery.com/plugins/genesis-
 
 == Upgrade Notice ==
 
-= 1.7.2 = Recommended - Fix jQuery CSS bug with Custom Login Background and Logo
+= 1.7.3 = Recommended - Remove anonymous function to fix white screen issue for legacy PHP 5.2 users
 
 == Links ==
 
