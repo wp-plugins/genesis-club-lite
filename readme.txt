@@ -4,7 +4,7 @@ Donate link: http://www.diywebmastery.com/donate/
 Tags: genesis, signature 
 Requires at least: 3.0
 Tested up to: 4.2.2
-Stable tag: 1.7.3
+Stable tag: 1.8
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -41,11 +41,12 @@ DISPLAY MODULE:
 * Specify title, image and description to use on Facebook when promoting your category/tag archive pages (requires WordPress SEO plugin by Yoast)
 * Specify an except image to use for all posts on your archive images (if you require a consistent look)
 
-HAMBURGER MENU MODULE:
+MENU MODULE:
 
 * Add a responsive hamburger menu icon which appears at a size of device you can configure
 * Can be applied to to your primary, secondary and/or header navigation areas 
 * Can choose to locate the expanded menu to the left, to the right or below the hamburger
+*  Can add a search box at the end of the primary, secondary or header right navigation areas
 
 TOP BAR MODULE:
 
@@ -111,6 +112,9 @@ SIGNATURE MODULE:
 
 == Changelog ==
 
+= 1.8 =
+* Add option to place a search box at the end of the primary, secondary or header right navigation areas
+
 = 1.7.3 =
 * Remove anonymous function to fix white screen issue for legacy PHP 5.2 users
 
@@ -136,20 +140,12 @@ SIGNATURE MODULE:
 * Added Enhanced Widget Titles to all Genesis Club Widgets so each can have a unique title on the Widgets Dashboard  making them readily identifiable, and have a public widget title with an optional link, break or span
 * New Genesis Club Text  Widget with enhanced title
 
-= 1.5 =
-* Updated for WordPress 4.1
-* Add ability to affect postinfo and postmeta on the home page
-* Fix bug in hiding pages from the internal search
-* Fix bug in page level controls for author signatures
-* Added missing dashicons CSS if hamburger menu is used but the display module is disabled
-* Added Genesis Club News Feed to the plugin admin panel
-
 For full plugin history please see http://www.diywebmastery.com/plugins/genesis-club-lite/changelog
 
 
 == Upgrade Notice ==
 
-= 1.7.3 = Recommended - Remove anonymous function to fix white screen issue for legacy PHP 5.2 users
+= 1.8 = Recommended - option to add Search Box  at the end of the primary, secondary or header right navigation areas
 
 == Links ==
 

@@ -1,0 +1,35 @@
+
+.genesis-nav-menu li.searchbox { 
+ display:inline-block; width: auto; position:relative; margin: 5px; float:right; 
+}
+.genesis-nav-menu li.searchbox form { 
+  padding: 0.2em; width: auto; 
+}	
+.genesis-nav-menu li.searchbox form.search-form input[type='search'], .genesis-nav-menu li.searchbox form.searchform input[type='text'] { 
+  font-size: smaller; padding: 6px; color:gray; border: 2px solid #ddd; background-image: none; width: 150px; 
+}
+
+.genesis-nav-menu li.searchbox.nobutton form.search-form input[type='search'], .genesis-nav-menu li.searchbox.nobutton form.searchform input[type='text']  { 
+  padding-left: 2em; border-radius: 5px;
+}
+
+.genesis-nav-menu li.searchbox.nobutton form.search-form:before, .genesis-nav-menu li.searchbox.nobutton form.searchform:before  { 
+   content: "\f179";
+   font-family: "dashicons";
+   display: inline-block;
+   width: 1.2em;
+   height: 1.2em;
+   font-size: 1.2em;
+   line-height: 1;
+   vertical-align: top;
+   position: absolute;
+   top: 0.6em;
+   left: 0.3em;
+   color:gray;
+}
+
+.genesis-nav-menu li.nobutton input[type='submit'] { display:none; }
+
+@media only screen and (max-width: 960px) {
+  .genesis-nav-menu li.searchbox { float:none; } 
+}

@@ -18,6 +18,7 @@ class Genesis_Club_Display {
 	const HIDE_BEFORE_ENTRY_METAKEY = '_genesis_club_hide_before_entry';
 	const HIDE_BEFORE_ENTRY_CONTENT_METAKEY = '_genesis_club_hide_before_entry_content';
    const DISABLE_AUTOP_METAKEY = '_genesis_club_disable_autop';
+   const DISABLE_BREADCRUMBS = '_genesis_club_disable_breadcrumbs';
 	const BGCOLOR_KEY = 'facebook_likebox_bgcolor';
 	const BORDER_KEY = 'facebook_likebox_border';
 	
@@ -199,12 +200,15 @@ class Genesis_Club_Display {
 			add_action ('wp_print_footer_scripts', array(__CLASS__, 'change_likebox_bgcolor' ),100 );  				
 		}
 
-		if (is_singular()) {  //remove title
+		if (is_singular()) {  //remove or hide stuff
 			if (get_post_meta(self::$post_id, self::HIDE_TITLE_METAKEY, true))
 				add_filter('genesis_post_title_text', '__return_empty_string', 100);
 
 			if (get_post_meta(self::$post_id, self::DISABLE_AUTOP_METAKEY, true))
 				remove_filter('the_content', 'wpautop');
+
+			if (get_post_meta(self::$post_id, self::DISABLE_BREADCRUMBS, true))
+				add_filter( 'genesis_pre_get_option_breadcrumb_' .(is_page() ? 'page':'single'),  '__return_false', 10, 2);
 		}
 
 		if (self::get_option('before_content'))
@@ -567,10 +571,19 @@ SCRIPT;
       if ($query->is_archive 
       && ($archive = self::get_current_archive())) {
          self::maybe_sort_archive( $query, $archive);   
+         self::maybe_disable_breadcrumbs( $archive);   
          self::maybe_override_opengraph_terms($archive); 
          self::maybe_override_terms_archive_image($archive);
       }
  	}
+
+
+	public static function maybe_disable_breadcrumbs($archive ) {
+      if (array_key_exists('disable_breadcrumbs', $archive)
+      && $archive['disable_breadcrumbs']) {
+         add_filter( 'genesis_pre_get_option_breadcrumb_archive', '__return_false', 10, 2);  
+	    }    		 
+	}
 
 	public static function maybe_sort_archive( $query, $archive ) {
       if (array_key_exists('sorting', $archive)

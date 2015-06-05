@@ -10,6 +10,7 @@ class Genesis_Club_Display_Admin extends Genesis_Club_Admin {
     const HIDE_AFTER_ENTRY_CONTENT = 'genesis_club_hide_after_entry_content';
     const HIDE_AFTER_CONTENT = 'genesis_club_hide_after_content';
     const DISABLE_AUTOP = 'genesis_club_disable_autop';
+    const DISABLE_BREADCRUMBS = 'genesis_club_disable_breadcrumbs';
 
 	protected $archive_tips = array(
 		'archive_sorting' => array('heading' => 'Override Sort Order', 'tip' => 'Click to override the sort order of the posts on this archive.'),
@@ -20,6 +21,7 @@ class Genesis_Club_Display_Admin extends Genesis_Club_Admin {
 		'archive_og_image' => array('heading' => 'Facebook Image', 'tip' => 'URL of image to use on Facebook. It is recommended you provide an image of size 470 by 246px.'),
 		'archive_excerpt_image' => array('heading' => 'Excerpt Image', 'tip' => 'URL of image to use as the archive excerpt image for all posts in this archive. The image is used as is, so you need to provide the image at the exact size you want to display it.'),
 		'archive_excerpt_images_on_front_page' => array('heading' => 'Use On Home Page', 'tip' => 'Use category image rather than individual featured images in post excepts on the home page.'),
+		'archive_disable_breadcrumbs' => array('heading' => 'Disable Breadcrumbs', 'tip' => 'Click to disable breadcrumbs on this archive.'),
 	);
                 
 	protected $tips = array(
@@ -55,6 +57,7 @@ class Genesis_Club_Display_Admin extends Genesis_Club_Admin {
 		'custom_login_logo' => array('heading' => 'Logo Background URL', 'tip' => 'URL of image to use as the logo recommended size is 200px square.'),
 		'custom_login_user_label' => array('heading' => 'User Login Label', 'tip' => 'Label for the user/member login / email.'),
 		'custom_login_button_color' => array('heading' => 'Login Button Color', 'tip' => 'Choose color of the login button.'),
+		'disable_breadcrumbs' => array('heading' => 'Disable Breadcrumbs', 'tip' => 'Click to disable breadcrumbs on this page.'),
 		);
 
 	function init() {
@@ -128,6 +131,7 @@ class Genesis_Club_Display_Admin extends Genesis_Club_Admin {
 			$keys[self::HIDE_AFTER_ENTRY] = Genesis_Club_Display::HIDE_AFTER_ENTRY_METAKEY;
 			$keys[self::HIDE_AFTER_CONTENT] = Genesis_Club_Display::HIDE_AFTER_CONTENT_METAKEY;
 			$keys[self::DISABLE_AUTOP] = Genesis_Club_Display::DISABLE_AUTOP_METAKEY;
+			$keys[self::DISABLE_BREADCRUMBS] = Genesis_Club_Display::DISABLE_BREADCRUMBS;
 
 			foreach ($keys as $key => $metakey)
 				update_post_meta( $post_id, $metakey, array_key_exists($key, $_POST) ? $_POST[$key] : false);			
@@ -194,6 +198,7 @@ class Genesis_Club_Display_Admin extends Genesis_Club_Admin {
 		if ($options['after_entry_content']) $s .= $this->widget_area_visibility_checkbox('after_entry_content');
 		if ($options['after_entry']) $s .= $this->widget_area_visibility_checkbox('after_entry');
 		if ($options['after_content']) $s .= $this->widget_area_visibility_checkbox('after_content');
+		$s .= $this->disable_checkbox('breadcrumbs', true, '%1$s breadcrumbs on this page');		
 		$s .= $this->disable_checkbox('autop', true, '%1$s auto-paragraphing of the page content');											
 		$s = apply_filters('genesis_club_hiding_settings_show', $s, $post);
 		return $s;
@@ -298,7 +303,8 @@ class Genesis_Club_Display_Admin extends Genesis_Club_Admin {
       $this->display_metabox( apply_filters( 'genesis_club_archive_settings', array(
          'Sort Order' => $this->archive_sort_panel($archive),
          'Facebook' => $this->archive_facebook_panel($archive),
-         'Excerpt Image' => $this->archive_excerpt_panel($archive)), $term, $tt_id));
+         'Excerpt Image' => $this->archive_excerpt_panel($archive), 
+         'Breadcrumbs' => $this->archive_breadcrumbs_panel($archive)), $term, $tt_id));
    }
 
 	private function archive_sort_panel($archive) {
@@ -325,6 +331,13 @@ class Genesis_Club_Display_Admin extends Genesis_Club_Admin {
 		   $this->archive_form_field($archive, 'excerpt_images_on_front_page', 'checkbox')
 			);
 	}
+	
+	private function archive_breadcrumbs_panel($archive) {
+		return sprintf('<table class="form-table">%1$s</table>',	
+		   $this->archive_form_field($archive, 'disable_breadcrumbs', 'checkbox')
+			);
+	}
+
 
 	private function archive_form_field($archive, $fld, $type, $options = array(), $args = array()) {
 		$id = 'archive_'.$fld;
