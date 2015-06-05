@@ -44,10 +44,13 @@ if (! class_exists('Genesis_Club_DIY_Options')) {
 	
 	function get_option($option_name, $cache = true) {
     	$options = $this->get_options($cache);
-    	if ($option_name && $options && array_key_exists($option_name,$options) && ($defaults = $this->get_default($option_name))) 
-         return is_array($defaults) ? (is_array($options[$option_name]) ? $this->validate_options($defaults, $options[$option_name]) : $defaults) : $options[$option_name];
+    	if ($option_name && $options && array_key_exists($option_name,$options))
+         if (($defaults = $this->get_default($option_name)) && is_array($defaults) && is_array($options[$option_name])) 
+            return $this->validate_options($defaults, $options[$option_name]);
     	else
-        	return false;    		
+            return $options[$option_name];
+    	else
+        	return $this->get_default($option_name);    		
     }
 
 	function save_options($new_options) {

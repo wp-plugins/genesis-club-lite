@@ -7,6 +7,9 @@ class Genesis_Club_Menu_Admin extends Genesis_Club_Admin {
 		'primary' => array('heading' => 'Primary Responsive Menu', 'tip' => 'Choose where you want the primary menu to be displayed when the hamburger is clicked.'),
 		'secondary' => array('heading' => 'Secondary Responsive Menu', 'tip' => 'Choose where you want the secondary menu to be displayed when the hamburger is clicked.'),
 		'header' => array('heading' => 'Header Responsive Menu', 'tip' => 'Choose where you want the header right menu to be displayed when the hamburger is clicked.'),
+		'search_menu' => array('heading' => 'Add Search Box', 'tip' => 'Here you can add a search box to the end of one of the menus'),
+		'search_text' => array('heading' => 'Search Label', 'tip' => 'Enter the text you want to appear in the Search Box'),
+		'search_button' => array('heading' => 'Search Button', 'tip' => 'Click checkbox to show a Search button (providing your theme has a visible Search Button)'),
 		);
 		
 	
@@ -51,6 +54,14 @@ class Genesis_Club_Menu_Admin extends Genesis_Club_Admin {
 INTRO_PANEL;
 	}
 
+	function search_panel($options){	
+      return 	
+         $this->fetch_form_field('search_menu', $options['search_menu'], 'radio', 
+            array('primary' => 'Primary Navigation', 'secondary' => 'Secondary Navigation', 'header' => 'Header Right','none' => 'No Search Box')).
+         $this->responsive_text_field("search_text",$options['search_text'], 10) .
+         $this->fetch_form_field('search_button', $options['search_button'], 'checkbox');
+   }	
+
   
 	function hamburger_panel($options){	
       return 	
@@ -83,9 +94,9 @@ INTRO_PANEL;
 	function menu_panel($post,$metabox) {
       $options = $metabox['args']['options'];
       $this->display_metabox( array(
-         'Hamburger' => $this->hamburger_panel($options)//,
-   //      'Search' => $this->search_panel(),
-  //     'Fixed Header' => $this->fixed_panel($post)
+         'Hamburger' => $this->hamburger_panel($options),
+         'Search' => $this->search_panel($options),
+  //     'Fixed Header' => $this->fixed_panel($options)
 		));
 	}
 
