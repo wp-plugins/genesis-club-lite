@@ -192,7 +192,7 @@ class Genesis_Club_Display {
 	 			array(__CLASS__,'comment_notes_hide'), 20 );	
 		}
 			
-		if (is_archive() || is_singular()) {
+		if (is_archive() || is_singular() || is_front_page() || is_home()) {
 			add_filter( 'genesis_breadcrumb_args', array(__CLASS__, 'filter_breadcrumb_args' ) );
 		}
 
