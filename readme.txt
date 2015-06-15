@@ -4,7 +4,7 @@ Donate link: http://www.diywebmastery.com/donate/
 Tags: genesis, signature 
 Requires at least: 3.0
 Tested up to: 4.2.2
-Stable tag: 1.8
+Stable tag: 1.8.1
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -112,6 +112,10 @@ SIGNATURE MODULE:
 
 == Changelog ==
 
+
+= 1.8.1 =
+* Add fix to apply any breadcrumb label changes to the the Blog Posts page (when using a static home page)
+
 = 1.8 =
 * Add option to place a search box at the end of the primary, secondary or header right navigation areas
 
@@ -136,16 +140,13 @@ SIGNATURE MODULE:
 * Improved user admin screens with tabbed controls
 * Updated for WordPress 4.2.1
 
-= 1.6 =
-* Added Enhanced Widget Titles to all Genesis Club Widgets so each can have a unique title on the Widgets Dashboard  making them readily identifiable, and have a public widget title with an optional link, break or span
-* New Genesis Club Text  Widget with enhanced title
 
 For full plugin history please see http://www.diywebmastery.com/plugins/genesis-club-lite/changelog
 
 
 == Upgrade Notice ==
 
-= 1.8 = Recommended - option to add Search Box  at the end of the primary, secondary or header right navigation areas
+= 1.8.1 = Optional - Add fix to apply any breadcrumb label changes to the the Blog Posts page 
 
 == Links ==
 
