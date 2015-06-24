@@ -22,9 +22,9 @@
    font-size: 1.2em;
    line-height: 1;
    vertical-align: top;
-   position: absolute;
-   top: 0.6em;
-   left: 0.3em;
+   position: relative;
+   top: 0.3em;
+   left: 1.3em;
    color:gray;
 }
 

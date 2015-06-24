@@ -8,8 +8,9 @@ class Genesis_Club_Menu_Admin extends Genesis_Club_Admin {
 		'secondary' => array('heading' => 'Secondary Responsive Menu', 'tip' => 'Choose where you want the secondary menu to be displayed when the hamburger is clicked.'),
 		'header' => array('heading' => 'Header Responsive Menu', 'tip' => 'Choose where you want the header right menu to be displayed when the hamburger is clicked.'),
 		'search_menu' => array('heading' => 'Add Search Box', 'tip' => 'Here you can add a search box to the end of one of the menus'),
-		'search_text' => array('heading' => 'Search Label', 'tip' => 'Enter the text you want to appear in the Search Box'),
-		'search_button' => array('heading' => 'Search Button', 'tip' => 'Click checkbox to show a Search button (providing your theme has a visible Search Button)'),
+		'search_text' => array('heading' => 'Search Box Text', 'tip' => 'Enter the placeholder text you want to appear in the Search Box'),
+		'search_button' => array('heading' => 'Add Search Button', 'tip' => 'Click checkbox to show a Search button (providing your theme has a visible Search Button)'),
+		'search_nudge' => array('heading' => 'Vertical Nudge', 'tip' => 'Enter a positive number to nudge the search box down and a negative number to nudge it up (limit is 50px)'),
 		);
 		
 	
@@ -58,8 +59,9 @@ INTRO_PANEL;
       return 	
          $this->fetch_form_field('search_menu', $options['search_menu'], 'radio', 
             array('primary' => 'Primary Navigation', 'secondary' => 'Secondary Navigation', 'header' => 'Header Right','none' => 'No Search Box')).
-         $this->responsive_text_field("search_text",$options['search_text'], 10) .
-         $this->fetch_form_field('search_button', $options['search_button'], 'checkbox');
+         $this->responsive_text_field("search_text",$options['search_text'], 20) .
+         $this->fetch_form_field('search_button', $options['search_button'], 'checkbox').
+         $this->responsive_text_field('search_nudge',$options['search_nudge'], 2, 'px') ;
    }	
 
   
