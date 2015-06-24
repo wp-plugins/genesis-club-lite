@@ -4,7 +4,7 @@ Donate link: http://www.diywebmastery.com/donate/
 Tags: genesis, signature 
 Requires at least: 3.0
 Tested up to: 4.2.2
-Stable tag: 1.8.1
+Stable tag: 1.8.2
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -46,7 +46,7 @@ MENU MODULE:
 * Add a responsive hamburger menu icon which appears at a size of device you can configure
 * Can be applied to to your primary, secondary and/or header navigation areas 
 * Can choose to locate the expanded menu to the left, to the right or below the hamburger
-*  Can add a search box at the end of the primary, secondary or header right navigation areas
+* Can add a search box at the end of the primary, secondary or header right navigation areas
 
 TOP BAR MODULE:
 
@@ -113,6 +113,9 @@ SIGNATURE MODULE:
 == Changelog ==
 
 
+= 1.8.2=
+* Add nudge feature for search box to help with its vertical positioning 
+
 = 1.8.1 =
 * Add fix to apply any breadcrumb label changes to the the Blog Posts page (when using a static home page)
 
@@ -122,31 +125,13 @@ SIGNATURE MODULE:
 = 1.7.3 =
 * Remove anonymous function to fix white screen issue for legacy PHP 5.2 users
 
-= 1.7.2 =
-* Fix jQuery CSS bug with Custom Login Background and Logo
-
-= 1.7.1 =
-* Fix bug by ensure default values are always applied for new option settings 
-* Updated for WordPress 4.2.2
-
-= 1.7 =
-* Added support for Google Fonts and Google Fonts Effects
-* Added new shortcodes for PostInfo dates, [genesis_club_recent_update] and [genesis_club_post_dates]
-* Added new featured post widget with post selection by category, tag or custom taxonomies
-* Added Facebook OG support, ordering and paging options for archive pages
-* Addition of Facebook friendly image sizes where you want to promote your posts on Facebook
-* Easy customization of your login pages
-* Improved [genesis_club_calendar]  shortcode with more formatting options for your Google Calendars
-* Improved user admin screens with tabbed controls
-* Updated for WordPress 4.2.1
-
 
 For full plugin history please see http://www.diywebmastery.com/plugins/genesis-club-lite/changelog
 
 
 == Upgrade Notice ==
 
-= 1.8.1 = Optional - Add fix to apply any breadcrumb label changes to the the Blog Posts page 
+= 1.8.2 = Optional -  Add nudge feature for search box to help with its vertical positioning 
 
 == Links ==
 

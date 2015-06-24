@@ -10,7 +10,8 @@ class Genesis_Club_Menu {
 		'header' => 'none',
 		'search_menu' => 'none',
 		'search_text' => 'Search',
-		'search_button' => true
+		'search_button' => true,
+		'search_nudge' => false
 	);
 	protected static $side_menu_left = '';
 	protected static $side_menu_right = '';
@@ -44,6 +45,7 @@ class Genesis_Club_Menu {
 		}
 	 	if (($search = self::get_option('search_menu')) && ('none' != $search)) {
 	 		add_filter('wp_nav_menu_items',  array(__CLASS__,'maybe_add_search_form'),10,2 );	
+			add_action('wp_print_styles', array(__CLASS__, 'print_search_styles'));
 	 		add_action('wp_enqueue_scripts', array(__CLASS__,'enqueue_search_styles'));	 		
 	 	}
 
@@ -137,12 +139,22 @@ class Genesis_Club_Menu {
 		return $prefix . $content;
 	}
 
-	private static function check_color($color) {
-		return preg_match('/^#?[0-9a-f]{3}(?:[0-9a-f]{3})?$/iD', $color) ? $color : '#888' ;
+	public static function print_search_styles() { 
+		if ($nudge = self::check_nudge(self::get_option('search_nudge'))) {
+         printf ('<style type="text/css" media="screen">.genesis-nav-menu li.searchbox form {margin-%1$s: %2$spx;}</style>', $nudge > 0 ? 'top' : 'bottom', $nudge);
+		}
+	}
+
+	private static function check_nudge($item) {
+		return (is_numeric($item) && (abs($item) <= 50)) ? $item : false;
 	}
 
 	private static function check_size($item, $default) {
 		return (is_numeric($item) && ($item >= 1)) ? $item : $default;		
+	}
+
+	private static function check_color($color) {
+		return preg_match('/^#?[0-9a-f]{3}(?:[0-9a-f]{3})?$/iD', $color) ? $color : '#888' ;
 	}
 
 	private static function check_unit($item) {
