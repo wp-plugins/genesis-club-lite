@@ -73,7 +73,7 @@ class Genesis_Club_Fonts_Table extends WP_List_Table {
                $attributes = $class . $style;
                switch ( $column_name ) {
 			 		   case 'cb':
-						   echo '<th scope="row" class="check-column"><input type="checkbox" name="cb[]" value="'. esc_attr( $font_name ) .'" /></th>';
+						   echo '<th scope="row" class="check-column"><input type="checkbox" name="cb[]" value="'. esc_attr( $font_id ) .'" /></th>';
 						   break;    
                   case 'font_id':
                      echo ('<td $attributes><strong><a class="row-title" href="'.$edit_font.'" title="' . 

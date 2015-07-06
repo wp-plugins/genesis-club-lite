@@ -1,6 +1,8 @@
 <?php
 class Genesis_Club_Menu {
 	
+	const SEARCH_STYLE = 'gc-search-menu';
+	
 	protected static $defaults  = array(
 		'threshold' => '',
 		'icon_size' => '',
@@ -10,8 +12,13 @@ class Genesis_Club_Menu {
 		'header' => 'none',
 		'search_menu' => 'none',
 		'search_text' => 'Search',
+		'search_text_color' => 'Gray',	
+		'search_background_color' => 'transparent',	
+		'search_border_color' => 'LightGray',
+		'search_border_radius' => '4',
+		'search_margin_top' => 5,
+		'search_margin_bottom' => 5,
 		'search_button' => true,
-		'search_nudge' => false
 	);
 	protected static $side_menu_left = '';
 	protected static $side_menu_right = '';
@@ -24,6 +31,22 @@ class Genesis_Club_Menu {
 		self::$is_html5 = Genesis_Club_Utils::is_html5();
 		if (!is_admin()) add_action('wp',array(__CLASS__,'prepare'));
 	}
+
+	public static function save_options($options) {
+   			return Genesis_Club_Options::save_options(array('menu' => $options)) ;
+	}
+
+	public static function get_options() {
+    	return Genesis_Club_Options::get_option('menu');
+    }
+	
+	public static function get_option($option_name) {
+    	$options = self::get_options();
+    	if ($option_name && $options && array_key_exists($option_name,$options))
+        	return $options[$option_name];
+    	else
+        	return false;
+    }
 
 	public static function prepare() {
 		if (self::get_option('threshold')) {
@@ -45,7 +68,6 @@ class Genesis_Club_Menu {
 		}
 	 	if (($search = self::get_option('search_menu')) && ('none' != $search)) {
 	 		add_filter('wp_nav_menu_items',  array(__CLASS__,'maybe_add_search_form'),10,2 );	
-			add_action('wp_print_styles', array(__CLASS__, 'print_search_styles'));
 	 		add_action('wp_enqueue_scripts', array(__CLASS__,'enqueue_search_styles'));	 		
 	 	}
 
@@ -55,11 +77,6 @@ class Genesis_Club_Menu {
 		wp_enqueue_style('dashicons');
 	}
 
-	public static function enqueue_search_styles() {
-		wp_enqueue_style('search-menu', plugins_url('styles/menu-search.css',dirname(__FILE__)), array(), '1.0');
-	}
-
-
 	public static function enqueue_sidr_styles() {
 		wp_enqueue_style('jquery-sidr', plugins_url('styles/jquery.sidr.dark.css',dirname(__FILE__)), array(), '1.2.1');
 	}
@@ -68,22 +85,42 @@ class Genesis_Club_Menu {
 		wp_enqueue_script('jquery-sidr', plugins_url('scripts/jquery.sidr.min.js',dirname(__FILE__)), array('jquery'), '1.2.1', true);
 	}
 
-	public static function save_options($options) {
-   			return Genesis_Club_Options::save_options(array('menu' => $options)) ;
-	}
+	public static function enqueue_search_styles() {
+		wp_enqueue_style(self::SEARCH_STYLE, plugins_url('styles/menu-search.css',dirname(__FILE__)), array(), '1.0');
 
-	public static function get_options() {
-    	return Genesis_Club_Options::get_option('menu');
-    }
+      $placeholder_css = $css = '';
 	
-	public static function get_option($option_name) {
-    	$options = self::get_options();
-    	if ($option_name && $options && array_key_exists($option_name,$options))
-        	return $options[$option_name];
-    	else
-        	return false;
+		if ($search_text_color = self::get_option('search_text_color')) {
+         $placeholder_css = sprintf('.genesis-nav-menu li.searchbox input::-webkit-input-placeholder{color: %1$s;} .genesis-nav-menu li.searchbox input::-moz-input-placeholder {color: %1$s;} .genesis-nav-menu li.searchbox input:-ms-input-placeholder {color: %1$s;}',$search_text_color) ."\n";
+         $css .= sprintf('color: %1$s;',$search_text_color);
+		}
+		if ($search_background_color = self::get_option('search_background_color')) {
+         $css .= sprintf('background-color:%1$s;',$search_background_color);
+		}
+		if ($search_border_color = self::get_option('search_border_color')) {
+         $css .= sprintf('border-width: 2px; border-style: solid; border-color:%1$s;',$search_border_color);
+		}
+		if ($search_border_radius = self::get_option('search_border_radius')) {
+         $css .= sprintf('border-radius:%1$spx;',$search_border_radius);
+		}
+      if (!empty($css)) {
+         $css = sprintf('.genesis-nav-menu li.searchbox form.search-form input[type=\'search\'], .genesis-nav-menu li.searchbox form.searchform input[type=\'text\'] { %1$s }', $css) ."\n";
     }
 
+      $margin = '';
+		if ($top = self::check_margin(self::get_option('search_margin_top'))) {
+         $margin .= sprintf('margin-top:%1$spx;',$top);
+      }
+      if ($bottom = self::check_margin(self::get_option('search_margin_bottom'))) {
+         $margin .= sprintf('margin-bottom:%1$spx;',$bottom);
+      }
+      if (!empty($margin))  {
+         $css .= sprintf ('.genesis-nav-menu li.searchbox form {%1$s}', $margin) . "\n";
+		}
+      if (!empty($css)) {
+         wp_add_inline_style( self::SEARCH_STYLE, $css . $placeholder_css);
+      }
+	}
 
 	public static function maybe_add_search_form($items, $args) {
       $search_menu = self::get_option('search_menu');
@@ -95,7 +132,6 @@ class Genesis_Club_Menu {
   		return $items;
 	}
 	}
-
 
 	public static function set_search_placeholder($content) {
 		return self::get_option('search_text');
@@ -139,13 +175,7 @@ class Genesis_Club_Menu {
 		return $prefix . $content;
 	}
 
-	public static function print_search_styles() { 
-		if ($nudge = self::check_nudge(self::get_option('search_nudge'))) {
-         printf ('<style type="text/css" media="screen">.genesis-nav-menu li.searchbox form {margin-%1$s: %2$spx;}</style>', $nudge > 0 ? 'top' : 'bottom', $nudge);
-		}
-	}
-
-	private static function check_nudge($item) {
+	private static function check_margin($item) {
 		return (is_numeric($item) && (abs($item) <= 50)) ? $item : false;
 	}
 

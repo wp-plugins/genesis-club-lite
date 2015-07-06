@@ -7,10 +7,15 @@ class Genesis_Club_Menu_Admin extends Genesis_Club_Admin {
 		'primary' => array('heading' => 'Primary Responsive Menu', 'tip' => 'Choose where you want the primary menu to be displayed when the hamburger is clicked.'),
 		'secondary' => array('heading' => 'Secondary Responsive Menu', 'tip' => 'Choose where you want the secondary menu to be displayed when the hamburger is clicked.'),
 		'header' => array('heading' => 'Header Responsive Menu', 'tip' => 'Choose where you want the header right menu to be displayed when the hamburger is clicked.'),
-		'search_menu' => array('heading' => 'Add Search Box', 'tip' => 'Here you can add a search box to the end of one of the menus'),
-		'search_text' => array('heading' => 'Search Box Text', 'tip' => 'Enter the placeholder text you want to appear in the Search Box'),
-		'search_button' => array('heading' => 'Add Search Button', 'tip' => 'Click checkbox to show a Search button (providing your theme has a visible Search Button)'),
-		'search_nudge' => array('heading' => 'Vertical Nudge', 'tip' => 'Enter a positive number to nudge the search box down and a negative number to nudge it up (limit is 50px)'),
+		'search_menu' => array('heading' => 'Search Box Location', 'tip' => 'Here you can add a search box to the end of one of the menus'),
+		'search_text' => array('heading' => 'Search Box Text', 'tip' => 'Enter the placeholder text you want to appear in the search box'),
+		'search_text_color' => array('heading' => 'Text Color', 'tip' => 'Choose the color of the text in the search box'),
+		'search_background_color' => array('heading' => 'Background Color', 'tip' => 'Choose the background color of the search box'),
+		'search_border_color' => array('heading' => 'Border Color', 'tip' => 'Choose a color if you want a border around the search box or clear the color to have no border'),
+		'search_border_radius' => array('heading' => 'Border Radius', 'tip' => 'You have an option to give the search box rounded corners. For example, for moderate rounding use 5 (px); for 0 for square corners'),
+		'search_margin_top' => array('heading' => 'Margin Top', 'tip' => 'Enter margin above the search box (limit is 50px)'),
+		'search_margin_bottom' => array('heading' => 'Margin Bottom', 'tip' => 'Enter margin below the search box (limit is 50px)'),
+		'search_button' => array('heading' => 'Add Search Button', 'tip' => 'Click checkbox to show a search button (providing your WordPress theme has a visible search button)'),
 		);
 		
 	
@@ -57,14 +62,18 @@ INTRO_PANEL;
 
 	function search_panel($options){	
       return 	
-         $this->fetch_form_field('search_menu', $options['search_menu'], 'radio', 
-            array('primary' => 'Primary Navigation', 'secondary' => 'Secondary Navigation', 'header' => 'Header Right','none' => 'No Search Box')).
+         $this->fetch_form_field('search_menu', $options['search_menu'], 'select', 
+            array('none' => 'No Search Box','primary' => 'Primary Navigation', 'secondary' => 'Secondary Navigation', 'header' => 'Header Right')).
          $this->responsive_text_field("search_text",$options['search_text'], 20) .
-         $this->fetch_form_field('search_button', $options['search_button'], 'checkbox').
-         $this->responsive_text_field('search_nudge',$options['search_nudge'], 2, 'px') ;
+         $this->responsive_text_field("search_text_color",$options['search_text_color'], 7, '', 'color-picker') .
+         $this->responsive_text_field("search_background_color",$options['search_background_color'], 7, '', 'color-picker') .
+         $this->responsive_text_field("search_border_color",$options['search_border_color'], 7, '', 'color-picker') .
+         $this->responsive_text_field("search_border_radius",$options['search_border_radius'], 5, 'px') .
+         $this->responsive_text_field('search_margin_top',$options['search_margin_top'], 2, 'px') .
+         $this->responsive_text_field('search_margin_bottom',$options['search_margin_bottom'], 2, 'px') .
+         $this->fetch_form_field('search_button', $options['search_button'], 'checkbox');
    }	
 
-  
 	function hamburger_panel($options){	
       return 	
          $this->responsive_text_field("threshold",$options['threshold'], 4, 'px') .

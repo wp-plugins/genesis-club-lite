@@ -1,16 +1,19 @@
 
-.genesis-nav-menu li.searchbox { 
- display:inline-block; width: auto; position:relative; margin: 5px; float:right; 
+.genesis-nav-menu li.searchbox, #nav .genesis-nav-menu li.searchbox {
+ display:inline-block; width: auto; margin: 0; padding:0; border:none; float:right; 
+}
+.nav-header .genesis-nav-menu li.searchbox {
+ float:none;
 }
 .genesis-nav-menu li.searchbox form { 
-  padding: 0.2em; width: auto; 
+  padding: 0.2em; width: auto; position:relative; float:none; margin:0 1em 0 0;
 }	
-.genesis-nav-menu li.searchbox form.search-form input[type='search'], .genesis-nav-menu li.searchbox form.searchform input[type='text'] { 
-  font-size: smaller; padding: 6px; color:gray; border: 2px solid #ddd; background-image: none; width: 150px; 
+.genesis-nav-menu li.searchbox form.search-form input[type='search'], .genesis-nav-menu li.searchbox form.searchform input[type='text'], #nav .s { 
+  width: 160px; margin:0; padding: 6px; font-size: smaller; background-image: none;  
 }
 
-.genesis-nav-menu li.searchbox.nobutton form.search-form input[type='search'], .genesis-nav-menu li.searchbox.nobutton form.searchform input[type='text']  { 
-  padding-left: 2em; border-radius: 5px;
+.genesis-nav-menu li.searchbox.nobutton form.search-form input[type='search'], .genesis-nav-menu li.searchbox.nobutton form.searchform input[type='text'], #nav .s  { 
+  padding-left: 2.4em;
 }
 
 .genesis-nav-menu li.searchbox.nobutton form.search-form:before, .genesis-nav-menu li.searchbox.nobutton form.searchform:before  { 
@@ -22,9 +25,9 @@
    font-size: 1.2em;
    line-height: 1;
    vertical-align: top;
-   position: relative;
-   top: 0.3em;
-   left: 1.3em;
+   position: absolute;
+   top: 0.5em;
+   left: 0.5em;
    color:gray;
 }
 

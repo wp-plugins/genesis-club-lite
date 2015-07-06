@@ -51,7 +51,7 @@ class Genesis_Club_Display_Admin extends Genesis_Club_Admin {
 		'no_archive_postmeta' => array('heading' => 'Remove On Archives', 'tip' => 'Strip any post info and post meta from the top and bottom of post excerpts on archive pages.'),
 		'alt_404_page' => array('heading' => 'Alternative 404 Page', 'tip' => 'Send the user to your own custom 404 page if the chosen page is not found.'),
 		'alt_404_status' => array('heading' => 'HTTP Status', 'tip' => 'Normally you find want to return 404 however you can choose to return a 410 if say, you have just deleted a whole bunch of pages from your site, or if your site is narrowly based you might want to return a 301 providing the chosen alternative 404 page has a canonical URL.'),
-		'css_hacks' => array('heading' => 'Add CSS Hacks', 'tip' => 'Add useful classes such as clearfix (for clearing floats) and dropcaps (for capitalizing the first letter of the first paragraph.'),
+		'css_hacks' => array('heading' => 'Add CSS Classes', 'tip' => 'Add useful classes such as clearfix (for clearing floats) and dropcaps (for capitalizing the first letter of the first paragraph.'),
 		'custom_login_enabled' => array('heading' => 'Enable Custom Login', 'tip' => 'Enable Login Page Customizations.'),
 		'custom_login_background' => array('heading' => 'Login Page Background URL', 'tip' => 'URL of image to use as the login page background.'),
 		'custom_login_logo' => array('heading' => 'Logo Background URL', 'tip' => 'URL of image to use as the logo recommended size is 200px square.'),
