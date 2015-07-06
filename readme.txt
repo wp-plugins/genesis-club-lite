@@ -4,7 +4,7 @@ Donate link: http://www.diywebmastery.com/donate/
 Tags: genesis, signature 
 Requires at least: 3.0
 Tested up to: 4.2.2
-Stable tag: 1.8.2
+Stable tag: 1.8.3
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -112,8 +112,10 @@ SIGNATURE MODULE:
 
 == Changelog ==
 
+= 1.8.3 =
+* Add options for text color, background color, border color and margins for the search box
 
-= 1.8.2=
+= 1.8.2 =
 * Add nudge feature for search box to help with its vertical positioning 
 
 = 1.8.1 =
@@ -131,7 +133,7 @@ For full plugin history please see http://www.diywebmastery.com/plugins/genesis-
 
 == Upgrade Notice ==
 
-= 1.8.2 = Optional -  Add nudge feature for search box to help with its vertical positioning 
+= 1.8.3 = Optional -  Add options for text color, background color, border color and margins for the search box 
 
 == Links ==
 

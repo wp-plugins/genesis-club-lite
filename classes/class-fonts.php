@@ -78,16 +78,17 @@ class Genesis_Club_Fonts {
       return self::save_options($options);
    }
 
-   function delete_families($font_ids) {
-      $font_ids = (array)$font_ids;
-      $deleted= 0;
+   static function delete_families($font_ids) {
+		$font_ids = (array)$font_ids;
+		$deleted= 0;
 		$families = self::get_families();
-      foreach ($font_ids as $font_id) {
-         if (array_key_exists($font_id, $families)) {
+		foreach ($font_ids as $font_id) {
+			$font_id = strtolower(trim($font_id));
+         	if (array_key_exists($font_id, $families)) {
 			   unset($families[$font_id]);
-            $deleted++;            
-         }
-      }
+            	$deleted++;            
+         	}
+		}
 
 		if($deleted)
 		    self::save_families($families);
