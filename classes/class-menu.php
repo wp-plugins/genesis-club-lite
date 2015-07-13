@@ -16,8 +16,9 @@ class Genesis_Club_Menu {
 		'search_background_color' => 'transparent',	
 		'search_border_color' => 'LightGray',
 		'search_border_radius' => '4',
-		'search_margin_top' => 5,
-		'search_margin_bottom' => 5,
+		'search_padding_top' => 5,
+		'search_padding_bottom' => 5,
+		'search_padding_threshold' => '',
 		'search_button' => true,
 	);
 	protected static $side_menu_left = '';
@@ -107,15 +108,18 @@ class Genesis_Club_Menu {
          $css = sprintf('.genesis-nav-menu li.searchbox form.search-form input[type=\'search\'], .genesis-nav-menu li.searchbox form.searchform input[type=\'text\'] { %1$s }', $css) ."\n";
     }
 
-      $margin = '';
-		if ($top = self::check_margin(self::get_option('search_margin_top'))) {
-         $margin .= sprintf('margin-top:%1$spx;',$top);
+      $padding = '';
+      if ($top = self::check_limit(self::get_option('search_padding_top'))) {
+         $padding .= sprintf('padding-top:%1$spx;',$top);
       }
-      if ($bottom = self::check_margin(self::get_option('search_margin_bottom'))) {
-         $margin .= sprintf('margin-bottom:%1$spx;',$bottom);
+      if ($bottom = self::check_limit(self::get_option('search_padding_bottom'))) {
+         $padding .= sprintf('padding-bottom:%1$spx;',$bottom);
       }
-      if (!empty($margin))  {
-         $css .= sprintf ('.genesis-nav-menu li.searchbox form {%1$s}', $margin) . "\n";
+      if (!empty($padding))  {
+         if ($threshold = self::check_limit(self::get_option('search_padding_threshold'), 1600))       
+            $css .= sprintf ('@media only screen and (min-width: %1$spx) { .genesis-nav-menu li.searchbox {%2$s} }', $threshold, $padding) . "\n";
+         else
+            $css .= sprintf ('.genesis-nav-menu li.searchbox {%1$s} ', $padding) . "\n";
 		}
       if (!empty($css)) {
          wp_add_inline_style( self::SEARCH_STYLE, $css . $placeholder_css);
@@ -175,8 +179,8 @@ class Genesis_Club_Menu {
 		return $prefix . $content;
 	}
 
-	private static function check_margin($item) {
-		return (is_numeric($item) && (abs($item) <= 50)) ? $item : false;
+	private static function check_limit($item, $limit = 50) {
+		return (is_numeric($item) && (abs($item) <= $limit)) ? $item : false;
 	}
 
 	private static function check_size($item, $default) {
@@ -262,7 +266,7 @@ SCRIPT;
 jQuery(document).ready(function($){
 	$(".gc-responsive-menu-icon.gcm-resp-below").next().addClass('gc-responsive-menu');
 	$(".gc-responsive-menu-icon.gcm-resp-below").click(function(){ $(this).next().slideToggle();});
-	$(window).resize(function(){ if(window.innerWidth > {$minimum_device_width}) { $(".genesis-nav-menu").removeAttr("style");}});
+	$(window).resize(function(){ if(window.innerWidth > {$minimum_device_width}) { $(".gc-responsive-menu").removeAttr("style");}});
 });
 //]]>
 </script>
