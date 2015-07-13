@@ -4,7 +4,7 @@ Donate link: http://www.diywebmastery.com/donate/
 Tags: genesis, signature 
 Requires at least: 3.0
 Tested up to: 4.2.2
-Stable tag: 1.8.3
+Stable tag: 1.8.4
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -112,6 +112,9 @@ SIGNATURE MODULE:
 
 == Changelog ==
 
+= 1.8.4 =
+* Add media queries to improve handling of themes that change menu padding for different device sizes
+
 = 1.8.3 =
 * Add options for text color, background color, border color and margins for the search box
 
@@ -124,8 +127,6 @@ SIGNATURE MODULE:
 = 1.8 =
 * Add option to place a search box at the end of the primary, secondary or header right navigation areas
 
-= 1.7.3 =
-* Remove anonymous function to fix white screen issue for legacy PHP 5.2 users
 
 
 For full plugin history please see http://www.diywebmastery.com/plugins/genesis-club-lite/changelog
@@ -133,7 +134,7 @@ For full plugin history please see http://www.diywebmastery.com/plugins/genesis-
 
 == Upgrade Notice ==
 
-= 1.8.3 = Optional -  Add options for text color, background color, border color and margins for the search box 
+= 1.8.4 = Optional - Add media queries to improve handling of themes that change menu padding for different device sizes
 
 == Links ==
 

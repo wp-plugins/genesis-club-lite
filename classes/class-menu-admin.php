@@ -13,8 +13,9 @@ class Genesis_Club_Menu_Admin extends Genesis_Club_Admin {
 		'search_background_color' => array('heading' => 'Background Color', 'tip' => 'Choose the background color of the search box'),
 		'search_border_color' => array('heading' => 'Border Color', 'tip' => 'Choose a color if you want a border around the search box or clear the color to have no border'),
 		'search_border_radius' => array('heading' => 'Border Radius', 'tip' => 'You have an option to give the search box rounded corners. For example, for moderate rounding use 5 (px); for 0 for square corners'),
-		'search_margin_top' => array('heading' => 'Margin Top', 'tip' => 'Enter margin above the search box (limit is 50px)'),
-		'search_margin_bottom' => array('heading' => 'Margin Bottom', 'tip' => 'Enter margin below the search box (limit is 50px)'),
+		'search_padding_top' => array('heading' => 'Padding Top', 'tip' => 'Enter padding above the search box (limit is 50px)'),
+		'search_padding_bottom' => array('heading' => 'Padding Bottom', 'tip' => 'Enter padding below the search box (limit is 50px)'),
+		'search_padding_threshold' => array('heading' => 'Padding Threshold', 'tip' => 'Remove padding for devices smaller than this threshold or leave blank to retain padding for all sizes of device'),
 		'search_button' => array('heading' => 'Add Search Button', 'tip' => 'Click checkbox to show a search button (providing your WordPress theme has a visible search button)'),
 		);
 		
@@ -69,8 +70,9 @@ INTRO_PANEL;
          $this->responsive_text_field("search_background_color",$options['search_background_color'], 7, '', 'color-picker') .
          $this->responsive_text_field("search_border_color",$options['search_border_color'], 7, '', 'color-picker') .
          $this->responsive_text_field("search_border_radius",$options['search_border_radius'], 5, 'px') .
-         $this->responsive_text_field('search_margin_top',$options['search_margin_top'], 2, 'px') .
-         $this->responsive_text_field('search_margin_bottom',$options['search_margin_bottom'], 2, 'px') .
+         $this->responsive_text_field('search_padding_top',$options['search_padding_top'], 2, 'px') .
+         $this->responsive_text_field('search_padding_bottom',$options['search_padding_bottom'], 2, 'px') .
+         $this->responsive_text_field('search_padding_threshold',$options['search_padding_threshold'], 4, 'px') .
          $this->fetch_form_field('search_button', $options['search_button'], 'checkbox');
    }	
 
