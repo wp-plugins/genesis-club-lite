@@ -6,6 +6,7 @@ class Genesis_Club_Accordion_Admin extends Genesis_Club_Admin {
 		'accordion_content_class' => array('heading' => 'Override Content Style', 'tip' => 'Enter a custom class if you want to override the accordion content styling'),
 		'accordion_container_class' => array('heading' => 'Override Container Style', 'tip' => 'Enter a custom class if you want to override the accordion container styling'),
 		'accordion_nopaging' => array('heading' => 'No Paging', 'tip' => 'Click to checkbox to disable paging and hence show all the FAQ posts in the accordion'),
+		'accordion_scroll_top' => array('heading' => 'Scroll To Top', 'tip' => 'Click to checkbox to make the accordion scroll to the top of the page - this is useful when you have long answers to short questions.'),
 		);
 	
 	function init() {		
@@ -25,15 +26,15 @@ class Genesis_Club_Accordion_Admin extends Genesis_Club_Admin {
 	}
 
 	function page_content() {
- 		$title = $this->admin_heading('Genesis Club Accordion Settings', GENESIS_CLUB_ICON);				
-		$this->print_admin_form_with_sidebar($title, __CLASS__); 
+ 		$title = $this->admin_heading('Genesis Club Accordion Settings');				
+		$this->print_admin_form($title, __CLASS__); 
 	} 	
 	
 	function load_page() {
 		Genesis_Club_Accordion::add_accordion (array('enabled' => true, 'header_class' => '', 'content_class' => '.accordion-content no-margin'));
 		$this->add_meta_box('intro', 'Instructions',  'intro_panel');
 		$this->add_meta_box('accordion', 'Accordion',  'accordion_panel');
-		$this->add_meta_box('news', 'Genesis Club News', 'news_panel', null, 'side');
+		$this->add_meta_box('news', 'Genesis Club News', 'news_panel', null, 'advanced');
 		add_action ('admin_enqueue_scripts',array($this, 'enqueue_admin_styles'));
 		add_action ('admin_enqueue_scripts',array($this, 'enqueue_metabox_scripts'));
 		add_action ('admin_enqueue_scripts',array($this, 'enqueue_postbox_scripts'));
@@ -137,7 +138,7 @@ EXAMPLE;
 	}	
 
 	private function accordion_section($accordion, $is_archive){
-		$defaults = array('enabled' => '', 'header_class' => '', 'content_class' => '', 'container_class' => '', 'nopaging' => false);
+		$defaults = array('enabled' => '', 'header_class' => '', 'content_class' => '', 'container_class' => '', 'scroll_top' => false, 'nopaging' => false);
 		$accordion = is_array($accordion) ?  shortcode_atts($defaults,$accordion) : $defaults;
 		if ($is_archive) {  //use table on archive pages
 			$start_wrap = '<table class="form-table">';
@@ -153,8 +154,11 @@ EXAMPLE;
 		$s .= $this->accordion_form_field('header_class', $accordion['header_class'], 'text', array('size' => 20), $wrap);
 		$s .= $this->accordion_form_field('content_class', $accordion['content_class'], 'text', array('size' => 20), $wrap);
 		$s .= $this->accordion_form_field('container_class', $accordion['container_class'], 'text', array('size' => 20), $wrap);
-		if ($is_archive)
+		$s .= $this->accordion_form_field('scroll_top', $accordion['scroll_top'], 'checkbox', array(), $wrap);
+		if ($is_archive) {           
 			$s.= $this->accordion_form_field('nopaging', $accordion['nopaging'], 'checkbox', array(), $wrap);
+		}
+
 		return $start_wrap . $s . $end_wrap;
 	}
 

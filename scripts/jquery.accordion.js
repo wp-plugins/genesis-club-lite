@@ -25,9 +25,12 @@
 				if (header.hasClass('accordion-selected')) {
 					header.removeClass('accordion-selected').next().slideUp( 'slow');
 				} else {
-            	ele.find('.accordion-header.accordion-selected').removeClass('accordion-selected').next().slideUp( 'slow','linear',
-               	function(){ $('html, body').animate({ scrollTop: header.offset().top }, 500); });
-					header.addClass('accordion-selected').next().slideDown('slow');
+					if (settings.scroll_top)
+            			ele.find('.accordion-header.accordion-selected').removeClass('accordion-selected').next().slideUp( 'slow','linear',
+               				function(){ $('html, body').animate({ scrollTop: header.offset().top }, 500); });
+               		else	
+            			ele.find('.accordion-header.accordion-selected').removeClass('accordion-selected').next().slideUp( 'slow','linear');
+							header.addClass('accordion-selected').next().slideDown('slow');
 				}
 			});	      
 		});

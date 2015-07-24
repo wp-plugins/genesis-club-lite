@@ -31,18 +31,18 @@ class Genesis_Club_Menu_Admin extends Genesis_Club_Admin {
 	}
 
 	function page_content() {
-		$title =  $this->admin_heading('Genesis Club Menu Settings', GENESIS_CLUB_ICON);				
-		$this->print_admin_form_with_sidebar($title, __CLASS__, $this->get_keys()); 
+		$title =  $this->admin_heading('Genesis Club Menu Settings');				
+		$this->print_admin_form($title, __CLASS__, $this->get_keys()); 
 	}    
 
 	
 	function load_page() {
 		$this->set_tooltips($this->tips);
- 		$message = isset($_POST['options_update']) ? $this->save_menu() : '';
-		$callback_params = array ('options' => Genesis_Club_Menu::get_options(), 'message' => $message);
+ 		if (isset($_POST['options_update'])) $this->save_menu();
+		$callback_params = array ('options' => Genesis_Club_Menu::get_options());
 		$this->add_meta_box('intro', 'Intro',  'intro_panel', $callback_params);
 		$this->add_meta_box('menu', 'Menu Settings', 'menu_panel', $callback_params);
-		$this->add_meta_box('news', 'Genesis Club News', 'news_panel',$callback_params, 'side');
+		$this->add_meta_box('news', 'Genesis Club News', 'news_panel',$callback_params, 'advanced');
 		add_action ('admin_enqueue_scripts',array($this, 'enqueue_admin_styles'));
 		add_action ('admin_enqueue_scripts',array($this, 'enqueue_metabox_scripts'));
 		add_action ('admin_enqueue_scripts',array($this, 'enqueue_postbox_scripts'));
@@ -53,11 +53,9 @@ class Genesis_Club_Menu_Admin extends Genesis_Club_Admin {
 		return $this->save_options('Genesis_Club_Menu', 'Menu');
 	}
 
- 	function intro_panel($post,$metabox){	
-		$message = $metabox['args']['message'];	 	
+ 	function intro_panel($post,$metabox){	 	
 		print <<< INTRO_PANEL
-<p>The following section allows you to set up responsive hamburger menus on the primary, secondary and right header navigation areas.</p>
-{$message}
+<p>The following section allows you to set up responsive hamburger menus and a search box on the primary, secondary and right header navigation areas.</p>
 INTRO_PANEL;
 	}
 

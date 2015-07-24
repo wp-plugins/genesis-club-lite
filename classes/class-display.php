@@ -8,7 +8,6 @@ class Genesis_Club_Display {
 	const AFTER_ENTRY_SIDEBAR_ID = 'genesis-after-entry';
 	const AFTER_ARCHIVE_SIDEBAR_ID = 'genesis-after-archive';
 	const AFTER_CONTENT_SIDEBAR_ID = 'genesis-after-content-sidebar-wrap';
-
 	const HIDE_FROM_SEARCH_METAKEY = '_genesis_club_hide_from_search';
 	const HIDE_TITLE_METAKEY = '_genesis_club_hide_title';
 	const HIDE_AFTER_CONTENT_METAKEY = '_genesis_club_hide_after_content';
@@ -21,7 +20,7 @@ class Genesis_Club_Display {
    const DISABLE_BREADCRUMBS = '_genesis_club_disable_breadcrumbs';
 	const BGCOLOR_KEY = 'facebook_likebox_bgcolor';
 	const BORDER_KEY = 'facebook_likebox_border';
-	
+
 	const FACEBOOK_IMAGE_SCALE_FACTOR = 1.91;
 	const FACEBOOK_FEATURED_IMAGE = 'fb-featured-image';
 	const FACEBOOK_ARCHIVE_IMAGE = 'fb-archive-image';
@@ -305,7 +304,6 @@ class Genesis_Club_Display {
 			if ($replace) add_action( 'genesis_after_post_content', array(__CLASS__,'post_meta') );	
 		} 			
 	}
-
 
 	public static function get_defaults() {
     	return self::$defaults;

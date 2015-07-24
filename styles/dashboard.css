@@ -1,3 +1,7 @@
+#poststuff .actions {
+    margin: 10px 20px 0 ;
+}
+
 #poststuff .product-card h2 {
 	margin: 0;
     font-weight: bold;
@@ -7,7 +11,7 @@
 
 .products_grid {
     clear: both;
-    text-align: justify;
+    text-align: left;
 }
 
 .products_grid:after{
@@ -47,7 +51,6 @@
 .products_grid .gap{
   display: inline-block;
 }
-
 
 .product-card .summary {
     overflow: hidden;
@@ -99,12 +102,26 @@ li.product-card:nth-child(16):hover { background-color : #FFD7EB; }
 li.product-card:nth-child(17):hover { background-color : #FFD7E3; }  
 li.product-card:nth-child(18):hover { background-color : #FFDBD7; }  
 
-.save { width:100%; margin-right: 100px; text-align:right; }
+#poststuff .save { width:auto; margin: 0; padding: 0; text-align:left; }
 
 .products_grid input[type=checkbox]:checked:before {
 color: #528264;
 }
 
-@media only screen and (max-width: 480px) {
-.save { margin-right: 0px; text-align:left; }
+.one-half {
+	float: left;
+	margin: 0 0 20px;
+	padding-left: 3%;
+	width: 48%;
+}
+
+.first {
+	clear: both;
+	padding-left: 0;
+}
+
+
+@media only screen and (max-width: 600px) {
+
+   .one-half { width: 100%; padding: 0; }
 }

@@ -23,15 +23,15 @@ if (!class_exists('Genesis_Club_Dashboard')) {
 	}
 
 	function page_content() {
- 		$title = $this->admin_heading('Genesis Club Dashboard',GENESIS_CLUB_ICON);				
-		$this->print_admin_form_with_sidebar($title, __CLASS__); 
+ 		$title = $this->admin_heading('Genesis Club Dashboard');				
+		$this->print_admin_form($title, __CLASS__); 
 	} 
 
 	function load_page() {
  		if (isset($_POST['options_update'])) $this->save_dashboard();
-		$callback_params = array ( 'message' => $this->fetch_message());
-		$this->add_meta_box('modules','Genesis Club Modules', 'modules_panel', $callback_params);
-		$this->add_meta_box('news', 'Genesis Club News', 'news_panel', null, 'side');
+		$this->fetch_message();
+		$this->add_meta_box('modules','Genesis Club Modules', 'modules_panel');
+		$this->add_meta_box('news', 'Genesis Club News', 'news_panel', null, 'advanced');
 		add_action ('admin_enqueue_scripts',array($this, 'enqueue_admin_styles'));		
 		add_action ('admin_enqueue_scripts',array($this, 'enqueue_dashboard_styles'));		
   		add_action ('admin_enqueue_scripts',array($this, 'enqueue_scripts'));		
@@ -70,11 +70,10 @@ if (!class_exists('Genesis_Club_Dashboard')) {
 	}
 
 	function modules_panel($post, $metabox) {
-		print $metabox['args']['message'];	
   		$pro = sprintf('<a target="_blank" rel="external" href="%1$s">Genesis Club Pro</a>', GENESIS_CLUB_PRO_URL); 
-      print $this->submit_button();
+  		$button = $this->submit_button();
 		print <<< SETTINGS_PANEL
-<div class="actions"><input id="cb-select-all" type="checkbox" />Select/Deselect All or individually select the Genesis Club modules you need.  Or click the link to find out more about {$pro} features.</div>
+<div class="actions"><div class="one-half first"><input id="cb-select-all" type="checkbox" />Select/Deselect All or individually select the Genesis Club modules you need.  Or click the link to find out more about {$pro} features.</div><div class="one-half">{$button}</div></div>
 <ul class="products_grid" class="wrap">
 SETTINGS_PANEL;
 		$modules = Genesis_Club_Plugin::get_modules();

@@ -3,8 +3,8 @@ Contributors: powerblogservice
 Donate link: http://www.diywebmastery.com/donate/
 Tags: genesis, signature 
 Requires at least: 3.0
-Tested up to: 4.2.2
-Stable tag: 1.8.4
+Tested up to: 4.2.3
+Stable tag: 1.9
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -13,6 +13,8 @@ Mobile Responsive Logos, Hamburger Menus, Animated Top Bars, FAQ Accordions, Use
 == Description ==
 
 IMPORTANT: This plugin can ONLY be used with Genesis Child Themes
+
+WHAT'S NEW:  Migrating Yoast 301 redirects - see http://www.genesisclubpro.com/9680/where-have-the-301-redirects-gone/
 
 SUPPORT: For priority support and bonus features try http://www.genesisclubpro.com
 
@@ -90,6 +92,11 @@ SIGNATURE MODULE:
 * Can click the checkbox in the Post Editor to exclude or include an automatic signature on individual posts and pages
 * With the [genesis_club_signature] shortcode you can position the signature anywhere in the post and hence you can use a PS and a PPS
 
+SEO MODULE:
+
+* Migrate Yoast SEO 301 Redirects 
+* Migrate SEO titles, descriptions, noindex, nofollow from Genesis to Yoast or Yoast to Genesis
+
 
 == Installation ==
 1. Use the standard WordPress plugin automatic updates system for updating to the latest version or use the manual steps below. 
@@ -106,11 +113,18 @@ SIGNATURE MODULE:
 * How do I display a post image gallery in the sidebar with a lightbox - see http://www.diywebmastery.com/3910/post-image-gallery-widget-lightbox
 
 == Screenshots ==
+
 1. Display settings 
 1. Frequently Asked Questions Before Clicking A Question
 1. Frequently Asked Questions After Clicking A Question  
 
 == Changelog ==
+
+= 1.9 =
+* Add support for 301 Redirects imported from Yoast
+* Add migration feature to move SEO settings from Genesis to Yoast or from Yoast to Genesis
+* Make the feature to scroll the FAQ accordion to the top of the page optional
+* Make all admin notices dismissible
 
 = 1.8.4 =
 * Add media queries to improve handling of themes that change menu padding for different device sizes
@@ -128,13 +142,13 @@ SIGNATURE MODULE:
 * Add option to place a search box at the end of the primary, secondary or header right navigation areas
 
 
-
 For full plugin history please see http://www.diywebmastery.com/plugins/genesis-club-lite/changelog
 
 
 == Upgrade Notice ==
 
-= 1.8.4 = Optional - Add media queries to improve handling of themes that change menu padding for different device sizes
+= 1.9 = Optional - Add support for 301 Redirects imported from Yoast
+
 
 == Links ==
 

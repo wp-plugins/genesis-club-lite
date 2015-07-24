@@ -1,6 +1,6 @@
 <?php
 class Genesis_Club_Post { 
-
+	
 	static protected $css='';
  
    static function init() {
@@ -9,16 +9,9 @@ class Genesis_Club_Post {
 		add_action('widgets_init', array(__CLASS__,'register_widgets'));	
 	}	
 
-	static function register_widgets() {
-		register_widget( 'Genesis_Club_Posts_Widget' );
-		register_widget( 'Genesis_Club_Post_Specific_Widget' );
-		register_widget( 'Genesis_Club_Post_Image_Gallery_Widget' );
-		add_action('wp', array(__CLASS__,'prepare'));			
-	}
-	
 	public static function post_dates($attr) {
 		$defaults = array('published' => __('First published on '), 'updated' => __('Last updated on '),'before' => '<span class="postmeta-date">', 'after' => '</span>', 'format' => get_option( 'date_format' ), 'separator' => '&nbsp;&middot&nbsp;', 'interval' => 3);
-   	$params = shortcode_atts( $defaults, $attr ); 
+   		$params = shortcode_atts( $defaults, $attr ); 
 		$updated = genesis_post_modified_date_shortcode (array ('format' => $params['format'], 'label' => $params['updated'], 'before' => $params['before'],  'after' => $params['after']  ));
 		$pub_date =  new DateTime(get_the_time( 'c' ));
 		$mod_date = new DateTime(get_the_modified_time( 'c' ));
@@ -42,6 +35,13 @@ class Genesis_Club_Post {
 			return genesis_post_modified_date_shortcode ( $params );  
 		} 
 	}	
+
+	static function register_widgets() {
+		register_widget( 'Genesis_Club_Posts_Widget' );
+		register_widget( 'Genesis_Club_Post_Specific_Widget' );
+		register_widget( 'Genesis_Club_Post_Image_Gallery_Widget' );
+		add_action('wp', array(__CLASS__,'prepare'));			
+	}
 
 	static function prepare() {
 		global $wp_widget_factory;

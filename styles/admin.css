@@ -2,5 +2,6 @@ h2.title i { padding-right: 0.5em; font-size: 1.25em; }
 p.save { width: 100%; margin-right: 100px; text-align: right; }
 p.bigger { font-size: larger; font-weight: bold; }
 img.dashed-border { padding: 10px; border: 1px dashed silver; max-width: 100%; } 
-.diy-image-feed-widget-item {margin: 3px;}
 .toplevel_page_layerslider .wp-menu-name { font-size: 12px;}
+.diy-image-feed-widget-item { display: inline-block; vertical-align:top; padding: 10px; }
+.diy-image-feed-widget-item span img  { max-height : 200px; width: auto }
