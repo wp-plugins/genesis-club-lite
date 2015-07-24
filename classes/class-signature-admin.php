@@ -22,14 +22,14 @@ class Genesis_Club_Signature_Admin extends Genesis_Club_Admin {
 	}
 	
 	function page_content() {
- 		$title =  $this->admin_heading('Genesis Club Signatures', GENESIS_CLUB_ICON);				
-		$this->print_admin_form_with_sidebar($title, __CLASS__); 
+ 		$title =  $this->admin_heading('Genesis Club Signatures');				
+		$this->print_admin_form($title, __CLASS__); 
 	} 	
 	
 	function load_page() {
 		$this->add_meta_box('intro', __('Instructions',GENESIS_CLUB_DOMAIN),  'intro_panel');
 		$this->add_meta_box('signature', __('Signatures',GENESIS_CLUB_DOMAIN), 'signature_panel');
-		$this->add_meta_box('news', 'Genesis Club News', 'news_panel',null, 'side');
+		$this->add_meta_box('news', 'Genesis Club News', 'news_panel',null, 'advanced');
 		add_action ('admin_enqueue_scripts',array($this, 'enqueue_admin_styles'));
 		add_action ('admin_enqueue_scripts',array($this, 'enqueue_metabox_scripts'));		
 		add_action ('admin_enqueue_scripts',array($this, 'enqueue_postbox_scripts'));

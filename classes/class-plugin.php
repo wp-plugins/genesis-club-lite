@@ -7,7 +7,7 @@ if (!class_exists('Genesis_Club_Plugin')) {
  	private static $version = GENESIS_CLUB_VERSION;
 	private static $admin_modules = array();
 	private static $modules = array(
-//		'api' => array('class'=> 'Genesis_Club_API','heading' => 'API Keys', 'tip' => 'Check your Genesis Club Pro license is up to date and if an new version of the plugin is available.'),
+//		'api' => array('class'=> 'Genesis_Club_API','heading' => 'API Keys', 'tip' => 'Check your Genesis Club Pro license is up to date and if a new version of the plugin is available.'),
 		'accordion' => array('class'=> 'Genesis_Club_Accordion', 'heading' => 'Accordion', 'tip' => 'Create one or more accordions to display your frequently answered questions'),
 		'background' => array('class'=> 'Genesis_Club_Background','heading' => 'Background', 'tip' => 'Add stylish image or video backgrounds to your pages.'),
 		'bar' => array('class'=> 'Genesis_Club_Bar','heading' => 'Bar', 'tip' => 'Add an animated top bar for your calls to action'),
@@ -18,11 +18,11 @@ if (!class_exists('Genesis_Club_Plugin')) {
 		'icons' => array('class'=> 'Genesis_Club_Icons','heading' => 'Icons', 'tip' => 'Enhanced Simple Social Icons allowing different sizes for different sets of icons on the same page.'),
 		'landing' => array('class'=> 'Genesis_Club_Landing','heading' => 'Landing Pages', 'tip' => 'Use our lead capture forms for your landing pages. Integrates with Aweber, MailChimp, SendReach and Infusionsoft'),
 		'media' => array('class'=> 'Genesis_Club_Media','heading' => 'Media', 'tip' => 'Must have features if you are <em>not</em> hosting all your media files in the Media Library'),
-		'menu' => array('class'=> 'Genesis_Club_Menu','heading' => 'Menus', 'tip' => 'Use mobile responsive "hamburgers" for your primary, secondary and header right navigation menus'),
-		'post' => array('class'=> 'Genesis_Club_Post','heading' => 'Post Widgets', 'tip' => 'Widgets for displaying post specific information and images'),
-		'seo' => array('class'=> 'Genesis_Club_Seo','heading' => 'SEO ', 'tip' => 'SEO migrations from Thesis to Genesis and to and from the WordPress SEO plugin by Yoast'),
-		'signature' => array('class'=> 'Genesis_Club_Signature','heading' => 'Signatures', 'tip' => 'Add author signatures to the foot of your posts'),
-		'slider' => array('class'=> 'Genesis_Club_Slider','heading' => 'Slider', 'tip' => 'Deliver your message in animated words and images using a parallax mobile responsive layer slider'),
+		'menu' => array('class'=> 'Genesis_Club_Menu','heading' => 'Menus', 'tip' => 'Add a mobile responsive hamburger and a search box to your primary, secondary and header right menus'),
+		'post' => array('class'=> 'Genesis_Club_Post','heading' => 'Post Widgets', 'tip' => 'Enhanced widgets for displaying post specific information and image galleries'),
+		'seo' => array('class'=> 'Genesis_Club_Seo','heading' => 'SEO ', 'tip' => 'Page redirects (in Lite and Pro) and SEO Migration Tools for Yoast and Thesis (in Pro only)'),
+		'signature' => array('class'=> 'Genesis_Club_Signature','heading' => 'Signatures', 'tip' => 'Add an author signatures, with a PS or PPS to personalize of your posts'),
+		'slider' => array('class'=> 'Genesis_Club_Slider','heading' => 'Slider', 'tip' => 'Deliver your key message in animated words and images using a mobile responsive multi-layer slider'),
 		'social' => array('class'=> 'Genesis_Club_Social','heading' => 'Social Sharing', 'tip' => 'Add a floating or fixed social panel to allow users to share your pages.'),
 		);
 

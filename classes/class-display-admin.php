@@ -77,8 +77,8 @@ class Genesis_Club_Display_Admin extends Genesis_Club_Admin {
 	}
 
 	function page_content() {
-		$title = $this->admin_heading('Genesis Club Display Settings', GENESIS_CLUB_ICON);		
-		$this->print_admin_form_with_sidebar($title, __CLASS__, $this->get_keys()); 		
+		$title = $this->admin_heading('Genesis Club Display Settings');		
+		$this->print_admin_form($title, __CLASS__, $this->get_keys()); 		
 	}  
 	
 	function load_page() {
@@ -86,7 +86,7 @@ class Genesis_Club_Display_Admin extends Genesis_Club_Admin {
 		$callback_params = array ('options' => Genesis_Club_Display::get_options(false), 'message' => $message);
 		$this->add_meta_box('intro', 'Intro',  'intro_panel', $callback_params);
 		$this->add_meta_box('display', 'Display Settings', 'display_panel', $callback_params);
-		$this->add_meta_box('news', 'Genesis Club News', 'news_panel', $callback_params, 'side');
+		$this->add_meta_box('news', 'Genesis Club News', 'news_panel', $callback_params, 'advanced');
 		$this->set_tooltips($this->tips);
 		add_action ('admin_enqueue_scripts',array($this, 'enqueue_admin_styles'));
 		add_action ('admin_enqueue_scripts',array($this, 'enqueue_metabox_scripts'));

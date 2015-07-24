@@ -4,9 +4,10 @@ abstract class Genesis_Club_Admin {
 	protected $path;
 	protected $parent_slug;
 	protected $slug;
-    protected $screen_id;
-    private $tooltips;
-    private $tips = array();
+   protected $screen_id;
+   private $tooltips;
+   private $tips = array();
+   private $messages = array();
 
 	function __construct($version, $path, $parent_slug, $slug = '') {
 		$this->version = $version;
@@ -60,6 +61,16 @@ abstract class Genesis_Club_Admin {
 
 	function get_tip($label) { 
 		return $this->tooltips->tip($label);
+	}
+
+	function print_admin_notices() {
+		foreach ($this->messages as $message)
+         print $message;
+	}
+
+	function add_admin_notice($subject, $message, $is_error = false) {
+		$this->messages[] = sprintf('<div class="notice is-dismissible %1$s"><p>%2$s %3$s</p></div>', $is_error ? 'error' : 'updated', __($subject), __($message));
+      add_action( 'admin_notices', array($this, 'print_admin_notices') );  
 	}
 
 	function plugin_action_links ( $links, $file ) {
@@ -166,8 +177,12 @@ abstract class Genesis_Club_Admin {
 		return $content;
  	}
  
+   function get_newsfeeds() {
+      return apply_filters('genesis_club_newsfeeds', array(GENESIS_CLUB_NEWS, DIYWEBMASTERY_NEWS));
+   }
+
  	function news_panel($post,$metabox){	
-		Genesis_Club_Feed_Widget::display_feeds(Genesis_Club_Options::get_option('newsfeed'));
+		Genesis_Club_Feed_Widget::display_feeds($this->get_newsfeeds());
 	}
  
  	function get_nonces($referer) {
@@ -181,9 +196,8 @@ abstract class Genesis_Club_Admin {
 	}
  	
 	function save_options($options_class, $settings_name, $trim_option_prefix = false) {
-	
+      $saved = false;
   		$page_options = explode(",", stripslashes($_POST['page_options']));
-  		
   		if (is_array($page_options)) {
   			$options = call_user_func( array($options_class, 'get_options'));
   			$updates = false; 
@@ -193,31 +207,26 @@ abstract class Genesis_Club_Admin {
        			if ($trim_option_prefix) $option = substr($option,$trim_option_prefix); //remove prefix
 				$options[$option] = $val;
     		} //end for
-   			$saved = call_user_func( array($options_class, 'save_options'), $options) ;
-   			if ($saved)  {
-	  		    $class='updated fade';		
-       			$message = 'settings saved successfully.';
-   			} else {
- 	 		    $class='error fade';
-       			$message = 'settings have not been changed.';
-			}
+   		$saved = call_user_func( array($options_class, 'save_options'), $options) ;
+   		if ($saved)  
+	  		    $this->add_admin_notice($settings_name, 'settings saved successfully.');
+   		else 
+	  		    $this->add_admin_notice($settings_name, 'settings have not been changed.', true);   		
   		} else {
-  		    $class='error';
-       		$message= 'settings not found!';
+	  	  $this->add_admin_notice($settings_name, 'settings not found', true);   	
   		}
-  		return sprintf('<div id="message" class="%1$s"><p>%2$s %3$s</p></div>',
-  			$class, __($settings_name), __($message));
+  		return $saved;
 	}
 
     function fetch_message() {
-		$message = '' ;
 		if (isset($_REQUEST['message']) && ! empty($_REQUEST['message'])) { 
 			$message = urldecode($_REQUEST['message']);
 			$_SERVER['REQUEST_URI'] = remove_query_arg(array('message'), $_SERVER['REQUEST_URI']);
-			$style = strpos($message,'success') !== FALSE ? ' success' : (strpos($message,'fail') !== FALSE ? ' error' : '');
-			$message = sprintf('<div class="updated %2$$">%1$s</div>',$message,$style); 
+			$is_error = (strpos($message,'error') !== FALSE) || (strpos($message,'fail') !== FALSE);
+			$this->add_admin_notice('', $message, $is_error);
+         return $message;
 		}
-		return $message;
+		return false;
     } 
 
 	function screen_layout_columns($columns, $screen) {
@@ -231,8 +240,8 @@ abstract class Genesis_Club_Admin {
 
 	function admin_heading($title = '', $icon_class = '') {
 		if (empty($title)) $title = sprintf('%1$s %2$s', ucwords(str_replace('-',' ',$this->slug)), $this->get_version());
-		$icon = empty($icon_class) ? '' : sprintf('<i class="%1$s"></i>',
-			'dashicons-'==substr($icon_class,0,10) ? ('dashicons '.$icon_class) : $icon_class) ;
+		if (empty($icon_class)) $icon_class = GENESIS_CLUB_ICON;
+		$icon = sprintf('<i class="%1$s"></i>', 'dashicons-'==substr($icon_class,0,10) ? ('dashicons '.$icon_class) : $icon_class) ;
     	return sprintf('<h2 class="title">%2$s%1$s</h2>', $title, $icon);				
 	}
 
@@ -271,6 +280,7 @@ abstract class Genesis_Club_Admin {
       $this->print_admin_form_start ($title, $referer, $keys, $enctype, false, $preamble);
 		do_meta_boxes($this->get_screen_id(), 'normal', null); 
 		if ($keys) print $this->submit_button();	
+		do_meta_boxes($this->get_screen_id(), 'advanced', null); 		
 		$this->print_admin_form_end();
 	}
 	

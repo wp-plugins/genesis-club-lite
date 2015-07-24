@@ -1,11 +1,12 @@
 <?php
 class Genesis_Club_Post_Admin extends Genesis_Club_Admin
 {
+
 	private $widget_tips = array(
 			'widget_html_title' => array('heading' => 'Widget Title', 'tip' => 'The title is placed above the widget content and maybe contain some HTML (links, spans, breaks, etc)'),
 			'widget_text' => array('heading' => 'Widget Content', 'tip' => 'This information only will be displayed alongside this post, in a widget area if the area contains a Genesis Club Post Specific Widget'),
 			'widget_autop' => array('heading' => 'Auto-paragraph', 'tip' => 'Click to have a paragraph break added automatically for each line break.'),
-	  );
+	);
     
 	function init() {
 		add_action('do_meta_boxes', array( $this, 'do_meta_boxes'), 20, 2 );
@@ -13,13 +14,11 @@ class Genesis_Club_Post_Admin extends Genesis_Club_Admin
 		add_action('post_submitbox_misc_actions', array( $this, 'republish_link') );
 	}
 
-
  	function admin_menu() {}		
 
 	function page_content() {}   
 
 	function load_page() {}
-
 	
 	function do_meta_boxes( $post_type, $context) {
 		$post_types=get_post_types();
@@ -29,14 +28,14 @@ class Genesis_Club_Post_Admin extends Genesis_Club_Admin
 	}
 
 	function save_postmeta($post_id) {
-		$keys = array(
-		 'widget' => Genesis_Club_Post_Specific_Widget::WIDGET_CONTENT_META_KEY);
+		$keys = array(  'widget' => Genesis_Club_Post_Specific_Widget::WIDGET_CONTENT_META_KEY);
+		$defaults =  array('widget' => Genesis_Club_Post_Specific_Widget::get_widget_defaults());		
 		foreach ($keys as $key => $metakey)  
 			if (array_key_exists('genesis_club_'.$key, $_POST)) {
 			   if (is_array($_POST[$metakey])) {
 			      foreach ($_POST[$metakey] as $k => $v) $_POST[$metakey][$k] = stripslashes(trim($v));
 				   $val = array_key_exists($metakey, $_POST) ? 
-                  @serialize(Genesis_Club_Options::validate_options(Genesis_Club_Post_Specific_Widget::get_widget_defaults(), $_POST[$metakey] )) : false;
+                  @serialize(Genesis_Club_Options::validate_options($defaults[$key], $_POST[$metakey] )) : false;
             } else {
                $val = stripslashes(trim($_POST[$metakey]));  
             }
@@ -48,7 +47,6 @@ class Genesis_Club_Post_Admin extends Genesis_Club_Admin
 		return $content + array ('Widget Content' => $this->widget_panel($post)) ;
 	}	 
  
-    
 	function widget_panel($post) {
 		$form_data = $this->get_meta_form_data(Genesis_Club_Post_Specific_Widget::WIDGET_CONTENT_META_KEY, 'widget_', Genesis_Club_Post_Specific_Widget::get_widget_defaults());
 		$this->set_tooltips($this->widget_tips);
