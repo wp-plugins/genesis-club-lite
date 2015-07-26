@@ -7,7 +7,9 @@
 			header_class : 'accordion-default-colors',
 			content_class : 'accordion-default-colors',
 			container_class : 'accordion-default-colors',
-			header : 'h3'
+			header : 'h3',
+			scroll_top : false,
+			open_first : false
 	    	}, options);
 	    
     	return this.each(function() { 
@@ -32,7 +34,9 @@
             			ele.find('.accordion-header.accordion-selected').removeClass('accordion-selected').next().slideUp( 'slow','linear');
 							header.addClass('accordion-selected').next().slideDown('slow');
 				}
-			});	      
+			});	
+			if (settings.open_first)
+				$(this).find('.accordion-header').first().click();      
 		});
     }       
   };

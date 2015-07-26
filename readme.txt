@@ -2,9 +2,9 @@
 Contributors: powerblogservice
 Donate link: http://www.diywebmastery.com/donate/
 Tags: genesis, signature 
-Requires at least: 3.0
+Requires at least: 3.1.0
 Tested up to: 4.2.3
-Stable tag: 1.9
+Stable tag: 1.10
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -120,6 +120,9 @@ SEO MODULE:
 
 == Changelog ==
 
+= 1.10 =
+* Added option to FAQ Accordion to open first entry automatically
+
 = 1.9 =
 * Add support for 301 Redirects imported from Yoast
 * Add migration feature to move SEO settings from Genesis to Yoast or from Yoast to Genesis
@@ -147,7 +150,7 @@ For full plugin history please see http://www.diywebmastery.com/plugins/genesis-
 
 == Upgrade Notice ==
 
-= 1.9 = Optional - Add support for 301 Redirects imported from Yoast
+= 1.10 = Optional - Added option to FAQ Accordion to open frst entry automatically
 
 
 == Links ==
