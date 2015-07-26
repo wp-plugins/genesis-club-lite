@@ -7,6 +7,7 @@ class Genesis_Club_Accordion_Admin extends Genesis_Club_Admin {
 		'accordion_container_class' => array('heading' => 'Override Container Style', 'tip' => 'Enter a custom class if you want to override the accordion container styling'),
 		'accordion_nopaging' => array('heading' => 'No Paging', 'tip' => 'Click to checkbox to disable paging and hence show all the FAQ posts in the accordion'),
 		'accordion_scroll_top' => array('heading' => 'Scroll To Top', 'tip' => 'Click to checkbox to make the accordion scroll to the top of the page - this is useful when you have long answers to short questions.'),
+		'accordion_open_first' => array('heading' => 'Open First Entry', 'tip' => 'Open the first entry in the accordion automatically on loading.'),
 		);
 	
 	function init() {		
@@ -138,7 +139,7 @@ EXAMPLE;
 	}	
 
 	private function accordion_section($accordion, $is_archive){
-		$defaults = array('enabled' => '', 'header_class' => '', 'content_class' => '', 'container_class' => '', 'scroll_top' => false, 'nopaging' => false);
+		$defaults = array('enabled' => '', 'header_class' => '', 'content_class' => '', 'container_class' => '', 'scroll_top' => false, 'open_first' => false, 'nopaging' => false);
 		$accordion = is_array($accordion) ?  shortcode_atts($defaults,$accordion) : $defaults;
 		if ($is_archive) {  //use table on archive pages
 			$start_wrap = '<table class="form-table">';
@@ -154,10 +155,12 @@ EXAMPLE;
 		$s .= $this->accordion_form_field('header_class', $accordion['header_class'], 'text', array('size' => 20), $wrap);
 		$s .= $this->accordion_form_field('content_class', $accordion['content_class'], 'text', array('size' => 20), $wrap);
 		$s .= $this->accordion_form_field('container_class', $accordion['container_class'], 'text', array('size' => 20), $wrap);
-		$s .= $this->accordion_form_field('scroll_top', $accordion['scroll_top'], 'checkbox', array(), $wrap);
 		if ($is_archive) {           
 			$s.= $this->accordion_form_field('nopaging', $accordion['nopaging'], 'checkbox', array(), $wrap);
 		}
+		$s .= $this->accordion_form_field('open_first', $accordion['open_first'], 'checkbox', array(), $wrap);
+		$s .= $this->accordion_form_field('scroll_top', $accordion['scroll_top'], 'checkbox', array(), $wrap);
+
 
 		return $start_wrap . $s . $end_wrap;
 	}
