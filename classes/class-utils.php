@@ -186,5 +186,21 @@ if (! class_exists('Genesis_Club_Utils')) {
 		}
 		return sprintf($format, $label, $input);
 	}
+	
+    static function register_icons_font() {
+        global $wp_styles;
+        wp_enqueue_style( 'font-awesome', '//netdna.bootstrapcdn.com/font-awesome/4.3.0/css/font-awesome.min.css',array(),'4.3.0','all' );
+        wp_enqueue_style('font-awesome-ie7', plugins_url('styles/font-awesome-ie7.min.css', dirname(__FILE__)), array(), GENESIS_CLUB_VERSION, 'all');
+        $wp_styles->add_data('font-awesome-ie7', 'conditional', 'lte IE 7');
+    }
+	
+	static function register_tooltip_styles() {
+		wp_register_style('diy-tooltip', plugins_url('styles/tooltip.css',dirname(__FILE__)), array(), null); 
+	}
+
+	static function enqueue_tooltip_styles() {
+         wp_enqueue_style('diy-tooltip');
+         wp_enqueue_style('dashicons');
   }
+ }
 }

@@ -1,9 +1,10 @@
 <?php
 class Genesis_Club_Fonts_Admin extends Genesis_Club_Admin {
 	private $tips = array(
+		'font_awesome' =>  array('heading' => 'Font Awesome', 'tip' => 'Click the checkbox to install Font Awesome'),
 		'fonts' => array('heading' => 'Fonts', 'tip' => 'Choose the Google Fonts you want to use on this site'),
-      'subsets' => array('heading' => 'Character Sets', 'tip' => 'Choose any additional characters sets'),
-      'effects' => array('heading' => 'Effects', 'tip' => 'Choose any font effects you would like to apply'),
+        'subsets' => array('heading' => 'Character Sets', 'tip' => 'Choose any additional characters sets'),
+        'effects' => array('heading' => 'Effects', 'tip' => 'Choose any font effects you would like to apply'),
 	);
 
 	private $font_tips = array(
@@ -46,8 +47,9 @@ class Genesis_Club_Fonts_Admin extends Genesis_Club_Admin {
 			$this->set_list(new Genesis_Club_Fonts_Table($this->get_url()));
  			$callback_params = array ( 'options' => Genesis_Club_Fonts::get_options());
 			$this->add_meta_box('intro', 'Intro', 'intro_panel', $callback_params);
-			$this->add_meta_box('families', 'Installed Fonts', 'families_panel', $callback_params);
-			$this->add_meta_box('fonts', 'Available Fonts', 'fonts_panel', $callback_params);;
+			$this->add_meta_box('families', 'Installed Google Fonts', 'families_panel', $callback_params);
+			$this->add_meta_box('fonts', 'Available Google Fonts', 'fonts_panel', $callback_params);;
+			$this->add_meta_box('awesome', 'Install Font Awesome', 'awesome_panel', $callback_params, 'advanced');
          $this->add_meta_box('news', 'Genesis Club News', 'news_panel', null, 'advanced');			
 		   $this->set_tooltips($this->tips);
 		}		
@@ -85,6 +87,7 @@ class Genesis_Club_Fonts_Admin extends Genesis_Club_Admin {
 		} else {	
          switch ($action) {
             case 'add': $add_or_edit = true; break;
+            case 'awesome' : $this->save_awesome(); break;
             case 'subsets' : $this->save_subsets(); break;
             case 'effects' : $this->save_effects(); break;
             case 'refresh' : $this->refresh_fonts(); break;
@@ -141,7 +144,8 @@ class Genesis_Club_Fonts_Admin extends Genesis_Club_Admin {
 
  	function intro_panel($post,$metabox){	 	
 		_e('<p>This feature makes it easy to install Google Fonts on your site.</p>');
-		_e ('<p>Firstly, go to <a href="http://www.google.com/fonts/" rel="external" target="_blank">Google Fonts</a> to see what fonts you like. Then come back here to install them here.</p><p>Click the "Add Font" button at the top of the page to get started.</p>', GENESIS_CLUB_DOMAIN);
+		_e('<p>Firstly, go to <a href="http://www.google.com/fonts/" rel="external" target="_blank">Google Fonts</a> to see what fonts you like. Then come back here to install them here.</p><p>Click the "Add Font" button at the top of the page to get started.</p>', GENESIS_CLUB_DOMAIN);
+        _e('<p>You can also install Font Awesome with a single click.</p>');
 	}
 
 	function fonts_panel($post,$metabox) {
@@ -206,6 +210,16 @@ class Genesis_Club_Fonts_Admin extends Genesis_Club_Admin {
          __('<p><a href="https://developers.google.com/fonts/docs/getting_started#Effects" rel="external" target="_blank">Google Font effects</a> are a Google beta feature.</p><p>To use a font effect on a specific element, add a class with the prefix <i>font-effect-</i></p><p>So for example, apply <code>&lt;span class="font-effect-fire-animation">Fire!&lt;/span></code> to use the fire animation font effect.</p>'));
 	}
 
+	function awesome_panel($options){	
+		$awesome = Genesis_Club_Fonts::get_option('font_awesome');
+		printf('<form id="%1$s" method="post" action="%2$s">%3$s%4$s%5$s</form>', 
+         $this->get_code('awesome'), 
+         $_SERVER['REQUEST_URI'] .'&action=awesome&noheader ',
+         wp_nonce_field('awesome', 'nonce_awesome', true, false), 
+         $this->fetch_form_field('font_awesome', $awesome, 'checkbox'),
+         $this->submit_button('Save Font Awesome Setting','update_awesome'));	
+   }
+
 	function subsets_panel($options){	
 		$all_subsets = Genesis_Club_Fonts::get_subsets();
 		return sprintf('<form id="%1$s" method="post" action="%2$s">%3$s%4$s%5$s</form>', 
@@ -221,6 +235,19 @@ class Genesis_Club_Fonts_Admin extends Genesis_Club_Admin {
       $this->get_list()->prepare_items();
       $this->get_list()->display();
       print('<div id="ajax-response"></div></form>');
+	}
+
+
+	function save_awesome() {
+		check_admin_referer('awesome', 'nonce_awesome');	
+      $options = Genesis_Club_Fonts::get_options(false);
+      $options['font_awesome'] = isset($_POST['font_awesome']);
+      $message = __(Genesis_Club_Fonts::save_options($options) ? 'Font Awesome updated successfully' : 'Font Awesome was not updated', GENESIS_CLUB_DOMAIN);		
+		$redir = wp_get_referer(); //get the referer
+		$redir = remove_query_arg( array( 'action','noheader','font_id'), $redir) ; //remove the action
+		$redir = add_query_arg( array('message' => urlencode($message), 'lastaction' => 'awesome'), $redir ); //update the URL    	
+    	wp_redirect( $redir ); 
+    	exit;   
 	}
 
 	function save_subsets() {

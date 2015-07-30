@@ -161,7 +161,6 @@ EXAMPLE;
 		$s .= $this->accordion_form_field('open_first', $accordion['open_first'], 'checkbox', array(), $wrap);
 		$s .= $this->accordion_form_field('scroll_top', $accordion['scroll_top'], 'checkbox', array(), $wrap);
 
-
 		return $start_wrap . $s . $end_wrap;
 	}
 
