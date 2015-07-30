@@ -94,7 +94,11 @@ abstract class Genesis_Club_Admin {
 	}
 	
 	function register_tooltip_styles() {
-		wp_register_style('diy-tooltip', plugins_url('styles/tooltip.css',dirname(__FILE__)), array(), $this->get_version());
+		Genesis_Club_Utils::register_tooltip_styles();	
+	}	
+
+	function enqueue_tooltip_styles() {
+		Genesis_Club_Utils::enqueue_tooltip_styles();
 	}	
 
 	function register_admin_styles() {
@@ -104,11 +108,6 @@ abstract class Genesis_Club_Admin {
 	function enqueue_admin_styles() {
 		wp_enqueue_style($this->get_code('admin'));
  	}
-
-	function enqueue_tooltip_styles() {
-		wp_enqueue_style('diy-tooltip');
-		wp_enqueue_style('dashicons');
-	}	
 
 	function enqueue_color_picker_styles() {
         wp_enqueue_style('wp-color-picker');

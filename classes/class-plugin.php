@@ -75,6 +75,7 @@ if (!class_exists('Genesis_Club_Plugin')) {
 			foreach ($modules as $module) 
 				if (self::is_module_enabled($module))
 					self::init_module($module);
+         add_action('wp', array(__CLASS__,'maybe_enqueue_tooltip_styles' ));
 		}
 	}
 
@@ -203,5 +204,16 @@ if (!class_exists('Genesis_Club_Plugin')) {
         		 get_admin_url(null, 'plugins.php?s=genesis%20club')), GENESIS_CLUB_DOMAIN ));			 
 		}
 	}
+
+	static function maybe_enqueue_tooltip_styles() {
+	   /* Add Genesis Club Widgets Tooltip CSS for Beaver Builder Editor */
+      if ( class_exists('FLBuilderModel')
+      && is_callable(array('FLBuilderModel', 'is_builder_active')) 
+      && FLBuilderModel::is_builder_active() ) {
+         add_action('wp_enqueue_scripts', array('Genesis_Club_Utils', 'register_tooltip_styles'));
+         add_action('wp_enqueue_scripts', array('Genesis_Club_Utils', 'enqueue_tooltip_styles'));
+      }
+	}		
+	
  }
 }

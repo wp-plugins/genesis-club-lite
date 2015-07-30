@@ -1,4 +1,5 @@
 <?php
+require_once(dirname(__FILE__).'/class-tooltip.php');
 
 abstract class Genesis_Club_Widget extends WP_Widget {
 

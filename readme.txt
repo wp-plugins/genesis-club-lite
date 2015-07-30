@@ -4,7 +4,7 @@ Donate link: http://www.diywebmastery.com/donate/
 Tags: genesis, signature 
 Requires at least: 3.1.0
 Tested up to: 4.2.3
-Stable tag: 1.10
+Stable tag: 1.11
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -65,15 +65,16 @@ ACCORDION MODULE:
 * Can be used for FAQ category or FAQ sub-category
 * Can have the category FAQ display all the posts (questions) in the category  (not limited  by WordPress posts_per_page settings)
 
+FONTS MODULE:
+
+* Easy to add Google Fonts 
+* Easy to use Google Font Effects
+* Single click to install Font Awesome 4.3.0 from Bootstrap CDN
+
 GOOGLE CALENDAR MODULE:
 
 * Embed a Google Calendar on your page where the users can adjust the timezone so they can see your meetings and webinars scheduled in their own time zone
 * The [genesis_club_calendar] shortcode allows you to use multiple calendars, with different sizes and color settings
-
-GOOGLE FONTS MODULE:
-
-* Easy to add Google Fonts 
-* Eays to use Google Font Effects
 
 ICONS MODULE:
 
@@ -120,6 +121,9 @@ SEO MODULE:
 
 == Changelog ==
 
+= 1.11 =
+* Added option to load Font Awesome
+
 = 1.10 =
 * Added option to FAQ Accordion to open first entry automatically
 
@@ -129,28 +133,12 @@ SEO MODULE:
 * Make the feature to scroll the FAQ accordion to the top of the page optional
 * Make all admin notices dismissible
 
-= 1.8.4 =
-* Add media queries to improve handling of themes that change menu padding for different device sizes
-
-= 1.8.3 =
-* Add options for text color, background color, border color and margins for the search box
-
-= 1.8.2 =
-* Add nudge feature for search box to help with its vertical positioning 
-
-= 1.8.1 =
-* Add fix to apply any breadcrumb label changes to the the Blog Posts page (when using a static home page)
-
-= 1.8 =
-* Add option to place a search box at the end of the primary, secondary or header right navigation areas
-
-
 For full plugin history please see http://www.diywebmastery.com/plugins/genesis-club-lite/changelog
 
 
 == Upgrade Notice ==
 
-= 1.10 = Optional - Added option to FAQ Accordion to open frst entry automatically
+= 1.11 = Optional - Added option to load Font Awesome
 
 
 == Links ==

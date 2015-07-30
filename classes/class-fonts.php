@@ -14,7 +14,8 @@ class Genesis_Club_Fonts {
 		'families' => array(),
       'subsets' => array('latin'),
       'effects' => array(),
-      'fv' => array()
+      'fv' => array(),
+      'font_awesome' => false
 	);
 
 	static function init() {
@@ -88,8 +89,7 @@ class Genesis_Club_Fonts {
 			   unset($families[$font_id]);
             	$deleted++;            
          	}
-		}
-
+      }
 		if($deleted)
 		    self::save_families($families);
 
@@ -123,6 +123,9 @@ class Genesis_Club_Fonts {
          $url = add_query_arg($args, sprintf('http%1$s://fonts.googleapis.com/css', is_ssl() ? 's' : '' ));
 
          wp_enqueue_style('genesis-club-fonts', $url, array(), null);
+      }
+	  if (self::get_option('font_awesome')) {
+         Genesis_Club_Utils::register_icons_font();
       }
 	}
 
