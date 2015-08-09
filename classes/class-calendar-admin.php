@@ -10,7 +10,7 @@ class Genesis_Club_Calendar_Admin extends Genesis_Club_Admin {
 		'color' => array('heading' => 'Text Color', 'tip' => 'Choose the color of the text on the calendar.'),
 		'bgcolor' => array('heading' => 'Title Background Color', 'tip' => 'Choose the color of the background of the title of calendar.'),
 		'show_title' => array('heading' => 'Show Title', 'tip' => 'Show the calendar title above the calendar'),
-		'show_nav' =>  array('heading' => 'Show Navigation Buttons', 'tip' => 'Show Next and Prev arrows in the header above the calendar'),
+		'show_nav' =>  array('heading' => 'Show Nav Buttons', 'tip' => 'Show Next and Prev arrows in the header above the calendar'),
 		'show_print' => array('heading' => 'Show Print Button', 'tip' => 'Show a print icon in the header above the calendar'),
 		'show_tabs' => array('heading' => 'Show Tabs', 'tip' => 'Show Tabs that allows to have different views of the calendar: Weekly, Monthly or Agenda'),
 		'show_calendars' => array('heading' => 'Show Calendars', 'tip' => 'Add a drowdown listbox at the end of the header that lists all the calendars that source events shown of this calendar'),

@@ -258,12 +258,12 @@ class Genesis_Club_Display {
 		if (self::get_option('no_page_postmeta') && (is_page() || is_front_page())) {  //remove postinfo and postmeta on pages
 			self::replace_postinfo(false);
 			self::replace_postmeta(false);
-		} elseif (self::get_option('postinfo_shortcodes') && (is_single() || ( is_page() && !self::$is_landing)))  {//replace postinfo 
-			self::replace_postinfo(true);
+		} elseif (($postinfo = self::get_option('postinfo_shortcodes')) && (is_single() || ( is_page() && !self::$is_landing)))  {//replace postinfo 
+			self::replace_postinfo($postinfo!='[]');
 		}
 		 	
-		if (self::get_option('postmeta_shortcodes') && is_single()) { //replace postmeta on posts 
-			self::replace_postmeta(true);
+		if (($postmeta = self::get_option('postmeta_shortcodes')) && is_single()) { //replace postmeta on posts 
+			self::replace_postmeta($postmeta!='[]');
 		}
 
 		if (is_single() && is_active_widget( false, false, 'genesis-club-post-image-gallery', false )) {
@@ -286,23 +286,23 @@ class Genesis_Club_Display {
 	}
 
 	private static function replace_postinfo($replace = false) {
-		 if (self::$is_html5) {
+		if ($replace) 
+			add_filter ('genesis_post_info', array(__CLASS__,'post_info')); 
+		else 
+			if (self::$is_html5) 
 			remove_action( 'genesis_entry_header', 'genesis_post_info', 12 );
-			if ($replace) add_action ('genesis_entry_header', array(__CLASS__,'post_info'),12); 
-		} else { 
+         	else 
 			remove_action( 'genesis_before_post_content', 'genesis_post_info' );		 			
-			if ($replace) add_action( 'genesis_before_post_content', array(__CLASS__,'post_info') );	
-		} 			
 	}
 
 	private static function replace_postmeta($replace = false) {
-		 if (self::$is_html5) {
-			remove_action( 'genesis_entry_footer', 'genesis_post_meta');
-			if ($replace) add_action ('genesis_entry_footer', array(__CLASS__,'post_meta')); 
-		} else { 
-			remove_action( 'genesis_after_post_content', 'genesis_post_meta' );		 			
-			if ($replace) add_action( 'genesis_after_post_content', array(__CLASS__,'post_meta') );	
-		} 			
+		if ($replace) 
+ 			add_filter ('genesis_post_meta', array(__CLASS__,'post_meta')); 
+		else 
+			if (self::$is_html5) 
+            	remove_action( 'genesis_entry_footer', 'genesis_post_meta');
+ 			else 
+				remove_action( 'genesis_after_post_content', 'genesis_post_meta' );		 			 			
 	}
 
 	public static function get_defaults() {
@@ -436,21 +436,11 @@ LIKEBOXBGCOLOR;
  	}
  	
  	public static function post_info() {
- 		$post_info = do_shortcode(str_replace('[]','',self::get_option('postinfo_shortcodes')));
-		if ($post_info) 
- 			genesis_markup( array(
-				'html5' => sprintf( '<p class="entry-meta">%s</p>', $post_info ),
-				'xhtml' => sprintf( '<div class="post-info">%s</div>', $post_info ),
-			) );
+ 		return do_shortcode(str_replace('[]','',self::get_option('postinfo_shortcodes')));
  	}
 
  	public static function post_meta() {
- 		$post_meta = do_shortcode(str_replace('[]','',self::get_option('postmeta_shortcodes')));
-		if ($post_meta) 
- 			genesis_markup( array(
-				'html5' => sprintf( '<p class="entry-meta">%s</p>', $post_meta ),
-				'xhtml' => sprintf( '<div class="post-meta">%s</div>', $post_meta ),
-			) );
+ 		return do_shortcode(str_replace('[]','',self::get_option('postmeta_shortcodes')));
  	}
 
 	public static function filter_breadcrumb_args( $args ) {

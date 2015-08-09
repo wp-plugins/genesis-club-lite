@@ -3,8 +3,8 @@ Contributors: powerblogservice
 Donate link: http://www.diywebmastery.com/donate/
 Tags: genesis, signature 
 Requires at least: 3.1.0
-Tested up to: 4.2.3
-Stable tag: 1.11
+Tested up to: 4.3
+Stable tag: 1.12
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -121,6 +121,11 @@ SEO MODULE:
 
 == Changelog ==
 
+= 1.12 =
+* Tested with WordPress 4.3
+* Minor tweaks to improve behavior of admin of smaller devices
+* Improved postinfo and postmeta overrides to use filters rather than actions
+
 = 1.11 =
 * Added option to load Font Awesome
 
@@ -138,7 +143,7 @@ For full plugin history please see http://www.diywebmastery.com/plugins/genesis-
 
 == Upgrade Notice ==
 
-= 1.11 = Optional - Added option to load Font Awesome
+= 1.12 = Optional - Updated for WordPress 4.3
 
 
 == Links ==

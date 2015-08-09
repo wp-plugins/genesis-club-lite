@@ -42,9 +42,9 @@ class Genesis_Club_Display_Admin extends Genesis_Club_Admin {
 		'after_archive' => array('heading' => 'After Archive', 'tip' => 'Click to add a widget area after all the entries on an archive page. This can be used to add a call to action or maybe an ad.'),
 		'after_content' => array('heading' => 'After Content', 'tip' => 'Click to add a widget area immediately after the content just before the footer. The widget area will be under the content area and any sidebars. This area will typically be used for ads or calls to action'),
 		'facebook_app_id' => array('heading' => 'Facebook App ID', 'tip' => 'Enter your Facebook App ID (15 characters) as found at https://developers.facebook.com/apps'),
-		'facebook_likebox_bgcolor' => array('heading' => 'LikeBox Background Color', 'tip' => 'Choose the background color of the Facebook LikeBox. The Facebook Likebox widget only gives you light and dark options; this allows you to choose a background color that better suits your WordPress theme'),
-		'facebook_featured_images' => array('heading' => 'Facebook Featured Images', 'tip' => 'Click to set up featured image sizes for use on Facebook. Two image sizes are created: one is 470 by 246px for use on Facebook, and the other is 200 by 105px for use alongside post excerpts on your archive pages.'),
-		'facebook_sized_images' => array('heading' => 'Facebook Ready All Images', 'tip' => 'Click to set up the standard WordPress large, medium and thumbnail sizes to be appropriately sized for use on Facebook. Only do this when you are setting up the site and have decided that all your uploaded images will have a width to height ratio of 1.91:1.'),
+		'facebook_likebox_bgcolor' => array('heading' => 'LikeBox Bg Color', 'tip' => 'Choose the background color of the Facebook LikeBox. The Facebook Likebox widget only gives you light and dark options; this allows you to choose a background color that better suits your WordPress theme'),
+		'facebook_featured_images' => array('heading' => 'Featured Image Sizes', 'tip' => 'Click to set up featured image sizes for use on Facebook. Two image sizes are created: one is 470 by 246px for use on Facebook, and the other is 200 by 105px for use alongside post excerpts on your archive pages.'),
+		'facebook_sized_images' => array('heading' => 'Facebook Sizing', 'tip' => 'Click to set up the standard WordPress large, medium and thumbnail sizes to be appropriately sized for use on Facebook. Only do this when you are setting up the site and have decided that all your uploaded images will have a width to height ratio of 1.91:1.'),
 		'postinfo_shortcodes' => array('heading' => 'Post Info Short Codes', 'tip' => 'Content of the byline that is placed typically below or above the post title. Leave blank to use the child theme defaults or enter here to override. <br/>For example: <br/><code>[post_date format=\'M j, Y\'] by [post_author_posts_link] [post_comments] [post_edit]</code><br/>or to hide Post Info entirely use <code>[]</code>'),
 		'postmeta_shortcodes' => array('heading' => 'Post Meta Short Codes', 'tip' => 'Content of the line that is placed typically after the post content. <br/> Leave blank to use the child theme defaults or enter here to override. <br/> For example: <br/><code>[post_categories before=\'More Articles About \'] [post_tags]</code><br/>or to hide Post Meta entirely use <code>[]</code>'),
 		'no_page_postmeta' => array('heading' => 'Remove On Pages', 'tip' => 'Strip any post info from pages.'),
@@ -53,7 +53,7 @@ class Genesis_Club_Display_Admin extends Genesis_Club_Admin {
 		'alt_404_status' => array('heading' => 'HTTP Status', 'tip' => 'Normally you find want to return 404 however you can choose to return a 410 if say, you have just deleted a whole bunch of pages from your site, or if your site is narrowly based you might want to return a 301 providing the chosen alternative 404 page has a canonical URL.'),
 		'css_hacks' => array('heading' => 'Add CSS Classes', 'tip' => 'Add useful classes such as clearfix (for clearing floats) and dropcaps (for capitalizing the first letter of the first paragraph.'),
 		'custom_login_enabled' => array('heading' => 'Enable Custom Login', 'tip' => 'Enable Login Page Customizations.'),
-		'custom_login_background' => array('heading' => 'Login Page Background URL', 'tip' => 'URL of image to use as the login page background.'),
+		'custom_login_background' => array('heading' => 'Page Background URL', 'tip' => 'URL of image to use as the login page background.'),
 		'custom_login_logo' => array('heading' => 'Logo Background URL', 'tip' => 'URL of image to use as the logo recommended size is 200px square.'),
 		'custom_login_user_label' => array('heading' => 'User Login Label', 'tip' => 'Label for the user/member login / email.'),
 		'custom_login_button_color' => array('heading' => 'Login Button Color', 'tip' => 'Choose color of the login button.'),
@@ -82,11 +82,11 @@ class Genesis_Club_Display_Admin extends Genesis_Club_Admin {
 	}  
 	
 	function load_page() {
- 		$message =  isset($_POST['options_update']) ? $this->save_display() : '';
-		$callback_params = array ('options' => Genesis_Club_Display::get_options(false), 'message' => $message);
-		$this->add_meta_box('intro', 'Intro',  'intro_panel', $callback_params);
+ 		if (isset($_POST['options_update']) ) $this->save_display();
+		$callback_params = array ('options' => Genesis_Club_Display::get_options(false));
+		$this->add_meta_box('intro', 'Intro',  'intro_panel');
 		$this->add_meta_box('display', 'Display Settings', 'display_panel', $callback_params);
-		$this->add_meta_box('news', 'Genesis Club News', 'news_panel', $callback_params, 'advanced');
+		$this->add_meta_box('news', 'Genesis Club News', 'news_panel', null, 'advanced');
 		$this->set_tooltips($this->tips);
 		add_action ('admin_enqueue_scripts',array($this, 'enqueue_admin_styles'));
 		add_action ('admin_enqueue_scripts',array($this, 'enqueue_metabox_scripts'));
@@ -204,10 +204,8 @@ class Genesis_Club_Display_Admin extends Genesis_Club_Admin {
 		return $s;
     }
  
- 	function intro_panel($post,$metabox){	
-		$message = $metabox['args']['message'];	 	
+ 	function intro_panel(){		
 		print('<p>The following sections allow you to tweak some Genesis settings you want to change on most sites without having to delve into PHP.</p>');
-		print $message;
 	}
 
 	function display_panel($post, $metabox) {

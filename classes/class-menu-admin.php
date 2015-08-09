@@ -4,9 +4,9 @@ class Genesis_Club_Menu_Admin extends Genesis_Club_Admin {
 		'threshold' => array('heading' => 'Device Threshold', 'tip' => 'Enter the size in pixels at which the full menu is collapsed into the "hamburger" icon or leave blank to disable this feature.'),
 		'icon_size' => array('heading' => 'Hamburger Icon Size', 'tip' => 'Size of the menu icon measured in rem, or leave blank to use the default which is 2.4 (1.5 times the size of a small icon).'),
 		'icon_color' => array('heading' => 'Hamburger Icon Color', 'tip' => 'Color of the hamburger menu icon (e.g #808080), or leave blank if you want the icon to adopt the same color as the links in the menu.'),
-		'primary' => array('heading' => 'Primary Responsive Menu', 'tip' => 'Choose where you want the primary menu to be displayed when the hamburger is clicked.'),
-		'secondary' => array('heading' => 'Secondary Responsive Menu', 'tip' => 'Choose where you want the secondary menu to be displayed when the hamburger is clicked.'),
-		'header' => array('heading' => 'Header Responsive Menu', 'tip' => 'Choose where you want the header right menu to be displayed when the hamburger is clicked.'),
+		'primary' => array('heading' => 'Primary Menu', 'tip' => 'Choose where you want the primary menu to be displayed when the hamburger is clicked.'),
+		'secondary' => array('heading' => 'Secondary Menu', 'tip' => 'Choose where you want the secondary menu to be displayed when the hamburger is clicked.'),
+		'header' => array('heading' => 'Header Right Menu', 'tip' => 'Choose where you want the header right menu to be displayed when the hamburger is clicked.'),
 		'search_menu' => array('heading' => 'Search Box Location', 'tip' => 'Here you can add a search box to the end of one of the menus'),
 		'search_text' => array('heading' => 'Search Box Text', 'tip' => 'Enter the placeholder text you want to appear in the search box'),
 		'search_text_color' => array('heading' => 'Text Color', 'tip' => 'Choose the color of the text in the search box'),
@@ -105,7 +105,7 @@ INTRO_PANEL;
 	function menu_panel($post,$metabox) {
       $options = $metabox['args']['options'];
       $this->display_metabox( array(
-         'Hamburger' => $this->hamburger_panel($options),
+         'Reponsive Hamburger' => $this->hamburger_panel($options),
          'Search' => $this->search_panel($options),
   //     'Fixed Header' => $this->fixed_panel($options)
 		));
