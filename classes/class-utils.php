@@ -201,6 +201,6 @@ if (! class_exists('Genesis_Club_Utils')) {
 	static function enqueue_tooltip_styles() {
          wp_enqueue_style('diy-tooltip');
          wp_enqueue_style('dashicons');
-  }
+    }
  }
 }

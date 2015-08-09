@@ -38,9 +38,8 @@ class Genesis_Club_Bar_Admin extends Genesis_Club_Admin {
 	} 
 
 	function load_page() {
- 		$message =  isset($_POST['options_update']) ? $this->save_bar() : '';	
-		$options = Genesis_Club_Bar::get_options();
-		$callback_params = array ('options' => $options, 'message' => $message);
+ 		if (isset($_POST['options_update'])) $this->save_bar();	
+		$callback_params = array ('options' =>  Genesis_Club_Bar::get_options());
 		$this->add_meta_box('bar', 'Top Bar',  'intro_panel', $callback_params);
 		$this->add_meta_box('defaults', 'Defaults',  'defaults_panel', $callback_params);
 		$this->add_meta_box('news', 'Genesis Club News', 'news_panel',$callback_params, 'advanced');
@@ -123,9 +122,7 @@ BAR_VISIBILITY;
 
 	function intro_panel($post,$metabox){	
 		$options = $metabox['args']['options'];
-		$message = $metabox['args']['message'];			 	
 		print <<< INTRO
-{$message}	
 <p>The top bar is a responsive bar that allows you add a message at the top of each page: you can display different messages on different devices. For example, you
 can specify a click to call button on mobile devices.<p>
 <p>Below you can set the default bar settings. Use this feature if you want to have the same message content in the top bar on most of the pages on the site.</p>
