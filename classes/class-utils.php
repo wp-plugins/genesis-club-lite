@@ -10,8 +10,22 @@ if (! class_exists('Genesis_Club_Utils')) {
 		return self::$is_html5;
 	}
 
-	static function is_genesis2() {
-		return function_exists('genesis_html5') ; 
+   static function get_current_term() {
+		if (is_tax() || is_category() || is_tag()) {
+			if (is_category())
+				$term = get_term_by('slug',get_query_var('category_name'),'category') ;
+			elseif (is_tag())
+				$term = get_term_by('slug',get_query_var('tag'),'post_tag') ;
+			else {
+            if ($obj = get_queried_object())  
+				  $term = get_term_by('slug', $obj->slug, $obj->taxonomy) ;
+				else
+				  $term = false;
+         }
+		} else {
+			$term = false;         
+		} 
+      return $term; 
 	}
 
 	static function get_post_id() {
@@ -132,7 +146,7 @@ if (! class_exists('Genesis_Club_Utils')) {
 					isset($readonly) ? (' readonly="'.$readonly.'"') : '', 
 					isset($rows) ? (' rows="'.$rows.'"') : '', 
 					isset($cols) ? (' cols="'.$cols.'"') : '',
-					isset($class) ? (' class="'.$class.'"') : '', $value);
+					isset($class) ? (' class="'.$class.'"') : '', stripslashes($value));
 				break;
 			case 'checkbox':
 				if (is_array($options) && (count($options) > 0)) {
@@ -182,17 +196,10 @@ if (! class_exists('Genesis_Club_Utils')) {
 			case 'tr': $format = '<tr class="diy-row"><th scope="row">%1$s</th><td>%2$s</td></tr>'; break;
 			case 'br': $format = 'checkbox'==$type ? '%2$s%1$s<br/>' : '%1$s%2$s<br/>'; break;
 			default: $format = strpos($input,'fieldset') !== FALSE ? 
-				'<div class="wrapfieldset">%1$s%2$s</div>' : ('<'.$wrap.'>%1$s%2$s</'.$wrap.'>');
+				'<div class="diy-row wrapfieldset">%1$s%2$s</div>' : ('<'.$wrap.' class="diy-row">%1$s%2$s</'.$wrap.'>');
 		}
 		return sprintf($format, $label, $input);
 	}
-	
-    static function register_icons_font() {
-        global $wp_styles;
-        wp_enqueue_style( 'font-awesome', '//netdna.bootstrapcdn.com/font-awesome/4.3.0/css/font-awesome.min.css',array(),'4.3.0','all' );
-        wp_enqueue_style('font-awesome-ie7', plugins_url('styles/font-awesome-ie7.min.css', dirname(__FILE__)), array(), GENESIS_CLUB_VERSION, 'all');
-        $wp_styles->add_data('font-awesome-ie7', 'conditional', 'lte IE 7');
-    }
 	
 	static function register_tooltip_styles() {
 		wp_register_style('diy-tooltip', plugins_url('styles/tooltip.css',dirname(__FILE__)), array(), null); 
@@ -202,5 +209,13 @@ if (! class_exists('Genesis_Club_Utils')) {
          wp_enqueue_style('diy-tooltip');
          wp_enqueue_style('dashicons');
     }
+
+    static function register_icons_font() {
+        global $wp_styles;
+        wp_enqueue_style( 'font-awesome', '//netdna.bootstrapcdn.com/font-awesome/4.3.0/css/font-awesome.min.css',array(),'4.3.0','all' );
+        wp_enqueue_style('font-awesome-ie7', plugins_url('styles/font-awesome-ie7.min.css', dirname(__FILE__)), array(), '4.3.0', 'all');
+        $wp_styles->add_data('font-awesome-ie7', 'conditional', 'lte IE 7');
+    }
+
  }
 }

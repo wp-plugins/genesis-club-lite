@@ -175,13 +175,9 @@ abstract class Genesis_Club_Admin {
 		}
 		return $content;
  	}
- 
-   function get_newsfeeds() {
-      return apply_filters('genesis_club_newsfeeds', array(GENESIS_CLUB_NEWS, DIYWEBMASTERY_NEWS));
-   }
 
  	function news_panel($post,$metabox){	
-		Genesis_Club_Feed_Widget::display_feeds($this->get_newsfeeds());
+		Genesis_Club_Feed_Widget::display_feeds(apply_filters('genesis_club_newsfeeds', array(GENESIS_CLUB_NEWS, DIYWEBMASTERY_NEWS)));
 	}
  
  	function get_nonces($referer) {
@@ -244,7 +240,12 @@ abstract class Genesis_Club_Admin {
     	return sprintf('<h2 class="title">%2$s%1$s</h2>', $title, $icon);				
 	}
 
-	function print_admin_form_start($title, $referer = false, $keys = false, $enctype = false, $with_sidebar = false, $preamble = false) {
+	function print_admin_page_start($title, $with_sidebar = false) {
+      $class = $with_sidebar ? ' columns-2' : '';
+    	printf('<div class="wrap">%1$s<div id="poststuff"><div id="post-body" class="metabox-holder%2$s"><div id="post-body-content">', $title, $class);
+	}
+
+	function print_admin_form_start($referer = false, $keys = false, $enctype = false, $preamble = false) {
 		$this_url = $_SERVER['REQUEST_URI'];
 	 	$enctype = $enctype ? 'enctype="multipart/form-data" ' : '';
 		$nonces = $referer ? $this->get_nonces($referer) : '';
@@ -253,9 +254,8 @@ abstract class Genesis_Club_Admin {
 			$keys = is_array($keys) ? implode(',', $keys) : $keys;
 			$page_options = sprintf('<input type="hidden" name="page_options" value="%1$s" />', $keys);
 		}
-      $class = $with_sidebar ? ' columns-2' : '';
-    	printf('<div class="wrap">%1$s<form id="diy_options" method="post" %2$saction="%3$s"><p>%4$s%5$s</p><div id="poststuff"><div id="post-body" class="metabox-holder%6$s"><div id="post-body-content">%7$s',
-         $title, $enctype, $this_url, $page_options, $nonces, $class, $preamble ? $preamble : '');
+    	printf('%1$s<form id="diy_options" method="post" %2$saction="%3$s"><div>%4$s%5$s</div>',
+         $preamble ? $preamble : '', $enctype, $this_url, $page_options, $nonces);
    } 
 
 	function print_admin_form_with_sidebar_middle() {
@@ -263,37 +263,53 @@ abstract class Genesis_Club_Admin {
 	}
 
 	function print_admin_form_end() {
-		print '</div></div><br class="clear"/></div></form></div>';
+		print '</form>';
+	}
+
+	function print_admin_page_end() {
+		print '</div></div><br class="clear"/></div></div>';
 	}
 
    function print_admin_form_with_sidebar($title, $referer = false, $keys = false, $enctype = false, $preamble = false) {
-      $this->print_admin_form_start ($title, $referer, $keys, $enctype, true, $preamble);
+      $this->print_admin_page_start ($title, true);
+      $this->print_admin_form_start ($referer, $keys, $enctype, $preamble);
 		do_meta_boxes($this->get_screen_id(), 'normal', null); 
 		if ($keys) print $this->submit_button();		
+		$this->print_admin_form_end();
+		do_meta_boxes($this->get_screen_id(), 'advanced', null);
 		$this->print_admin_form_with_sidebar_middle();
 		do_meta_boxes($this->get_screen_id(), 'side', null); 
-		$this->print_admin_form_end();
+		$this->print_admin_page_end();
 	} 
 
    function print_admin_form ($title, $referer = false, $keys = false, $enctype = false, $preamble = false) {
-      $this->print_admin_form_start ($title, $referer, $keys, $enctype, false, $preamble);
+      $this->print_admin_page_start ($title);
+      $this->print_admin_form_start ($referer, $keys, $enctype, $preamble);
 		do_meta_boxes($this->get_screen_id(), 'normal', null); 
 		if ($keys) print $this->submit_button();	
-		do_meta_boxes($this->get_screen_id(), 'advanced', null); 		
 		$this->print_admin_form_end();
+		do_meta_boxes($this->get_screen_id(), 'advanced', null); 		
+		$this->print_admin_page_end();
+	} 
+
+
+   function is_metabox_active($post_type, $context) {
+		return ('advanced' === $context ) && Genesis_Club_Plugin::is_post_type_enabled($post_type) ;
 	}
 	
 	
-	function display_metabox($tabs) {
+	function display_metabox($tabs, $n = 0) {
+      if (!$tabs || (is_array($tabs) && (count($tabs) == 0))) return;
       $labels = $contents = '';
       $t=0;
-      $tab = isset($_REQUEST['tabselect']) ? $_REQUEST['tabselect'] : 'tab1';
+      $tabselect = sprintf('tabselect%1$s', $n);
+      $tab = isset($_REQUEST[$tabselect]) ? $_REQUEST[$tabselect] : 'tab1';
       foreach ($tabs as $label => $content) {
          $t++;
          $labels .=  sprintf('<li class="tab tab%1$s"><a href="#">%2$s</a></li>', $t, $label);
          $contents .=  sprintf('<div class="tab%1$s"><div class="tab-content">%2$s</div></div>', $t, $content);
 		}
-      printf('<div class="genesis-club-metabox"><ul class="genesis-club-metabox-tabs">%1$s</ul><div class="metabox-content">%2$s</div><input type="hidden" id="tabselect" name="tabselect" value="%3$s" /></div>', $labels, $contents, $tab);
+      printf('<div class="genesis-club-metabox"><ul class="metabox-tabs">%1$s</ul><div class="metabox-content">%2$s</div><input type="hidden" class="tabselect" name="%3$s" value="%4$s" /></div>', $labels, $contents, $tabselect, $tab);
 	}
 	
 	function toggle_postboxes() {

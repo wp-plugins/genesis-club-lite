@@ -171,6 +171,15 @@ if (!class_exists('Genesis_Club_Plugin')) {
 		}
 	}
 
+
+	public static function is_post_type_enabled($post_type){
+		return in_array($post_type, array('post', 'page')) || self::is_custom_post_type_enabled($post_type);
+	}
+
+	public static function is_custom_post_type_enabled($post_type){
+		return in_array($post_type, (array)Genesis_Club_Options::get_option('custom_post_types'));
+	}
+	
 	public static function is_module_enabled($module) {
 		return ! Genesis_Club_Options::get_option(self::get_disabled_key($module));
 	}

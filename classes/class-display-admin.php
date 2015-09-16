@@ -22,6 +22,8 @@ class Genesis_Club_Display_Admin extends Genesis_Club_Admin {
 		'archive_excerpt_image' => array('heading' => 'Excerpt Image', 'tip' => 'URL of image to use as the archive excerpt image for all posts in this archive. The image is used as is, so you need to provide the image at the exact size you want to display it.'),
 		'archive_excerpt_images_on_front_page' => array('heading' => 'Use On Home Page', 'tip' => 'Use category image rather than individual featured images in post excepts on the home page.'),
 		'archive_disable_breadcrumbs' => array('heading' => 'Disable Breadcrumbs', 'tip' => 'Click to disable breadcrumbs on this archive.'),
+		'archive_postinfo_shortcodes' => array('heading' => 'Post Info Shortcodes', 'tip' => 'Here you can set Post Info of this specific term which will override the global setting. Use [] to remove Post Info completely.'),
+		'archive_postmeta_shortcodes' => array('heading' => 'Post Meta Shortcodes', 'tip' => 'Here you can set Post Meta of this specific term which will override the global setting. Use [] to remove Post Meta completely.'),
 	);
                 
 	protected $tips = array(
@@ -51,7 +53,8 @@ class Genesis_Club_Display_Admin extends Genesis_Club_Admin {
 		'no_archive_postmeta' => array('heading' => 'Remove On Archives', 'tip' => 'Strip any post info and post meta from the top and bottom of post excerpts on archive pages.'),
 		'alt_404_page' => array('heading' => 'Alternative 404 Page', 'tip' => 'Send the user to your own custom 404 page if the chosen page is not found.'),
 		'alt_404_status' => array('heading' => 'HTTP Status', 'tip' => 'Normally you find want to return 404 however you can choose to return a 410 if say, you have just deleted a whole bunch of pages from your site, or if your site is narrowly based you might want to return a 301 providing the chosen alternative 404 page has a canonical URL.'),
-		'css_hacks' => array('heading' => 'Add CSS Classes', 'tip' => 'Add useful classes such as clearfix (for clearing floats) and dropcaps (for capitalizing the first letter of the first paragraph.'),
+		'css_hacks' => array('heading' => 'Add Helper Classes', 'tip' => 'Add useful classes such as clearfix (for clearing floats) and dropcaps (for capitalizing the first letter of the first paragraph.'),
+		'disable_emojis' => array('heading' => 'Disable Emojis', 'tip' => 'Remove Emojis if you do not intend to use them.'),
 		'custom_login_enabled' => array('heading' => 'Enable Custom Login', 'tip' => 'Enable Login Page Customizations.'),
 		'custom_login_background' => array('heading' => 'Page Background URL', 'tip' => 'URL of image to use as the login page background.'),
 		'custom_login_logo' => array('heading' => 'Logo Background URL', 'tip' => 'URL of image to use as the logo recommended size is 200px square.'),
@@ -101,10 +104,12 @@ class Genesis_Club_Display_Admin extends Genesis_Club_Admin {
 	}
 	 
  	function load_archive_page() {
+      if (isset($_GET['post_type']) && Genesis_Club_Plugin::is_post_type_enabled($_GET['post_type'])) {
 		$this->set_tooltips($this->archive_tips);
 		add_action( $_REQUEST['taxonomy'] . '_edit_form', array($this, 'archive_panel'), 10, 2 );	
 		add_action ('admin_enqueue_scripts',array($this, 'enqueue_postbox_scripts'));
 		add_action ('admin_enqueue_scripts',array($this, 'enqueue_metabox_scripts'));
+	}
 	}
 
 	function save_archive($term_id, $tt_id) {
@@ -140,16 +145,15 @@ class Genesis_Club_Display_Admin extends Genesis_Club_Admin {
 	}
 
 	function do_meta_boxes( $post_type, $context) {
-		$post_types=get_post_types();
-		if ( in_array($post_type, $post_types ) && ('advanced' === $context )) {
-         add_meta_box('genesis-club-post-settings', 'Genesis Club Post Settings',  array($this,'post_panel'), $post_type);		
+		if ($this->is_metabox_active($post_type, $context)) {
+         add_filter( 'genesis_club_post_settings', array($this, 'add_post_panel'), 9, 2);	//add to plugin metabox
 			$current_screen = get_current_screen();
 			if (method_exists($current_screen,'add_help_tab'))
 	    		$current_screen->add_help_tab( array(
 			        'id'	=> 'genesis_club_help_tab',
     			    'title'	=> __('Genesis Club'),
         			'content'	=> __('
-<p>In the <b>Genesis Club Hiding</b> section below you can choose NOT to show this page in site search page results and to remove the page title.</p>')) );
+<p>In the <b>Genesis Club Posts Settings - Hiding</b> section below you can choose NOT to show this page in site search page results, and control whether certain other elements shoudl apear on this page.</p>')) );
 		}
 	}
 
@@ -182,8 +186,9 @@ class Genesis_Club_Display_Admin extends Genesis_Club_Admin {
 			$key, $checked, $label);
     }   
 
-	function post_panel($post) {
-      $this->display_metabox( apply_filters( 'genesis_club_post_settings', array('Display' => $this->hiding_panel($post)), $post) );
+
+	function add_post_panel($content, $post) {
+		return $content + array ('Display' => $this->hiding_panel($post));
    }
 
 	function hiding_panel($post) {
@@ -217,8 +222,8 @@ class Genesis_Club_Display_Admin extends Genesis_Club_Admin {
          'Extra Widget Areas' => $this->extras_panel($options),
          'Facebook' => $this->facebook_panel($options),
          'Alternate 404 Page' => $this->alt_404_panel($options),
-         'CSS Tricks' => $this->css_panel($options),
          'Custom Login' => $this->custom_login_panel($options),
+         'Misc' => $this->misc_panel($options),
       ));
    }	
 
@@ -253,8 +258,8 @@ class Genesis_Club_Display_Admin extends Genesis_Club_Admin {
       return
          $this->fetch_form_field('no_archive_postmeta', $options['no_archive_postmeta'],  'checkbox') .
          $this->fetch_form_field('no_page_postmeta', $options['no_page_postmeta'],  'checkbox') .
-         $this->fetch_text_field('postinfo_shortcodes', $options['postinfo_shortcodes'], array('size' => 60)) .
-         $this->fetch_text_field('postmeta_shortcodes', $options['postmeta_shortcodes'], array('size' => 60));
+         $this->fetch_form_field('postinfo_shortcodes', $options['postinfo_shortcodes'], 'textarea', array(), array('cols' => 30, 'rows' => 3)) .
+         $this->fetch_form_field('postmeta_shortcodes', $options['postmeta_shortcodes'], 'textarea', array(), array('cols' => 30, 'rows' => 3));
 	}
 
 	function labelling_panel($options){		 	
@@ -278,9 +283,10 @@ class Genesis_Club_Display_Admin extends Genesis_Club_Admin {
             array('404' => '404 - Not Found', '410' => '410 - Gone Away', '301' => '301 - Moved Permanently', '307' => '307 - Moved Temporarily'));
 	}
 
-	function css_panel($options){
+	function misc_panel($options){
 	  return
-         $this->fetch_form_field('css_hacks', $options['css_hacks'], 'checkbox');
+         $this->fetch_form_field('css_hacks', $options['css_hacks'], 'checkbox') .
+         $this->fetch_form_field('disable_emojis', $options['disable_emojis'], 'checkbox');
 	}	  
 
 	function custom_login_panel($options){	
@@ -302,7 +308,9 @@ class Genesis_Club_Display_Admin extends Genesis_Club_Admin {
          'Sort Order' => $this->archive_sort_panel($archive),
          'Facebook' => $this->archive_facebook_panel($archive),
          'Excerpt Image' => $this->archive_excerpt_panel($archive), 
-         'Breadcrumbs' => $this->archive_breadcrumbs_panel($archive)), $term, $tt_id));
+         'Breadcrumbs' => $this->archive_breadcrumbs_panel($archive),
+         'Post Info/Meta' => $this->archive_postmeta_panel($archive)), 
+         $term, $tt_id));
    }
 
 	private function archive_sort_panel($archive) {
@@ -336,6 +344,12 @@ class Genesis_Club_Display_Admin extends Genesis_Club_Admin {
 			);
 	}
 
+	private function archive_postmeta_panel($archive) {
+		return sprintf('<table class="form-table">%1$s%2$s</table>',	
+		   $this->archive_form_field($archive, 'postinfo_shortcodes', 'textarea', array(), array('cols' => 30, 'rows' => 3)),
+		   $this->archive_form_field($archive, 'postmeta_shortcodes', 'textarea', array(), array('cols' => 30, 'rows' => 3))
+			);
+	}
 
 	private function archive_form_field($archive, $fld, $type, $options = array(), $args = array()) {
 		$id = 'archive_'.$fld;

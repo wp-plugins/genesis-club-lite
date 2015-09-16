@@ -16,8 +16,8 @@ class Genesis_Club_Display {
 	const HIDE_BEFORE_CONTENT_METAKEY = '_genesis_club_hide_before_content';
 	const HIDE_BEFORE_ENTRY_METAKEY = '_genesis_club_hide_before_entry';
 	const HIDE_BEFORE_ENTRY_CONTENT_METAKEY = '_genesis_club_hide_before_entry_content';
-   const DISABLE_AUTOP_METAKEY = '_genesis_club_disable_autop';
-   const DISABLE_BREADCRUMBS = '_genesis_club_disable_breadcrumbs';
+    const DISABLE_AUTOP_METAKEY = '_genesis_club_disable_autop';
+    const DISABLE_BREADCRUMBS = '_genesis_club_disable_breadcrumbs';
 	const BGCOLOR_KEY = 'facebook_likebox_bgcolor';
 	const BORDER_KEY = 'facebook_likebox_border';
 
@@ -51,6 +51,7 @@ class Genesis_Club_Display {
 		'alt_404_page' => 0,
 		'alt_404_status' => 404,
 		'css_hacks' => false,
+		'disable_emojis' => false,
 		'facebook_featured_images' => false,
 		'facebook_sized_images' => false,
 		'custom_login_enabled' => false, 
@@ -69,6 +70,8 @@ class Genesis_Club_Display {
 	protected static $og_desc = false;
 	protected static $og_image = false;	
 	protected static $term_featured_image = false;	
+	protected static $postinfo_shortcodes = false;	
+	protected static $postmeta_shortcodes = false;	
 	
 	public static function init() {
 		Genesis_Club_Options::init(array('display' => self::$defaults));		
@@ -147,8 +150,7 @@ class Genesis_Club_Display {
 	public static function enqueue_styles() {
 		wp_enqueue_style('dashicons');
 		if (self::get_option('css_hacks')) 
-			wp_enqueue_style('genesis-club-display', plugins_url('styles/display.css', dirname(__FILE__)), 
-				array(), GENESIS_CLUB_VERSION);
+			wp_enqueue_style('genesis-club-display', plugins_url('styles/display.css', dirname(__FILE__)), array(), GENESIS_CLUB_VERSION);
  	}
 
 	public static function parse_query() {
@@ -239,16 +241,6 @@ class Genesis_Club_Display {
 			if (self::get_option('after_archive'))  
 				add_action('genesis_after_loop', 
 					array(__CLASS__, 'show_after_archive_sidebar'));
-
-		 	if (self::get_option('no_archive_postmeta')) { //remove postinfo and postmeta on archives
-		 		if (self::$is_html5) {
-					remove_action( 'genesis_entry_header', 'genesis_post_info', 12 ); 
-					remove_action( 'genesis_entry_footer', 'genesis_post_meta' );
-				} else {
-					remove_action( 'genesis_before_post_content', 'genesis_post_info' );
-					remove_action( 'genesis_after_post_content', 'genesis_post_meta' );	 			
-				}
-			}
 		}
 
 		if (is_front_page()) {
@@ -259,11 +251,11 @@ class Genesis_Club_Display {
 			self::replace_postinfo(false);
 			self::replace_postmeta(false);
 		} elseif (($postinfo = self::get_option('postinfo_shortcodes')) && (is_single() || ( is_page() && !self::$is_landing)))  {//replace postinfo 
-			self::replace_postinfo($postinfo!='[]');
+			self::replace_postinfo($postinfo);
 		}
 		 	
 		if (($postmeta = self::get_option('postmeta_shortcodes')) && is_single()) { //replace postmeta on posts 
-			self::replace_postmeta($postmeta!='[]');
+			self::replace_postmeta($postmeta);
 		}
 
 		if (is_single() && is_active_widget( false, false, 'genesis-club-post-image-gallery', false )) {
@@ -282,23 +274,37 @@ class Genesis_Club_Display {
 			add_filter('template_redirect', array(__CLASS__,'maybe_redirect_404'),20);
 		}
 
+    	if (self::get_option('disable_emojis')) self::disable_emojis();
+
 		add_action('wp_enqueue_scripts', array(__CLASS__,'enqueue_styles'));
 	}
 
-	private static function replace_postinfo($replace = false) {
-		if ($replace) 
+	public static function replace_postinfo($post_info = false) {
+		if ($post_info && ($post_info != '[]')) {
+			self::$postinfo_shortcodes = $post_info;
 			add_filter ('genesis_post_info', array(__CLASS__,'post_info')); 
-		else 
-			if (self::$is_html5) 
+		} else {
+			add_action('loop_start', array(__CLASS__, 'delete_postinfo'));     
+		}
+	}
+
+	public static function delete_postinfo($query) {
+		if (self::$is_html5) 
 			remove_action( 'genesis_entry_header', 'genesis_post_info', 12 );
-         	else 
+		else 
 			remove_action( 'genesis_before_post_content', 'genesis_post_info' );		 			
 	}
 
-	private static function replace_postmeta($replace = false) {
-		if ($replace) 
+	public static function replace_postmeta($post_meta = false) {
+		if ($post_meta && ($post_meta != '[]')) {
+         self::$postmeta_shortcodes = $post_meta;
  			add_filter ('genesis_post_meta', array(__CLASS__,'post_meta')); 
-		else 
+      } else {
+         add_action('loop_start', array(__CLASS__, 'delete_postmeta'));         
+      }
+	}
+	
+	public static function delete_postmeta($query) {
 			if (self::$is_html5) 
             	remove_action( 'genesis_entry_footer', 'genesis_post_meta');
  			else 
@@ -341,7 +347,7 @@ class Genesis_Club_Display {
 			$inside = '';
 		$xtml = sprintf( '<div id="title">%1$s</div>', $inside);
 		$html5 = sprintf( '<div class="site-title">%1$s</div>', $inside);
-		return Genesis_Club_Utils::is_genesis2() ?
+		return function_exists('genesis_html5') ?
 			genesis_markup( array(
 				'html5'   => $html5,
 				'xhtml'   => $xtml,
@@ -436,11 +442,11 @@ LIKEBOXBGCOLOR;
  	}
  	
  	public static function post_info() {
- 		return do_shortcode(str_replace('[]','',self::get_option('postinfo_shortcodes')));
+ 		return do_shortcode(stripslashes(self::$postinfo_shortcodes));
  	}
 
  	public static function post_meta() {
- 		return do_shortcode(str_replace('[]','',self::get_option('postmeta_shortcodes')));
+ 		return do_shortcode(stripslashes(self::$postmeta_shortcodes));
  	}
 
 	public static function filter_breadcrumb_args( $args ) {
@@ -467,7 +473,7 @@ LIKEBOXBGCOLOR;
   var js, fjs = d.getElementsByTagName(s)[0];
   if (d.getElementById(id)) return;
   js = d.createElement(s); js.id = id;
-  js.src = "//connect.facebook.net/en_US/all.js#xfbml=1&status=0{$app_id}";
+  js.src = "//connect.facebook.net/en_US/sdk.js#xfbml=1&version=v2.4{$app_id}";
   fjs.parentNode.insertBefore(js, fjs);
 }(document, 'script', 'facebook-jssdk'));
 </script>
@@ -535,33 +541,29 @@ SCRIPT;
 
  	public static function get_archive($term_id, $archives = false ) {
 		if (!$archives) $archives = self::get_archives();
-		if (is_array($archives) 
+		if ($term_id
+		&& is_array($archives) 
 		&& array_key_exists($term_id, $archives))
 			return $archives[$term_id];
 		else
-			return false;	
+			return array();	
  	}
 
 	private static function get_current_archive() {
-		if (is_tax() || is_category() || is_tag()) 
-			if (is_category())
-				$term = get_term_by('slug',get_query_var('category_name'),'category') ;
-			elseif (is_tag())
-				$term = get_term_by('slug',get_query_var('tag'),'post_tag') ;
+		if ($term = Genesis_Club_Utils::get_current_term())
+         return self::get_archive($term->term_id) ;
 			else
-				$term = get_term_by('slug', get_query_var('term'), get_query_var('taxonomy')) ;						
-		else 
-			$term = false;
-		return $term ? self::get_archive($term->term_id) : false;
+         return false;
 	}
 
 	public static function customize_archive( $query ) {
-      if ($query->is_archive 
-      && ($archive = self::get_current_archive())) {
+      if ($query->is_archive && ($archive = self::get_current_archive())) {
          self::maybe_sort_archive( $query, $archive);   
          self::maybe_disable_breadcrumbs( $archive);   
          self::maybe_override_opengraph_terms($archive); 
          self::maybe_override_terms_archive_image($archive);
+         self::maybe_override_post_info($archive);
+         self::maybe_override_post_meta($archive);
       }
  	}
 
@@ -571,6 +573,24 @@ SCRIPT;
       && $archive['disable_breadcrumbs']) {
          add_filter( 'genesis_pre_get_option_breadcrumb_archive', '__return_false', 10, 2);  
 	    }    		 
+	}
+
+	public static function maybe_override_post_info($archive ) {
+      if (array_key_exists('postinfo_shortcodes', $archive)
+      && ($postinfo = $archive['postinfo_shortcodes'])) {
+  			self::replace_postinfo($postinfo);
+	   } elseif (self::get_option('no_archive_postmeta'))  {
+         self::replace_postinfo();
+	   }   		 
+	}
+
+	public static function maybe_override_post_meta($archive ) {
+      if (array_key_exists('postmeta_shortcodes', $archive)
+      && ($postmeta = $archive['postmeta_shortcodes'])) {
+  			self::replace_postmeta($postmeta);
+	   } elseif (self::get_option('no_archive_postmeta'))  {
+         self::replace_postmeta();
+	   }    		 
 	}
 
 	public static function maybe_sort_archive( $query, $archive ) {
@@ -667,6 +687,21 @@ SCRIPT;
       return self::$og_image ? self::$og_image : $image; 
    }
 
+	public static function disable_emojis() {
+	  remove_action( 'wp_head', 'print_emoji_detection_script', 7 );
+	  remove_action( 'admin_print_scripts', 'print_emoji_detection_script' );
+	  remove_action( 'wp_print_styles', 'print_emoji_styles' );
+	  remove_action( 'admin_print_styles', 'print_emoji_styles' );	
+	  remove_filter( 'the_content_feed', 'wp_staticize_emoji' );
+	  remove_filter( 'comment_text_rss', 'wp_staticize_emoji' );	
+	  remove_filter( 'wp_mail', 'wp_staticize_emoji_for_email' );
+	  add_filter( 'tiny_mce_plugins', array(__CLASS__,'disable_emojis_tinymce') );
+   }
+
+	public static function disable_emojis_tinymce( $plugins ) {
+	  return is_array( $plugins ) ? array_diff( $plugins, array( 'wpemoji' ) ) : array();
+	}
+
    public static function custom_login() {
  	  if (self::get_option('custom_login_enabled')) {      
       add_action('login_head', array(__CLASS__,'custom_login_header'));
@@ -700,12 +735,13 @@ jQuery(document).ready(function(){
    jQuery("h1 a").attr("href","{$url}");
    jQuery("h1 a").attr("title","Home Page");
    jQuery("form#loginform p:first").replaceWith(
-   '<label>{$login_user_label}</label><input type="text" name="log" id="user_login" class="input" value="" size="20" tabindex="10">');
+   '<p><label>{$login_user_label}</label><input type="text" name="log" id="user_login" class="input" value="" size="20" tabindex="10"></p>');
    jQuery('#nav').appendTo(lf);
    jQuery("body").css("background-image","{$login_background}");
    jQuery("#logo").css("background-image","{$login_logo}");
    jQuery("#wp-submit").css("background-color","{$login_button}");
    jQuery("form#lostpasswordform").prepend("<h2>{$login_reminder}</h2>");
+   jQuery("p.message,#login_error").filter(function() { return jQuery.trim(jQuery(this).text()).length == 0;}).remove(); 
 });
 //]]>
 </script>

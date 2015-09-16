@@ -102,26 +102,6 @@ li.product-card:nth-child(16):hover { background-color : #FFD7EB; }
 li.product-card:nth-child(17):hover { background-color : #FFD7E3; }  
 li.product-card:nth-child(18):hover { background-color : #FFDBD7; }  
 
-#poststuff .save { width:auto; margin: 0; padding: 0; text-align:left; }
-
 .products_grid input[type=checkbox]:checked:before {
 color: #528264;
-}
-
-.one-half {
-	float: left;
-	margin: 0 0 20px;
-	padding-left: 3%;
-	width: 48%;
-}
-
-.first {
-	clear: both;
-	padding-left: 0;
-}
-
-
-@media only screen and (max-width: 600px) {
-
-   .one-half { width: 100%; padding: 0; }
 }

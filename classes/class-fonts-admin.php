@@ -8,7 +8,7 @@ class Genesis_Club_Fonts_Admin extends Genesis_Club_Admin {
 	);
 
 	private $font_tips = array(
-		'font_name' => array('heading' => 'Font Name', 'tip' => 'Enter the first few characters if the font you require.'),
+		'font_name' => array('heading' => 'Font Name', 'tip' => 'Enter the first few characters if the font you require then press the Search button.'),
 		'variant' => array('heading' => 'Variants', 'tip' => 'Font variants'),
 		);
 
@@ -38,18 +38,16 @@ class Genesis_Club_Fonts_Admin extends Genesis_Club_Admin {
       if (isset($_POST['options_update'] ) ) $this->save_families();
       $this->fetch_message();
       if ($this->add_or_edit = $this->handle_actions()) {  //Individual Font - add or edit
-         $this->add_meta_box('news', 'Genesis Club News', 'news_panel', null, 'advanced');
-			$this->add_meta_box('intro', 'Intro', 'intro_panel');
-			$this->add_meta_box('fonts', 'Font Settings', 'search_panel');
+		 $this->add_meta_box('fonts', 'Font Search', 'search_panel');
          $this->set_tooltips($this->font_tips);
 		} else {       
          require_once (dirname(__FILE__).'/class-fonts-table.php');
 			$this->set_list(new Genesis_Club_Fonts_Table($this->get_url()));
  			$callback_params = array ( 'options' => Genesis_Club_Fonts::get_options());
-			$this->add_meta_box('intro', 'Intro', 'intro_panel', $callback_params);
+			$this->add_meta_box('intro', 'Intro', 'intro_panel');
 			$this->add_meta_box('families', 'Installed Google Fonts', 'families_panel', $callback_params);
-			$this->add_meta_box('fonts', 'Available Google Fonts', 'fonts_panel', $callback_params);;
-			$this->add_meta_box('awesome', 'Install Font Awesome', 'awesome_panel', $callback_params, 'advanced');
+			$this->add_meta_box('fonts', 'Available Google Fonts', 'fonts_panel', $callback_params, 'advanced');
+			$this->add_meta_box('awesome', 'Font Awesome', 'awesome_panel', $callback_params, 'advanced');
          $this->add_meta_box('news', 'Genesis Club News', 'news_panel', null, 'advanced');			
 		   $this->set_tooltips($this->tips);
 		}		
@@ -65,9 +63,9 @@ class Genesis_Club_Fonts_Admin extends Genesis_Club_Admin {
 
 	function page_content() {
       $url = remove_query_arg( array( 'action','noheader', 'message', 'lastaction'), $_SERVER['REQUEST_URI']);
-      $add_new = '<a href="'.$url.'&action=add'.'" class="add-new-h2">Add Font</a>' ;
-      $title = $this->admin_heading('Genesis Club Fonts'.$add_new);		
-      $this->print_admin_form($title, __CLASS__); 
+		$add_new = $this->add_or_edit ? '' : '<a href="'.$url.'&action=add'.'" class="add-new-h2">Add Font</a>' ;
+		$title = $this->add_or_edit ? ucwords($_GET['action']. ' font') : 'Genesis Club Fonts';		
+		$this->print_admin_form ($this->admin_heading($title.$add_new), __CLASS__);
  	}
 
 	function handle_actions() {
@@ -158,10 +156,11 @@ class Genesis_Club_Fonts_Admin extends Genesis_Club_Admin {
    }	
 
 	function search_panel(){	
-		if (isset($_REQUEST['font_name'])) $this->font = strtolower($_REQUEST['font_name']); //override if manual entry
+		$font_name = isset($_REQUEST['font_name']) ? trim($_REQUEST['font_name']) : ''; //override if manual entry
 			
-		$s = $this->fetch_form_field('font_name', $this->font, 'text', array(), array('size' => 20, 'suffix' => '<button class="button">Search</button>'));
-      if ($this->font) {
+	  $s = $this->fetch_form_field('font_name', $font_name, 'text', array(), array('size' => 20, 'suffix' => '<button class="button">Search</button>'));
+      if ($font_name) {
+         $this->font = $this->get_font_key($font_name);
          $s .= '<hr/>';
          $families = Genesis_Club_Fonts::get_families();
          $all_fonts = Genesis_Club_Fonts::get_all_fonts();
@@ -169,7 +168,7 @@ class Genesis_Club_Fonts_Admin extends Genesis_Club_Admin {
          foreach ($matching_fonts as $key => $font) {
             $s .= $this->fetch_font($key, $font, isset($_POST['family-'.$key]) ? array($_POST['family-'.$key]) : (array_key_exists($key, $families) ? $families[$key]['variants'] : array()));
          }
-         $s .= $this->submit_button('Update Fonts') ;
+         $s .= $this->submit_button('Update Fonts', 'options_update') ;
       }
       print $s;
    }	 
@@ -185,7 +184,7 @@ class Genesis_Club_Fonts_Admin extends Genesis_Club_Admin {
    }
 
    function font_match($key) {
-      return substr($key, 0, strlen($this->font)) == $this->font  ;
+      return stripos($key, $this->font) !== FALSE  ;
    }
 
 	function refresh_panel(){	
@@ -212,13 +211,17 @@ class Genesis_Club_Fonts_Admin extends Genesis_Club_Admin {
 
 	function awesome_panel($options){	
 		$awesome = Genesis_Club_Fonts::get_option('font_awesome');
-		printf('<form id="%1$s" method="post" action="%2$s">%3$s%4$s%5$s</form>', 
-         $this->get_code('awesome'), 
-         $_SERVER['REQUEST_URI'] .'&action=awesome&noheader ',
-         wp_nonce_field('awesome', 'nonce_awesome', true, false), 
-         $this->fetch_form_field('font_awesome', $awesome, 'checkbox'),
-         $this->submit_button('Save Font Awesome Setting','update_awesome'));	
-   }
+		$switch = $awesome ? 0 : 1;
+		$status_texts = array(__('Font Awesome is currently installed', GENESIS_CLUB_DOMAIN), __('Font Awesome is currently not installed', GENESIS_CLUB_DOMAIN)); 
+		$button_texts = array(__('Remove Font Awesome', GENESIS_CLUB_DOMAIN), __('Install Font Awesome', GENESIS_CLUB_DOMAIN)); 
+		printf('<form id="%1$s" method="post" action="%2$s">%3$s%4$s%5$s%6$s</form>', 
+        $this->get_code('awesome'), 
+        $_SERVER['REQUEST_URI'] .'&action=awesome&noheader ',
+        wp_nonce_field('awesome', 'nonce_awesome', true, false), 
+        $this->fetch_form_field('font_awesome', $switch, 'hidden'),
+        sprintf('<div>%1$s</div>', $status_texts[$switch]) ,
+        $this->submit_button($button_texts[$switch],'update_awesome'));	
+    }
 
 	function subsets_panel($options){	
 		$all_subsets = Genesis_Club_Fonts::get_subsets();
@@ -231,18 +234,31 @@ class Genesis_Club_Fonts_Admin extends Genesis_Club_Admin {
    }
 
    function families_panel($post, $metabox){
-      printf('<form id="genesis-club-pro-fonts" method="post" action="%1$s">', $this->get_url());
       $this->get_list()->prepare_items();
       $this->get_list()->display();
-      print('<div id="ajax-response"></div></form>');
+      print('<div id="ajax-response"></div>');
 	}
 
 
 	function save_awesome() {
 		check_admin_referer('awesome', 'nonce_awesome');	
+		$success_messages = array(
+		 __('Font Awesome was removed successfully', GENESIS_CLUB_DOMAIN),
+		 __('Font Awesome was installed successfully', GENESIS_CLUB_DOMAIN),  
+		);
+		$failure_messages = array(
+ 		   __('Font Awesome was not removed', GENESIS_CLUB_DOMAIN), 
+		    __('Font Awesome was not installed', GENESIS_CLUB_DOMAIN), 		 
+
+		);
+				
       $options = Genesis_Club_Fonts::get_options(false);
-      $options['font_awesome'] = isset($_POST['font_awesome']);
-      $message = __(Genesis_Club_Fonts::save_options($options) ? 'Font Awesome updated successfully' : 'Font Awesome was not updated', GENESIS_CLUB_DOMAIN);		
+      $options['font_awesome'] = $_POST['font_awesome'] ? 1 : 0;
+      if (Genesis_Club_Fonts::save_options($options))
+         $message = $success_messages[ $options['font_awesome'] ? 1 : 0];
+      else  
+         $message = $failure_messages[ $options['font_awesome'] ? 1 : 0];
+      	
 		$redir = wp_get_referer(); //get the referer
 		$redir = remove_query_arg( array( 'action','noheader','font_id'), $redir) ; //remove the action
 		$redir = add_query_arg( array('message' => urlencode($message), 'lastaction' => 'awesome'), $redir ); //update the URL    	
@@ -310,10 +326,14 @@ class Genesis_Club_Fonts_Admin extends Genesis_Club_Admin {
       $fonts = array();
       foreach ($arr['items'] as $font) {
          $family = $font['family'];
-         $key = preg_replace('/[^a-z0-9]/','_', strtolower($family));
+         $key = $this->get_font_key($family);
          $fonts[$key] = array('family' => $family, 'variants' => $font['variants']);
       }
       return update_option(Genesis_Club_Fonts::ALL_FONTS_OPTION_NAME, $fonts);  //Refresh List Of All Google Fonts
+   }
+
+   function get_font_key($family) {
+      return preg_replace('/[^a-z0-9]/','_', strtolower($family));      
    }
 
 }

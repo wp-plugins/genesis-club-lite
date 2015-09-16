@@ -17,10 +17,9 @@ class Genesis_Club_Calendar_Admin extends Genesis_Club_Admin {
 		'show_date' => array('heading' => 'Show Date', 'tip' => 'Show the date at the top of the calendar'),
 		'show_tz' => array('heading' => 'Show Timezone', 'tip' => 'Show the currently selected timezone at the bottom of the calendar'),
 		'timezone_locator' => array('heading' => 'Timezone Locator', 'tip' => 'Locate the timezone selector either above or below the calendar.'),
-		'label' => array('heading' => 'Timezone Label', 'tip' => 'For example, Choose Your Timezone to see the meetings in tyour local time.'),
+		'label' => array('heading' => 'Timezone Label', 'tip' => 'For example, Choose Your Timezone to see the meetings in your local time.'),
 		'timezone' => array('heading' => 'Timezone', 'tip' => 'For example, Europe/London'),
 		'iframe' => array('heading' => 'Google Calendar Iframe', 'tip' => 'Paste the embed code for your Google Calendar.'),
-
 	);
 	
 	function init() {
@@ -39,11 +38,10 @@ class Genesis_Club_Calendar_Admin extends Genesis_Club_Admin {
 	}  
 
 	function load_page() {
- 		$message = isset($_POST['options_update']) ? $this->save_calendar() : '';	
-		$callback_params = array ('options' => Genesis_Club_Calendar::get_options(), 'message' => $message);
-		$this->add_meta_box('intro', 'Intro', 'intro_panel',  $callback_params);
-		$this->add_meta_box('menu', 'Google Calendar Defaults', 'calendar_panel', $callback_params);
-		$this->add_meta_box('news', 'Genesis Club News', 'news_panel',$callback_params, 'advanced');
+ 		if ( isset($_POST['options_update']) ) $this->save_calendar();	
+		$this->add_meta_box('intro', 'Intro', 'intro_panel' );
+		$this->add_meta_box('menu', 'Google Calendar Defaults', 'calendar_panel', array ('options' => Genesis_Club_Calendar::get_options()) );
+		$this->add_meta_box('news', 'Genesis Club News', 'news_panel', null, 'advanced');
 		$this->set_tooltips($this->tips);
 		add_action('admin_enqueue_scripts',array($this, 'enqueue_admin_styles'));
 		add_action('admin_enqueue_scripts',array($this, 'enqueue_metabox_scripts'));
@@ -164,14 +162,12 @@ class Genesis_Club_Calendar_Admin extends Genesis_Club_Admin {
   }  
 
  	function intro_panel($post,$metabox){	
-		$message = $metabox['args']['message'];	 	
 		print <<< INTRO_PANEL
 <p>The following section allows you to set up a Google Calendar which shows your events in your visitor's timezone.
 This is particularly useful if you are delivering webinars to a global audience.</p>
 <p>You add the calendar to the page by using the shortcode [<i>genesis_club_calendar</i>].</p>
 <p>If you are operating more than one Google calendar, then you will need to pass parameters to the shortcode to specify which Google Calendar to use, height, width, text color, background color, etc.</p>
 <p>Please see <a target="_blank" href="http://www.genesisclubpro.com/9393/how-to-display-more-than-one-google-calendar/">How To Display More Than One Google Calendar</a></p> 
-{$message}
 INTRO_PANEL;
 	}
   

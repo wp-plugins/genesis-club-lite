@@ -13,6 +13,10 @@
     display: block;
 }
 
+.diy-fieldset.subsets ul li, .diy-fieldset.effects ul li {
+   display: block;
+}
+
 .diy-fieldset.subsets ul, .diy-fieldset.effects ul{
     column-count: 5;
     -webkit-column-count: 5; /* Chrome, Safari, Opera */

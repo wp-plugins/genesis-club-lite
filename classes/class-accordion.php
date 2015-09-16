@@ -96,22 +96,13 @@ class Genesis_Club_Accordion {
     }
 
 	private static function get_current_archive_accordion() {
-		if (is_tax() || is_category() || is_tag()) 
-			if (is_category())
-				$term = get_term_by('slug',get_query_var('category_name'),'category') ;
-			elseif (is_tag())
-				$term = get_term_by('slug', get_query_var('tag'),'post_tag') ;
-			else
-				$term = get_term_by('slug', get_query_var('term'), get_query_var('taxonomy')) ;						
-		else 
-			$term = false;
-		
+		$term = Genesis_Club_Utils::get_current_term();
 		return $term ? self::get_accordion('terms', $term->term_id) : false;
 	}
 
 	public static function maybe_filter_archive( $query ) {
-
 	    if ($query->is_archive 
+	    && $query->is_main_query()
 	    && ($accordion = self::get_current_archive_accordion())
 	    && $accordion['enabled']
 	    && array_key_exists('nopaging', $accordion)
