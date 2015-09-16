@@ -6,6 +6,7 @@ body, body.login {margin:0 auto 0 auto; border-top-width: 0px;
 
 #logo { background-repeat: no-repeat; 
   background-image: url(images/login-logo.png); 
+  background-position: center bottom; 
   background-size:200px auto;
 }
 

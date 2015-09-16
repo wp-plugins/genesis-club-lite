@@ -21,8 +21,7 @@ class Genesis_Club_Post_Admin extends Genesis_Club_Admin
 	function load_page() {}
 	
 	function do_meta_boxes( $post_type, $context) {
-		$post_types=get_post_types();
-		if ( in_array($post_type, $post_types ) && ('advanced' === $context )) {
+		if ($this->is_metabox_active($post_type, $context)) {
          add_filter( 'genesis_club_post_settings', array($this, 'add_post_panel'), 10, 2);	//add to plugin metabox		    	
 		}
 	}

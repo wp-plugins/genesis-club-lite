@@ -2,12 +2,13 @@
 class Genesis_Club_Accordion_Admin extends Genesis_Club_Admin {
 	protected $tips = array(
 		'accordion_enabled' => array('heading' => 'Accordion Enabled', 'tip' => 'Click to enable the accordion on this page'),
-		'accordion_header_class' => array('heading' => 'Override Header Style', 'tip' => 'Enter a custom class if you want to override the accordion header styling.'),
-		'accordion_content_class' => array('heading' => 'Override Content Style', 'tip' => 'Enter a custom class if you want to override the accordion content styling'),
-		'accordion_container_class' => array('heading' => 'Override Container Style', 'tip' => 'Enter a custom class if you want to override the accordion container styling'),
+		'accordion_header_class' => array('heading' => 'Header Class', 'tip' => 'Enter a custom class if you want to override the accordion header styling.'),
+		'accordion_content_class' => array('heading' => 'Content Class', 'tip' => 'Enter a custom class if you want to override the accordion content styling'),
+		'accordion_container_class' => array('heading' => 'Container Class', 'tip' => 'Enter a custom class if you want to override the accordion container styling'),
 		'accordion_nopaging' => array('heading' => 'No Paging', 'tip' => 'Click to checkbox to disable paging and hence show all the FAQ posts in the accordion'),
-		'accordion_scroll_top' => array('heading' => 'Scroll To Top', 'tip' => 'Click to checkbox to make the accordion scroll to the top of the page - this is useful when you have long answers to short questions.'),
 		'accordion_open_first' => array('heading' => 'Open First Entry', 'tip' => 'Open the first entry in the accordion automatically on loading.'),
+		'accordion_scroll_top' => array('heading' => 'Scroll To Top', 'tip' => 'Click to checkbox to make the accordion scroll to the top of the page - this is useful when you have long answers to short questions.'),
+		'accordion_header_depth' => array('heading' => 'Header Depth', 'tip' => 'If you have a fixed header then supply its height and also set the scrolling option.'),
 		);
 	
 	function init() {		
@@ -46,13 +47,15 @@ class Genesis_Club_Accordion_Admin extends Genesis_Club_Admin {
 	}
 
 	function load_archive_page() {
+      if (isset($_GET['post_type'])
+      && Genesis_Club_Plugin::is_post_type_enabled($_GET['post_type'])) {
 		add_filter( 'genesis_club_archive_settings', array($this, 'add_archive_panel'), 10, 3 );	
 		$this->set_tooltips($this->tips);
 	}
+	}
 	
 	function do_meta_boxes( $post_type, $context) {
-		$post_types=get_post_types();
-		if ( in_array($post_type, $post_types ) && ('advanced' === $context )) {
+	  if ($this->is_metabox_active($post_type, $context)) {
 		    add_filter( 'genesis_club_post_settings', array($this, 'add_post_panel'), 10, 2);	//add to plugin metabox
 		}
 	}
@@ -131,7 +134,7 @@ EXAMPLE;
 	}
 
 	function add_post_panel($content, $post) {
-		return $content + array ('Accordion' => $this->accordion_section(Genesis_Club_Accordion::get_accordion('posts', $post->ID), false)) + $content ;
+		return $content + array ('Accordion' => $this->accordion_section(Genesis_Club_Accordion::get_accordion('posts', $post->ID), false)) ;
    }	
 
 	function add_archive_panel($content, $term, $tt_id) {
@@ -139,7 +142,7 @@ EXAMPLE;
 	}	
 
 	private function accordion_section($accordion, $is_archive){
-		$defaults = array('enabled' => '', 'header_class' => '', 'content_class' => '', 'container_class' => '', 'scroll_top' => false, 'open_first' => false, 'nopaging' => false);
+		$defaults = array('enabled' => '', 'header_class' => '', 'content_class' => '', 'container_class' => '', 'header_depth' => false, 'scroll_top' => false, 'open_first' => false, 'nopaging' => false);
 		$accordion = is_array($accordion) ?  shortcode_atts($defaults,$accordion) : $defaults;
 		if ($is_archive) {  //use table on archive pages
 			$start_wrap = '<table class="form-table">';
@@ -160,7 +163,7 @@ EXAMPLE;
 		}
 		$s .= $this->accordion_form_field('open_first', $accordion['open_first'], 'checkbox', array(), $wrap);
 		$s .= $this->accordion_form_field('scroll_top', $accordion['scroll_top'], 'checkbox', array(), $wrap);
-
+		$s .= $this->accordion_form_field('header_depth', $accordion['header_depth'], 'text', array('size' => 3, 'suffix' => 'px'), $wrap);
 		return $start_wrap . $s . $end_wrap;
 	}
 

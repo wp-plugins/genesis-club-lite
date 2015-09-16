@@ -3,8 +3,8 @@ Contributors: powerblogservice
 Donate link: http://www.diywebmastery.com/donate/
 Tags: genesis, signature 
 Requires at least: 3.1.0
-Tested up to: 4.3
-Stable tag: 1.12
+Tested up to: 4.3.1
+Stable tag: 1.15
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -14,13 +14,18 @@ Mobile Responsive Logos, Hamburger Menus, Animated Top Bars, FAQ Accordions, Use
 
 IMPORTANT: This plugin can ONLY be used with Genesis Child Themes
 
-WHAT'S NEW:  Migrating Yoast 301 redirects - see http://www.genesisclubpro.com/9680/where-have-the-301-redirects-gone/
+WHAT'S NEW:   Archive Specific Post Info/Meta - see http://www.genesisclubpro.com/9720/how-to-set-up-archive-specific-post-info-and-post-meta/
 
 SUPPORT: For priority support and bonus features try http://www.genesisclubpro.com
 
 FEATURES:
 
 Genesis Club Lite is organized into separate modules so you can just load the modules you need.
+
+DASHBOARD MODULE:
+
+* Switch on only the modules you need - there is no bloat in this plugin
+* Enable the plugin selectively for any custom post types you have defined
 
 DISPLAY MODULE:
 
@@ -42,6 +47,8 @@ DISPLAY MODULE:
 * Use the Genesis Club Hider to hide features on selected pages or posts: e.g the page title, the top bar, an author signature, or to exclude the page from the site search. For example, you may want to not have landing pages, "thank you" pages and any download pages appear on a site search.
 * Specify title, image and description to use on Facebook when promoting your category/tag archive pages (requires WordPress SEO plugin by Yoast)
 * Specify an except image to use for all posts on your archive images (if you require a consistent look)
+* Control the sort order of your archive pages
+* Control the post info and post meta on your archive pages 
 
 MENU MODULE:
 
@@ -83,7 +90,7 @@ ICONS MODULE:
 
 POST WIDGETS MODULE:
 
-* Genesis Club Post Images widget displays a  gallery of attached images sidebar widget with optional lightbox for showing random selection of photos where you have many photos attached to a post. 
+* Genesis Club Post Images Widget displays a  gallery of attached images sidebar widget with optional lightbox for showing random selection of photos where you have many photos attached to a post. 
 * Genesis Club Posts Widget allows you to display post titles, featurd images and exceprts, targeting just the posts you want with its powerful selection by post type, taxonomy, with individual post inclusion and exclusions
 * Genesis Club Post Specific Widget allows you to add widget content in the Post Editor for a widget that is only displayed on that page. The widget can be placed immediately above or below the post content or in the sidebar (or in fact in any widget area)
 
@@ -121,30 +128,31 @@ SEO MODULE:
 
 == Changelog ==
 
+= 1.15 =
+* Can set up postinfo and postmeta individually for each  archive 
+* Can control whether plugin operates on custom post type pages
+* Fix bug where post settings were not displayed if the Display module was disabled
+* Can disable emoji scripts
+
+= 1.14 =
+* Fixed issue with cookie not remembering Genesis Club Calendar timezone preferences
+* Removed empty message box on a custom WordPress login page (this was an issue as the empty box has a border)
+* Improved positioning of logo so it is closer to the login box on a custom WordPress login page
+
+= 1.13 =
+* Replaced deprecated Facebook LikeBox with Facebook Page Social Plugin
+
 = 1.12 =
 * Tested with WordPress 4.3
 * Minor tweaks to improve behavior of admin of smaller devices
 * Improved postinfo and postmeta overrides to use filters rather than actions
-
-= 1.11 =
-* Added option to load Font Awesome
-
-= 1.10 =
-* Added option to FAQ Accordion to open first entry automatically
-
-= 1.9 =
-* Add support for 301 Redirects imported from Yoast
-* Add migration feature to move SEO settings from Genesis to Yoast or from Yoast to Genesis
-* Make the feature to scroll the FAQ accordion to the top of the page optional
-* Make all admin notices dismissible
 
 For full plugin history please see http://www.diywebmastery.com/plugins/genesis-club-lite/changelog
 
 
 == Upgrade Notice ==
 
-= 1.12 = Optional - Updated for WordPress 4.3
-
+= 1.15 = IMPORTANT - if you are using the plugin on custom post type pages you will need to enable each post type explicitly on the Custom Post Types tab on the Genesis Club Lite Dashboard
 
 == Links ==
 

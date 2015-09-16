@@ -9,7 +9,8 @@
 			container_class : 'accordion-default-colors',
 			header : 'h3',
 			scroll_top : false,
-			open_first : false
+			open_first : false,
+			header_depth : 0
 	    	}, options);
 	    
     	return this.each(function() { 
@@ -29,7 +30,7 @@
 				} else {
 					if (settings.scroll_top)
             			ele.find('.accordion-header.accordion-selected').removeClass('accordion-selected').next().slideUp( 'slow','linear',
-               				function(){ $('html, body').animate({ scrollTop: header.offset().top }, 500); });
+               			function(){ $('html,body').animate({ scrollTop: header.offset().top - settings.header_depth }, 500); });
                		else	
             			ele.find('.accordion-header.accordion-selected').removeClass('accordion-selected').next().slideUp( 'slow','linear');
 							header.addClass('accordion-selected').next().slideDown('slow');

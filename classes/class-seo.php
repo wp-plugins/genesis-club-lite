@@ -19,13 +19,14 @@ class Genesis_Club_Seo {
 	}	
 
 	public static function maybe_redirect() {
-		if (is_singular()
-		&& ($post_id = Genesis_Club_Utils::get_post_id())
+		if (is_singular()) {
+         if (($post_id = Genesis_Club_Utils::get_post_id())
 		&& ($redirect = Genesis_Club_Options::validate_options(self::redirect_defaults(), Genesis_Club_Utils::get_meta($post_id, self::REDIRECT_METAKEY)))
 		&& $redirect['url']) {
-         wp_redirect( $redirect['url'], $redirect['status'] );
+         	wp_redirect( $redirect['url'], $redirect['status'] );
 			exit;
 		}
+      }
 		return false;
 	}
 

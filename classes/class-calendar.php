@@ -104,8 +104,8 @@ class Genesis_Club_Calendar {
          $params['show_tabs'] ? 1: 0,
          $params['show_calendars'] ? 1: 0,
          $params['show_date'] ? 1: 0,
-	      $params['show_tz'] ? 1: 0,
-         urlencode($params['timezone'])
+	     $params['show_tz'] ? 1: 0,
+         urlencode($ctz)
          ) ;
 	}
 

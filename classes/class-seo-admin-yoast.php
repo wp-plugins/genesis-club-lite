@@ -206,7 +206,7 @@ INTRO_PANEL;
 			}
 			$updated = update_option($t,$to);
 		}
-  		return $updated ? 'Updated archive page SEO titles and descriptions, and headlines and introductions' : '';
+  		return $updated ? 'Updated archive page SEO titles, descriptions, headlines and introductions. ' : '';
 	}
 
 	private function copy_home_meta() {
@@ -220,7 +220,7 @@ INTRO_PANEL;
 			foreach ($keys as $k => $v) $to[$v] = $from[$k];
 			$updated = update_option($t,$to);
 		}
-  		return $updated ? 'Updated Home page SEO titles and descriptions' : '';
+  		return $updated ? 'Updated Home page SEO titles and descriptions. ' : '';
 	}
 
 	private function copy_user_meta() {
@@ -236,7 +236,7 @@ INTRO_PANEL;
 				$k, $v, $wpdb->prefix); 
 			if ( $wpdb->query($insert)) $updated = true;
 		}
-  		return $updated ? 'Updated author SEO titles and descriptions' : '';
+  		return $updated ? 'Updated author SEO titles and descriptions. ' : '';
 	}
 
 	private function copy_post_meta() {
@@ -252,7 +252,7 @@ INTRO_PANEL;
 				$k, $v, $wpdb->prefix); 
 			if ($wpdb->query($insert)) $updated = true;
 		}
-  		return $updated ? 'Updated post SEO titles and descriptions' : '';
+  		return $updated ? 'Updated post SEO titles and descriptions. ' : '';
 	}
 
 

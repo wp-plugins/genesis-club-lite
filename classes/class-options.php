@@ -6,8 +6,7 @@ class Genesis_Club_Options {
 				'calendar_disabled' => false, 'footer_disabled' => false, 'fonts_disabled' => false, 'icons_disabled' => false, 
 				'landing_disabled' => false, 'media_disabled' => false, 'menu_disabled' => false, 'post_disabled' => false, 
 				'seo_disabled' => false, 'signature_disabled' => false, 'slider_disabled' => false, 
-				'social_disabled' => false, 'api_disabled' => false,
-				'newsfeed' => array(GENESIS_CLUB_NEWS, DIYWEBMASTERY_NEWS)
+				'social_disabled' => false, 'api_disabled' => false, 'custom_post_types' => array(), 
 	); 		
 
     protected static $options = null;	
